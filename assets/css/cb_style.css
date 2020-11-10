@@ -1,0 +1,284 @@
+
+body {
+    position: relative;
+    overflow-x: hidden;
+    font-family: 'Baloo 2', cursive;
+}
+body,
+
+.nav .open > a,
+.nav .open > a:hover,
+.nav .open > a:focus {background-color: transparent;}
+
+/*-------------------------------*/
+/*           Wrappers            */
+/*-------------------------------*/
+
+#wrapper {
+    padding-left: 0;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#wrapper.toggled {
+    padding-left: 220px;
+}
+
+#sidebar-wrapper {
+    z-index: 1000;
+    left: 220px;
+    width: 0;
+    height: 100%;
+    margin-left: -220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #1a1a1a;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+#sidebar-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    width: 220px;
+}
+
+#page-content-wrapper {
+    width: 100%;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    position: absolute;
+    margin-right: -220px;
+}
+.card-title{
+    font-family: quicksandregular;
+    font-weight: bold;
+    opacity: 0.85;
+}
+.card-body p{
+    line-height: 1.8;
+    opacity: 0.85;
+}
+.card-body {
+    background-color: #F1F0F0;
+}
+h1 {
+    font-size: 28px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 1.5em 0 1em;
+}
+.card_style{
+    padding: 0;
+}
+
+/*form*/
+.formBox{
+    padding: 30px;
+}
+.formBox  h1{
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    font-size: 48px;
+}
+.inputBox{
+    position: relative;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+}
+.inputBox .inputText{
+    position: absolute;
+    font-size: 24px;
+    line-height: 50px;
+    transition: .5s;
+    opacity: .5;
+}
+.inputBox .input{
+    position: relative;
+    width: 100%;
+    height: 35px;
+    background: #ffffff;
+    /* border: none; */
+    outline: none;
+    font-size: 24px;
+    border: 1px solid rgba(0,0,0,.5);
+    padding: 5px 10px;
+
+}
+.focus .inputText{
+    transform: translateY(-30px);
+    font-size: 18px;
+    opacity: 1;
+    color: #00bcd4;
+
+}
+input {
+    box-shadow: 1px 1px 6px #ccc;
+    border-radius: 0px;
+    border: 0px !important;
+}
+textarea{
+    min-height: 100px !important;
+}
+.button{
+    width: 100%;
+    height: 50px;
+    border: none;
+    outline: none;
+    background: #03A9F4;
+    color: #fff;
+}
+
+/*add new button */
+.fs-it-btn {
+    margin-top: 10px;
+    border: 1px solid #a2a2a2;
+    border-radius: 0;
+    color: #fff;
+    font-weight: bold;
+}
+.fs-it-btn-vertical-line {
+    text-align:center;
+    padding: 4px 0 5px 10px;
+    margin-left: 10px;
+    border-left: 1px solid #a2a2a2;
+}
+.bg-blue {
+    background-color: #2c9deb;
+    margin: 20px 0px;
+}
+
+.bg-red {
+    background-color: #DD2D00;
+    margin: 20px 0px;
+}
+.bg-red:hover{
+	color:#ffffff;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+.reply_texts, .reply_filters{
+    display: block;
+    overflow: hidden;
+    background: rgba(245, 245, 255, 0.6);
+    padding-top: 15px;
+    margin: 10px 0px;
+}
+.saved_tags{
+    padding: 4px 8px;
+    background: #ebebeb;
+    float: left;
+    margin: 5px;
+    border-radius: 25px;
+    font-style: italic;
+    color: #333;
+	max-width:500px;
+}
+.saved_replys, .saved_reply_filters{
+    background: #fff;
+    padding: 15px 5px;
+    box-shadow: 1px 1px 6px #ccc;
+}
+.remove_reply, .remove_reply_filter{
+    background: gray;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 25px;
+}
+#new_reply,#new_reply_filter{
+    color:#ffffff;
+}
+.get-started-btn{
+    background-color: #38a2fd;
+    border-color: #319fff;
+    padding: 29px;
+    margin-bottom: 19px;
+    margin-top: 17px;
+}
+
+/**************NEW CSS START***************/
+
+.header_logo{
+    border-color: rgb(51, 51, 51);
+    border-style: none;
+    border-width: 0;
+    margin: 0 auto;
+    opacity: 1;
+    width: 480px;
+    max-width: 100%;
+    height: auto;
+    display: table;
+    padding: 30px 0;
+}
+
+#start_reply{
+    margin: auto;
+    display: table;
+    background-color: rgb(255, 170, 0);
+    text-align: center;
+    vertical-align: middle;
+    color: rgb(255, 255, 255);
+    box-shadow: rgba(0,0,0,0.2) 0px 3px 10px,rgba(0,0,0,0.2) 0px -2px 0px inset !important;
+    line-height: 1.3;
+    font-size: 30px;
+    padding: 16px 16px;
+    font-family: "Roboto",sans-serif;
+    font-weight: 600;
+    width: 400px;
+    border-radius: 5px;
+    margin-bottom: 30px;
+}
+
+.react-comment{
+    min-height:30px;
+    width:100%;
+    padding:10px;
+    font-size: 12pt;
+    font-weight:bold;
+}
+
+.react-comment option{
+    font-weight:bold;
+}
+
+.emoji{
+	height:30px;
+	float:right;
+	margin-bottom:10px;
+	cursor:pointer;
+	padding:0 10px;
+	width:100px;
+	border-radius:30px;
+}
+.emoji option{
+	font-size:18px;
+}
+
+
+.personalization{
+	height:30px;
+	float:right;
+	margin-bottom:10px;
+	cursor:pointer;
+	padding:0 10px;
+	width:150px;
+	margin-right:10px;
+	border-radius:30px;
+}
+.personalization option{
+	font-size:18px;
+}
+/**************NEW CSS ENDED***************/

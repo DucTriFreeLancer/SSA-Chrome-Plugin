@@ -1,0 +1,807 @@
+<html>
+    <head>
+        <title>Social Sales Accelerator</title>
+        <meta charset="utf-8">		
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		<link rel="stylesheet" href="assets/css/font-awesome.min.css">
+		<link rel="stylesheet" href="assets/css/baloo_font.css">
+		<link href="dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+		<link href="dist/css/bootstrap-colorpicker-plus.css" rel="stylesheet">
+		<link rel="stylesheet" href="assets/css/style.css">
+		<link rel="stylesheet" href="assets/css/toastr.min.css">
+    </head>
+    <body>
+    	<div class="screens" id="login_screen">
+			<div class="row header">
+				<div class="col-12 p-0">
+					<div class="row">
+						<img class="mx-auto" src="assets/images/welcome.png" />
+					</div>
+				</div>
+			</div>
+			<div class="row mt-4">
+				<div class="col-6 mx-auto">
+					<form name="login_screen_form" id="login_screen_form">
+					  <div class="form-group ">
+					    <label for="email">Email address</label>
+					    <input type="text" class="form-control" id="user_email" name="user_email" placeholder="Enter email">
+					  </div>
+					  <div class="form-group">
+					    <label for="password">Password</label>
+					    <input type="password" class="form-control" id="user_password" name="user_password" placeholder="Password">
+					  </div>
+					  <button type="submit" id="popup_login" class="btn btn-primary action-button">
+						Login<i class="fa fa-sign-in space"></i>
+					  </button>
+					</form>
+				</div>
+			</div>
+			<div class="row mt-4">
+				<div class="col-12">
+					<ul class="nav justify-content-center">
+					    <li class="nav-item">
+						  <a class="nav-link forgot_password" id="forgot-pass-link" href="#">Forgot your Password ?</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link forgot_password" href="https://members.socialsalesaccelerator.app/signup" target="_blank"> New User</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link support"  target="_blank" href="https://members.socialsalesaccelerator.app/help">Help</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+<!---->
+		<div class="screens" id="forgot_password_screen">
+			<div class="row header">
+				<div class="col-12 p-0">
+					<div class="row">
+						<img class="mx-auto" src="assets/images/welcome.png" />
+					</div>
+				</div>
+			</div>
+			<div class="row mt-4">
+				<div class="col-6 mx-auto">
+					<form id="forgot_password_form">
+					  <div class="form-group ">
+					    <label for="email">Please enter email to reset password</label>
+					    <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+					  </div>
+					  <button type="submit" id="popup_reset_password" class="btn btn-primary action-button">
+					  	Reset Password
+					  	<i class="fa fa-key space"></i>
+					  </button>
+					</form>
+				</div>
+			</div>
+			<div class="row mt-4">
+				<div class="col-12">
+					<ul class="nav justify-content-center">
+					    <li class="nav-item">
+						  <a class="nav-link goto-login" href="#">Login</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link new_user" href="https://members.socialsalesaccelerator.app" target="_blank"> New User</a>
+						</li>
+						<li class="nav-item">
+						  <a class="nav-link support"  target="_blank" href="https://members.socialsalesaccelerator.app/help">Help</a>
+						</li>
+					</ul>
+				</div>
+			</div>			
+		</div>
+<!---->
+		<div class="screens" id="fb_messenger_login_dasboard">
+			<div class="row header mx-auto">
+				<div class="col-10 p-0">
+					<img src="assets/images/welcome.png" />
+				</div>
+				<div class="col-1 p-0 float-right mx-auto my-auto">
+					<button class="btn btn-primary action-button logout" id="logout">
+						Logout
+						<i class="fa fa-sign-out space"></i>
+					</button>
+				</div>
+			</div>
+			<div class="row mt-4">
+				<div class="col-6 mx-auto">
+				 	<div class="messenger">
+				 	<label for="fb_login">Not in Messenger page?</label><br />
+					<a id="messenger" href="https://www.messenger.com/" target="_blank">
+						<button type="button" class="btn btn-primary action-button">
+							Go to Messenger
+							<i class="fa fa-envelope space"></i>
+						</button>
+						<br /><br />
+					</a>
+					</div>
+					<div class="facebook">
+						<label for="fb_login">Not logged in?</label><br />
+						<a id="fb_login" href="https://www.facebook.com/login" target="_blank">
+							<button type="button" class="btn btn-primary action-button" class="facebook">
+								Login to Facebook
+								<i class="fa fa-sign-in space"></i>
+						</button>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+<!---->
+		<div id="linked_accounts_screen" class="screens"><br>
+			<div class="row header mx-auto">
+				<div class="col-10 p-0">
+					<img src="assets/images/welcome.png" />
+				</div>
+				<div class="col-2 p-0 float-right mx-auto my-auto">
+					<button class="btn btn-primary action-button logout" id="logout">
+						Logout
+						<i class="fa fa-sign-out space"></i>
+					</button>
+				</div>
+			</div>
+			<div class="row mt-4">
+				<div class="col-6 mx-auto">
+					<form>
+					  <button type="button" id="account_integrate" class="btn btn-primary action-button">
+					  	Integrate current account
+					  	<i class="space fa fa-object-group space"></i>
+					  </button><br /><br />							  
+					  <button type="button" id="account_upgrade" class="btn btn-primary action-button">
+					  	Upgrade to enable integration
+					  	<i class="fa fa-shopping-cart space"></i>
+					  </button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="screens" id="all_tabs">
+			<input type="hidden" name="fb_user_id" id="thread_id" value="">
+			<input type="hidden" name="user_id" class="userId" value="">
+			<div class="row mt-2">
+				<div class="col-2 mx-auto my-auto">
+					<img src="assets/images/64.png" />
+				</div>
+				<div class="col-8 mx-auto my-auto">
+					<span class="header-title">
+						Social 
+						<span class="header-title-sales">
+							$ales 
+						</span>
+						Accelerator
+					</span>
+				</div>
+				<div class="col-2 my-auto float-right">
+					<div class="row mt-2">
+						<a class="dropdown-toggle" href="#" id="profile" data-toggle="dropdown">
+							<img class="mr-3 profile-image" src="assets/images/64.png" width = "40" height = "40"/>
+						</a>
+						<div class="dropdown-menu">
+							<a class="dropdown-item logout" id="logout" >
+								<i class="fa fa-sign-out space"></i>
+								Logout
+							</a>
+						</div>
+					</div>	
+				</div>
+			</div>
+			<div class="row h-75 w-100 mx-auto my-auto p-1">
+				<div class="col-12 ">
+					<ul class="nav nav-tabs" role="tablist">
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs active" data-toggle="tab" href="#home"><i class="fa fa-home"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#tags"><i class="fa fa-tag"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#send_messages"><i class="fa fa-comments"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friend_messages"><i class="fa fa-users"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link" data-toggle="tab" href="#teams"><i class="fa fa-sitemap"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link" data-toggle="tab" href="#export"><i class="fa fa-download"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link" data-toggle="tab" href="#reminders"><i class="fa fa-calendar"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link" data-toggle="tab" href="#linked_accounts">
+								<i class="fa fa-link"></i>
+							</a>
+						</li>
+					</ul>
+				</div>				
+				<div class="tab-content p-2">
+					<div id="home" class="container tab-pane w-100 mx-auto  p-2 active">
+						<div class="row h-100">
+							<div class="col-4 left-pane">
+								<h5 class="p-2">Templates
+									<button type="button" class="float-right btn btn-primary add-button add_new_template">
+										<i class="fa fa-plus"></i>
+									</button>
+								</h5>
+								<div class="row template new_template_sec">
+									<div class="input-group w-75">
+										<input type="text" class="form-control" placeholder="Search templates.." id="search_template">
+										<i class="fa fa-search text-icon p-2" title="Search"></i>
+									</div>
+									<div class="row h-100 w-100 mx-auto my-auto" id="templates_loader">
+										<div class="spinner-border mx-auto loading-wheel" role="status">
+											<span class="sr-only">Loading...</span>
+										</div>
+									</div>									
+									<div class="container template-list scroll-vertical" id="template-list">
+										<div class="row new_template templates template_sec" id="template-listing">
+											<div class="">
+										</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-8 right-pane">
+								<h5 class="p-1">Messages
+									<button type="button" class="float-right btn btn-primary add-button add_message">
+										<i class="fa fa-plus"></i>
+									</button>
+								</h5>
+								<div class="row message new_message_sec">
+									<div class="pl-2 input-group w-75">
+										<input type="text" class="form-control" placeholder="Search messages.." id="search_message">
+										<i class="fa fa-search text-icon p-2" title="Search"></i>
+									</div>
+									<div class="row h-100 w-100 mx-auto my-auto" id="messages_loader">
+										<div class="spinner-border mx-auto loading-wheel" role="status">
+											<span class="sr-only">Loading...</span>
+										</div>
+									</div>									
+									<div class="container message-list pt-1 scroll-vertical">
+										<div class="row h-100 new_message messages message_sec" id="message-listing">
+											<div class="">
+										</div>
+										</div>
+									</div>
+								</div>								
+							</div>
+						</div>					
+					</div>
+	<!----- -->
+					<div id="tags" class="container tab-pane w-100 mx-auto p-2">
+						<div class="row h-100">
+							<div class="col-5 left-pane">
+								<h5 class="p-2">Tags
+									<button type="button" class="float-right btn btn-primary add-button add_new_tag">
+										<i class="fa fa-plus"></i>
+									</button>
+								</h5>
+								<div class="row tag new_tag_sec">
+									<div class="col-1"></div>
+									<div class="input-group w-75">
+										<input type="text" class="form-control" placeholder="Search tags.." id="search_tag">
+										<i class="fa fa-search text-icon p-2" title="Search"></i>
+									</div>
+									<div class="w-75 pt-2 container scroll-vertical">
+										<div class="row new_tag tags tag_sec" id="show-tags">
+											<div class="">
+										</div>
+										</div>
+									</div>
+									<div class="row h-100 w-100 mx-auto my-auto hide-element" id="tags_loader">
+										<div class="spinner-border mx-auto loading-wheel" role="status">
+											<span class="sr-only">Loading...</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-7 right-pane">
+								<h5 class="p-2">Contacts
+									<!--<button type="button" class="float-right btn btn-primary add-button add_contact">
+										<i class="fa fa-plus"></i>
+									</button>-->
+								</h5>
+								<div class="row contact new_contact_sec">	
+									<div class="col-1"></div>
+									<div class="input-group w-75">
+										<input type="text" class="form-control" placeholder="Search contacts.." id="search_contact">
+										<i class="fa fa-search text-icon p-2" title="Search"></i>
+									</div>
+									<div class="container tag-user-list pl-5 pt-1 scroll-vertical">
+										<div class="row h-100 new_contact contacts contact_sec scroll" id="contact-listing">
+											<div class="">
+										</div>
+										</div>
+									</div>
+									<div class="row h-100 w-100 mx-auto my-auto hide-element" id="contacts_loader">
+										<div class="spinner-border mx-auto loading-wheel" role="status">
+											<span class="sr-only">Loading...</span>
+										</div>
+									</div>
+								</div>								
+							</div>
+						</div>
+					</div>
+					<div id="send_messages" class="container tab-pane w-100 mx-auto fade p-2">
+						<div class="row h-100">
+							<div class="col-4 left-pane">
+								<h5>Bulk Messages</h5>
+								<br />			
+								<div class="p-1 bulk-tags-list">
+
+								</div>								
+							</div>
+							<div class="col-8 right-pane">
+								<h5>Settings</h5>
+								Variables to use : [first_name] [last_name]
+								<textarea id="textarea" class="message-textarea bulk-messge-text"
+								 placeholder="Enter message.." rows="3"></textarea><br /><br />
+								<label for="delay">Send every
+									<select class="form-control wd-10" id="bulk-delay">
+										<option value="30000">30 Seconds</option>
+										<option value="60000">1 Mintue</option>
+										<option value="300000">5 Mintues</option>
+										<option value="600000">10 Mintues</option>
+										<option value="900000">15 Mintues</option>
+									</select>
+								</label>
+								<br />
+								<label for="limit">Message Limit
+									<select class="form-control wd-10" id="bulk-send-limit">
+										<option value="10">10</option>
+										<option value="20">20</option>
+										<option value="50">50</option>
+									</select>
+								</label>
+								<br /><br />
+								<span class="badge badge-secondary add-button p-2" id="startbulk">
+								Send message to selected<i class="fa fa-send space"></i>
+								</span><br /><br />
+								<span class="badge badge-secondary add-button p-2" id="resumebulk">
+								Continue<i class="space fa fa-play"></i>
+								</span>
+								<span class="badge badge-secondary add-button p-2" id="pausebulk">
+								Pause<i class="space fa fa-pause"></i>
+								</span>
+								<span class="badge badge-secondary add-button p-2" id="stopbulk">
+								Stop<i class="space fa fa-stop"></i>
+								</span>
+								<br /><br />
+								<div class="bulk-process-status">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="friend_messages" class="container tab-pane w-100 mx-auto fade p-2">
+						<div class="row">
+							<div class="col-4 left-pane">
+								<h5>Send Messages to Friends</h5>
+								<br />
+								<div class="card bg-light message-card friend-message-option" type="pre_accept">
+									<div class="card-body text-center">
+										<p class="card-text">
+										Respond to friend request
+										</p>
+									</div>
+								</div>
+								<br />								
+								<div class="card bg-light message-card friend-message-option" type="post_accept">
+									<div class="card-body text-center">
+										<p class="card-text">
+										On friend request acceptance
+										</p>
+									</div>
+								</div>
+							</div>
+<div class="col-8 right-pane">
+	<div id="pre_accept_content" class="hide-element">
+		<div class="form-check-inline">
+			<label class="form-check-label">
+				<input type="checkbox" id="outgoing-message-status" class="form-check-input hide-element" value="">Send message when someone sends you a friend request
+			</label>
+		</div>
+		<div class="form-check-inline hide-element">
+		  <label class="form-check-label">
+			<input type="checkbox" id="outgoing-random-status" class="form-check-input" value="">Randomize messages
+		  </label>
+		</div>
+		<div class="container randomize-container-request-outgoing p-0">
+			<label for="message" class="mb-2 msg-label">Message</label>
+			<div class="row tabbed request-message-text-row">
+			    <div class="col-10 p-2">
+					<div class="form-group">
+						Variables to use : [first_name] [last_name]
+						<textarea class="p-2 form-control request-messge-text" rows="10" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
+
+Thank you so much for sending me a friend request.
+						</textarea>
+					</div> 
+				</div>
+			</div>
+			<div class="row p-2">
+				<div class="col-1">
+					<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
+				</div>
+				<div class="col-1">
+					<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<div id="post_accept_content" class="hide-element">
+	<div class="form-check-inline">
+	  <label class="form-check-label">
+		<input type="checkbox" id="comming-message-status" class="form-check-input hide-element" value="">Send message when you accept a friend request
+	  </label>
+	</div>
+	<div class="form-check-inline" style="display: none;">
+	  <label class="form-check-label">
+		<input type="checkbox" id="comming-random-status" class="form-check-input hide-element" value="">Randomize messages
+	  </label>
+	</div>
+	<div class="row time mt-2" style="display:none;">
+	    <div class="col-8 p-0">
+		    <div class="row">
+				<div class="col-5 mt-2 p-0 " ><h5>Check request after every (Minutes)</h5></div>
+				<div class="col-7 mb-3">
+					<input class="form-control p-1 post request_message_interval" type="Number" min="5" value="5" name="request_message_interval">
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container randomize-container-request-comming p-0">
+		<label for="message" class="mb-2 msg-label">Message</label>
+		<div class="row tabbed request-message-text-row">
+		    <div class="col-10 p-2">
+				<div class="form-group">
+					Variables to use : [first_name] [last_name]
+					<textarea class="p-2 form-control request-messge-text" rows="10" id="message-four" placeholder="Enter Message">Hey [first_name] [last_name]
+
+I have accepted your friend request.</textarea>
+				</div> 
+			</div>
+		</div>
+		<div class="row p-2">
+			<div class="col-1">
+				<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
+			</div>
+			<div class="col-1">
+				<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
+			</div>
+		</div>
+	</div>   
+</div>
+	</div>
+</div>
+
+					</div>	
+					<div id="teams" class="container tab-pane w-100 mx-auto p-2">
+						<div class="row h-100">
+							<div class="col-5 left-pane">
+								<h5 class="p-2">Teams
+									<button type="button" class="float-right btn btn-primary add-button add_new_team">
+										<i class="fa fa-plus"></i>
+									</button>
+								</h5>
+								<div class="row team new_team_sec">
+									<div class="input-group w-75">
+										<input type="text" class="form-control" placeholder="Search teams.." id="search_team">
+										<i class="fa fa-search text-icon p-2" title="Search"></i>
+									</div>
+									<div class="row h-100 w-100 mx-auto my-auto hide-element" id="teams_loader">
+										<div class="spinner-border mx-auto loading-wheel" role="status">
+											<span class="sr-only">Loading...</span>
+										</div>
+									</div>
+									<div class="container team-list scroll-vertical" id="team-list">
+										<div class="row new_team teams team_sec" id="team-listing">
+											<div class="">
+										</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-7 right-pane">
+								<h5 class="p-2">Team members</h5>
+								<div class="row team_member new_team_member_sec">	
+									<div class="input-group w-75 pl-1">
+										<input type="text" class="form-control" placeholder="Search team members.." id="search_team_member">
+										<i class="fa fa-search text-icon p-2" title="Search"></i>
+									</div>
+									<div class="row h-100 w-100 mx-auto my-auto hide-element" id="team_members_loader">
+										<div class="spinner-border mx-auto loading-wheel" role="status">
+											<span class="sr-only">Loading...</span>
+										</div>
+									</div>
+									<div class="container team-members-list pl-2 pt-1 scroll-vertical">
+										<div class="row h-100 new_team_member team_members team_member_sec scroll" id="team_member_listing">
+											<div class="">
+										</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="export" class="container tab-pane w-100 mx-auto fade p-2">
+						<div class="col-5 left-pane">
+							<div class="col-10 pd-5">
+								<h5>Export Contacts</h5>
+							</div>
+							<div class="p-3">
+								<div class="p-1 export-tags-list">
+								</div>
+								<div class="mt-1">
+									<form id="export-form" action="#">
+										<input type="hidden" name="" id="export_user_id">
+										<button type="button" class="btn btn-primary action-button export-contacts">
+										Export
+											<i class="fa fa-download space"></i>
+										</button>
+									</form>
+								</div>
+							</div>							
+						</div>
+						<div class="col-7 right-pane">
+							<div id="export_result" class=""></div>
+						</div>
+					</div>
+					<div id="reminders" class="container tab-pane w-100 mx-auto fade">
+						<div class="row h-100">
+							<div class="col-12">
+								<h5>Reminders
+									<span class="space badge badge-secondary add-button p-2 add_reminder float-right">
+										<i class="fa fa-plus"></i>
+									</span>
+								</h5>
+								<div class="row h-100 w-100 mx-auto my-auto hide-element" id="reminder_loader">
+									<div class="spinner-border mx-auto loading-wheel" role="status">
+										<span class="sr-only">Loading...</span>
+									</div>
+								</div>
+								<div id="reminders_list"></div>
+							</div>
+						</div>
+					</div>	
+					<div id="linked_accounts" class="container tab-pane w-100 mx-auto fade">
+						<div class="row mt-2">
+							<div class="col-12 mx-auto">
+								<div class="row pb-2" id="existing_linked_accounts"></div>
+							</div>
+						</div>
+					</div>
+				</div>		
+			</div>
+		</div>	
+		<div class="row h-100 align-items-center screens" id="loading_wheel">
+			<div class="spinner-border mx-auto loading-wheel" role="status">
+				<span class="sr-only">Loading...</span>
+			</div>
+		</div>
+		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="deleteTemplateModal">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLabel">Delete Template</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+			Confirm delete?
+			</div>
+			<div class="col-4 mx-auto">
+			<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+			<i class="fa fa-close"></i>
+			</button>
+			<button type="button" class="btn btn-primary action-button modal-confirm-delete" id="confirm-template-delete">
+			<i class="fa fa-trash"></i>
+			</button>
+			</div>
+			<div class="row m-4"></div>
+			</div>
+			</div>
+		</div>
+		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="deleteTeamModal">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLabel">Delete Team</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+			Confirm delete?
+			</div>
+			<div class="col-4 mx-auto">
+			<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+			<i class="fa fa-close"></i>
+			</button>
+			<button type="button" class="btn btn-primary action-button modal-confirm-delete" id="confirm-team-delete">
+			<i class="fa fa-trash"></i>
+			</button>
+			</div>
+			<div class="row m-4"></div>
+			</div>
+			</div>
+		</div>
+		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="deleteMessageModal">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLabel">Delete Message</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+			Confirm delete?
+			</div>
+			<div class="col-4 mx-auto">
+			<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+			<i class="fa fa-close"></i>
+			</button>
+			<button type="button" class="btn btn-primary action-button modal-confirm-delete" id="confirm-message-delete">
+			<i class="fa fa-trash"></i>
+			</button>
+			</div>
+			<div class="row m-4"></div>
+			</div>
+			</div>
+		</div>
+		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="deleteTagModal">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLabel">Delete Tag</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+			Confirm delete?
+			</div>
+			<div class="col-4 mx-auto">
+			<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+			<i class="fa fa-close"></i>
+			</button>
+			<button type="button" class="btn btn-primary action-button modal-confirm-delete" id="confirm-tag-delete">
+			<i class="fa fa-trash"></i>
+			</button>
+			</div>
+			<div class="row m-4"></div>
+			</div>
+			</div>
+		</div>
+		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="notesModal">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+
+			<h5 class="modal-title" id="exampleModalLabel">Notes</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body scroll-vertical notes-modal">
+				<div id="notesModalBody">
+					</div>
+			</div>
+			<div class="mx-auto">
+			<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+			<i class="fa fa-close"></i>
+			</button>
+			</div>
+			<div class="row m-4"></div>
+			</div>
+			</div>
+		</div>		
+		<div class="modal" id="createMultiTagModal">
+			<div class="modal-dialog scroll-parent-element">
+			<form class="mb-0" id="multiTagForm">
+			<div class="modal-content createMultiTagModal">
+			<!-- Modal Header -->
+			<div class="modal-header">
+			<h4 class="modal-title"></h4>
+			<button type="button" class="close update-multi-tag-btn" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body pt-0">
+			<div class="form-group exportmsg"></div>
+			<div class="form-group">
+			<div class="col-12 p-0">
+			<div class="input-group mb-3 search-tag-by-name">
+			<input type="text" class="form-control" id="search-tag-by-name" placeholder="Search tag">
+			</div>
+			<div class="col-12 container custom-scroll li-tag-container scroll-element" style="height: 200px;">
+			</div>	
+			</div>			
+			</div>
+				  
+			</div>
+			</div>
+			</form>
+			</div>
+		</div>
+		<div class="modal" id="deleteReminderModal">
+			<div class="modal-dialog">
+			<div class="modal-content">
+			<div class="modal-body">
+			<p>Confirm delete reminder?</p>
+			</div>
+			<div class="modal-footer mx-auto">
+			<i class="fa fa-close text-icon cancel p-2" data-dismiss="modal"></i>
+			<i class="fa fa-trash text-icon delete-reminder-confirmation mr-4 p-2"></i>
+			</div>
+			</div>
+			</div>
+		</div>
+		<div class="modal" id="createReminderModal">
+			<div class="modal-dialog">
+			<div class="modal-content">
+			<div class="modal-body">
+			<form id="reminderForm">
+			<div class="form-group">
+			<label for="title">Title</label>
+			<input type="text" class="form-control" placeholder="Title of reminder" name="title" id="title">
+			<input type="hidden" id="new_edit" name="new_edit" value="0">
+			</div>
+			<div class="form-group">
+			<label for="title">Reminder</label>
+			<textarea type="text" class="form-control" rows="3" placeholder="content of reminder" id="content" name="content"></textarea>
+			</div>
+			<div class="form-row ">
+			<div class="col">
+			<div class="input-group date" id="datetimepicker2" data-target-input="nearest"  style="position: relative">
+			<input type="text" id="date" name="reminder_time" class="form-control datetimepicker-input" data-toggle="datetimepicker" data-target="#datetimepicker2"/>
+			<div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+			<div class="input-group-text"><i class="fa fa-calendar text-icon"></i></div>
+			</div>
+			</div>
+			</div>
+			</div>
+
+			</form>	
+			</div>
+			<div class="modal-footer mt-4 pt-4 pb-3 ">
+			<i class="fa fa-close text-icon cancel p-2" data-dismiss="modal"></i>
+			<i class="fa fa-save text-icon add_template mr-4 p-2" id="saveReminder"></i>
+			</div>
+			</div>
+			</div>
+		</div>
+		<div class="modal" id="unlinkFBAccountModal">
+			<div class="modal-dialog">
+			<div class="modal-content">
+			<div class="modal-body">
+			<p>Confirm unlink fb account?</p>
+			</div>
+			<div class="modal-footer mx-auto">
+			<i class="fa fa-close text-icon p-2" data-dismiss="modal"></i>
+			<i class="fa fa-check text-icon fb-unlink-conformation p-2" id="saveReminder"></i>
+			</div>
+			</div>
+			</div>
+		</div>
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/popper.min.js"></script>
+		<script src="assets/js/bootstrap.min.js"></script>
+		<script src="assets/js/jquery.validate.js"></script>
+		<script type="text/javascript" src="assets/js/moment.min.js"></script>
+		<script type="text/javascript" src="assets/js/datepicker.js"></script>
+		<script src="assets/js/toastr.min.js"></script>
+		<script src="dist/js/bootstrap-colorpicker.min.js"></script>
+		<script src="dist/js/bootstrap-colorpicker-plus.js"></script>
+		<script src="config.js"></script>
+		<script src="assets/js/custom.js"></script>	
+		<script src="background/authorize.js"></script>
+		<script src="assets/js/script.js"></script>
+		<!-- <script src="commentblaster/js/script.js"></script> -->
+    </body>
+</html>

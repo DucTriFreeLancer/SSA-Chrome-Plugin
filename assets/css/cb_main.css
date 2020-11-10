@@ -1,0 +1,231 @@
+.cf_message_ext {
+    margin-right: 10px;
+    color: white;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+            background: #4360B4;
+    border-radius: 3px;
+}
+
+.cf_message {
+    display: none;
+}
+
+
+
+.cf_emptyinput{
+    border-color:red;
+}
+
+.cf_info {
+        background: #4360B4;
+    border-radius: 3px;
+}
+
+.cf_userName {
+    /*color: black;*/
+}
+
+.cf_approve, .cf_approveAll, .cf_adding {
+    font-family: inherit;
+    letter-spacing: inherit;
+    display: inline-block;
+    margin: 0 !important;
+    margin-left: -1px !important;
+    position: relative;
+    z-index: 1;
+    line-height: 23px;
+    background-color: #4267b2;
+    border-color: #306ebf;
+    color: white;
+    transition: 200ms cubic-bezier(.08, .52, .52, 1) background-color, 200ms cubic-bezier(.08, .52, .52, 1) box-shadow, 200ms cubic-bezier(.08, .52, .52, 1) transform;
+    border: 1px solid;
+    border-radius: 2px;
+    box-sizing: content-box;
+    font-size: 12px;
+    -webkit-font-smoothing: antialiased;
+    font-weight: bold;
+    justify-content: center;
+    padding: 0 8px;
+    text-align: center;
+    text-shadow: none;
+    vertical-align: middle;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cf_testing{
+    background-color: #7cb244;
+    border-color: #7cb244;
+}
+.cf_overlay {
+    background-color: black;
+    opacity: 0.5;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 65535;
+}
+
+.cf_progressBar {
+    background-color: white;
+    position: fixed;
+    width: 35%;
+    margin-left: 32%;
+    top: 20%;
+    z-index: 65536;
+    text-align: center;
+    padding: 20px;
+    height: 350px;
+}
+
+.cf_progressInfo{
+    font-size: 40px;
+    margin-bottom: 25px;
+    line-height: 50px;
+    color: #0000004d;
+}
+
+.cf_progressInfo span{
+    font-weight: bolder;
+}
+
+.cf_progressBar img{
+    width: 300px;
+}
+
+.cf_text{
+    font-size: 24px;
+    margin-top: 25px;
+    line-height: 50px;
+}
+
+
+.cf_stop{
+    font-family: inherit;
+    letter-spacing: inherit;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    background-color: #E94E38;
+    border-color: #E94E47;
+    color: white;
+    transition: 200ms cubic-bezier(.08, .52, .52, 1) background-color, 200ms cubic-bezier(.08, .52, .52, 1) box-shadow, 200ms cubic-bezier(.08, .52, .52, 1) transform;
+    border: 1px solid;
+    border-radius: 2px;
+    box-sizing: content-box;
+    font-size: 18px;
+    -webkit-font-smoothing: antialiased;
+    font-weight: bold;
+    justify-content: center;
+    text-align: center;
+    text-shadow: none;
+    vertical-align: middle;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 35px;
+    padding: 0 50px;
+}
+
+.cf_sheet_ext{
+    margin-right: 10px;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.question_types>.question_type{
+    width: 100%;
+    display: block;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.question_types>.question_type>div{
+    display: inline-block;
+}
+
+.question_types>.question_type>.question{
+    width: 60%;
+}
+
+.question_types>.question_type>.answer{
+    width: 39%;
+}
+
+.settings_divider{
+    display: block;
+    width: 100%;
+    border-bottom: 2px solid red;
+    margin-bottom: 15px;
+    margin-top: 20px;
+}
+
+.question_types>.question_type select, .question_types>.question_type input{
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+    padding: 2px 5px;
+    box-sizing: border-box;
+    border: 2px solid;
+    border-color: red;
+    border-top-color: #AB0000;
+    border-left-color: #AB0000;
+}
+
+.question_types label{
+    display: block;
+}
+
+.question_types>.question_type button{
+    display: block;
+    padding: 5px 10px;
+    color: white;
+    background-color: #AB0000;
+    border: none;
+    border-radius: 1px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.cf_sheet {
+    display: none;
+}
+
+.cf_lable {
+    display: none;
+}
+
+.cf_btn{
+    padding: 10px 50px;
+    border-radius: 0px;
+    border: 1px solid #ffffff;
+    color: #fcfcfc;
+    cursor: pointer;
+    font-size: 18px;
+}
+.cf_btn:hover{
+    opacity: 0.8;
+}
+.cf_start_btn{
+    background: #2b7d2b;
+}
+.cf_stop_btn{
+    background: #c5850b;
+}
+.cf_cancel_btn{
+    background: #bf0000;
+}
