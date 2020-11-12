@@ -364,8 +364,11 @@ $(document).ready(function(){
 /*-----------teams------------*/
 	$(document).on('click','.edit-team',function(event){
 		var edit_team = $(this).closest('.team_name');
-		$(edit_team).closest('.row').find('.view-text').hide();
-		$(edit_team).closest('.row').find('.edit-team-name').show().focus();
+		var account_fb_id = $(this).closest('.account-fb-id');
+		if(loggedInFBId == account_fb_id){
+			$(edit_team).closest('.row').find('.view-text').hide();
+			$(edit_team).closest('.row').find('.edit-team-name').show().focus();
+		}				
 	});
 
 	$(document).on('blur','.edit-team-name',function(event){
@@ -3243,19 +3246,26 @@ function showTeams(isSearch = false) {
 									<div class="card-text">`+item.name+`</div>
 								</div>
 							</div>
+							<input type="text" class="form-control account-fb-id" value="`+item.account_fb_id+`" style="display: none;">
 							<input type="text" class="form-control edit-team-name" autocomplete="off" value="`+item.name+`" style="display: none;">
-						</div>
-						<div class="col-3 my-auto">
-							<div class="row">
-								<div class="col-1 mx-auto my-auto p-1">
-									<i class="fa fa-pencil edit-team text-icon" title="Edit"></i>
-								</div>
-								<div class="col-1 mx-auto my-auto p-1">
-									<i class="fa fa-trash delete-team text-icon" title="Delete"></i>
+						</div>`;
+					if(item.account_fb_id == loggedInFBId){
+						teamList +=`
+							<div class="col-3 my-auto">
+								<div class="row">
+									<div class="col-1 mx-auto my-auto p-1">
+										<i class="fa fa-pencil edit-team text-icon" title="Edit"></i>
+									</div>
+									<div class="col-1 mx-auto my-auto p-1">
+										<i class="fa fa-trash delete-team text-icon" title="Delete"></i>
+									</div>
 								</div>
 							</div>
-						</div>
-					</div>`;
+						</div>`;
+					}
+					else{
+						teamList +=`</div>`;
+					}					
 					});
 					$(".teams").html(teamList);
 					if($('.team-view-text').length > 0 && response.data.length > 0) {
