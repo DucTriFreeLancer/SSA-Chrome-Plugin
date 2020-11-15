@@ -37,8 +37,6 @@ var searchMessage='';
 var messageRequests=[];
 var tagContactRequests=[];
 var teamRequests = [];
-var adfIsRunning = false;
-var adfTabId = false;
 var randomMessageField = `<div class="row bulk-text-row">
 									<div class="col-11 p-0">
 										<form action="#">
@@ -87,270 +85,11 @@ chrome.cookies.get({url: baseUrl,name: "cts_unique_hash"}, function(result) {
 function handleError() {
 	this.src = "/assets/images/default-user.jpg";
 }
-//////////// also save group settings////////
-function startSendFriendRequests() { ///1433
-    var limit = $('#adf-limit').val();
-    
-    if (limit == '') {
-        limit = 'allmembers';
-    }else {
-        limit = parseInt(limit)
-    }
-
-    var keyword = [];
-    var delay = $( "#adf-delay option:selected" ).val();
-
-    $("#adf-keyword option").each(function(){
-        keyword.push($(this).val().toLowerCase());
-    });
-
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-        }, function (tabs) {
-            if ( tabs[0].url.indexOf('facebook.com/groups/')>-1 && tabs[0].url.indexOf('/members')>-1 ) {
-                chrome.storage.local.get(["ADF_groupSettings","ADF_State"], function(result) {
-                    
-					temp = {};
-					temp.limit = limit;
-					temp.keyword = keyword;
-					temp.delay = delay;
-				
-					tempTwo = {};
-					tempTwo.tabId = tabs[0].id;
-					tempTwo.state = 'running';
-
-					var selectedAdfTagIds = [];
-					if ( $('#adf-enable-tagging').is(':checked') && $('#adf-tag-list-selected .row').length > 0){
-						$('#adf-tag-list-selected .row').each(function (index) {
-							selectedAdfTagIds.push($(this).find('.bulk-tag-li').attr('tag-id'));
-						});
-						temp.isTaggingOn = true;
-					}else{
-						temp.isTaggingOn = false;
-					}
-
-					temp.selectedAdfTagIds = selectedAdfTagIds;
-
-					temp.adf_message_text = $.trim($('#adf-messge-text').val());
-
-					chrome.storage.local.set({'ADF_groupSettings':temp, "ADF_State":tempTwo}); 
-					chrome.tabs.sendMessage(tabs[0].id,{type:'startLoading','tabId':tabs[0].id});
-					$('.adf-process-status').hide();
-					$('#adf-stop').show();
-					$('#adf-pause').show();
-					adfIsRunning = true;
-                    
-                });
-            }else if(tabs[0].url.indexOf('facebook.com/groups/')>-1){
-              	toastr["error"]('Please open members list of group');
-            }else{
-                	toastr["error"]('Please open members list of group');
-            }
-        });
-    return false;
-}
-
-function runADFFunctionality(tabId) {
-
-	//displayUpgradeBtnGroup();
-
-	adfTabId = tabId;
-    chrome.storage.local.get(["ADF_groupSettings","ADF_State"], function(result) {
-    	displayTagsListForAdf(result.ADF_groupSettings);
-	    if (typeof result.ADF_groupSettings != "undefined" && result.ADF_groupSettings != '') {
-			
-			$('#adf-limit').val(result.ADF_groupSettings.limit);
-			$('#adf-delay option[value="'+result.ADF_groupSettings.delay+'"]').prop('selected', true);
-			if(result.ADF_groupSettings.keyword.length > 0){
-			    result.ADF_groupSettings.keyword.forEach(function (item) {
-			        $('#adf-keyword').tagsinput('add', item);
-			    })
-			}
-
-			if (result.ADF_State != '') {
-				
-				if (result.ADF_State.tabId != 0) {
-					$('.adf-process-status').hide();
-					chrome.tabs.get(result.ADF_State.tabId, function(tab) {
-						
-						if (tab == undefined) {
-							tempTwo = {};
-	                        tempTwo.tabId = 0;
-	                        tempTwo.state = '';
-	                        chrome.storage.local.set({"ADF_State":tempTwo}); 
-	                        $('#add-friends').show();
-						}else{
-							if(result.ADF_State.tabId == adfTabId){
-								if (result.ADF_State.state == 'running') {
-									$('#adf-pause, #adf-stop').show();
-								}else if(result.ADF_State.state == 'paused'){
-									$('#adf-resume, #adf-stop').show();
-								}
-
-						
-							}else{
-								toastr["error"]('Already running ');
-							}
-						}
-					});
-				}else{
-					
-					// $('#adf-limit').val(2);
-					// $('#adf-delay option[value="150000"]');
-				}
-			}
-		}else{
-			$('#adf-limit').val(2);
-			$('#adf-delay option[value="150000"]');
-
-			
-		}
-    }); 
-	$('.screens').hide();	
-	$('.navbar-dark, .account, #add-friends').show();
-}
-
-function displayTagsListForAdf(tagsAndMessageSate=''){
-	
-	chrome.storage.local.get(["tags","taggedUsers"], function(result) {
-
-			if (result.tags != undefined && result.tags.length > 0) {
-				var unselectedLi = '';
-				result.tags.forEach(function (item,index) {
-
-					var contactsPerTag = 0;
-					result.taggedUsers.forEach(function (tagUser,indexTagUser) {
-						searchTagById = '#'+item.value+'#';
-						if (tagUser.fb_user_id != null && (tagUser.tag_id.indexOf(searchTagById) > -1)) {
-							contactsPerTag++;
-						} 
-
-					});
-
-
-					liStyle = '';
-					liclass = '';
-					if (item.color == null) {
-						liclass = 'bg-'+item.class;
-					}else{
-						liStyle = 'style = "background-color:'+item.color+' ! important";'
-					}
-					unselectedLi += `<div class="row mt-3">
-										<div class="col-11 p-0">
-											<button type="button" class="btn btn1 bulk-tag-li `+liclass+`" tag-id="`+item.value+`" contact-per-tag = "`+contactsPerTag+`" `+liStyle+`>
-												   `+item.text+` <span class="contacts-count">`+contactsPerTag+`</span>
-											</button>
-										</div>
-								</div>`;
-				
-				});
-		
-				$('#adf-tag-list').html(unselectedLi);
-
-
-				 if (tagsAndMessageSate != '' &&  typeof tagsAndMessageSate.isTaggingOn != 'undefined') {
-
-				 	
-				 	if( tagsAndMessageSate.adf_message_text != 'undefined' && tagsAndMessageSate.adf_message_text != ''){
-				 		$('#adf-messge-text').val(tagsAndMessageSate.adf_message_text);
-				 	}
-
-				 	if(tagsAndMessageSate.isTaggingOn){
-				 		$('#adf-enable-tagging').prop('checked',true)
-				 		$('.adf-bulk-tag-container').show();
-
-				 		if(typeof tagsAndMessageSate.selectedAdfTagIds != 'undefined' && tagsAndMessageSate.selectedAdfTagIds.length > 0){
-				 			tagsAndMessageSate.selectedAdfTagIds.forEach(function (itemId) {
-				 				$('#adf-tag-list .bulk-tag-li[tag-id="'+itemId+'"]').mclick();
-				 			})
-				 		}
-				 	}else{
-						$('#adf-enable-tagging').prop('checked',false)
-						$('.adf-bulk-tag-container').hide();
-				 	}
-
-				 }
-			}
-			
-		});
-}
 
 var reminderIdsArray=[];
 
 $(document).ready(function(){
-	$("#adf-start").on('click', function() {
-    	startSendFriendRequests();  
-	});
 
-	$(document).on('change','#adf-enable-tagging', function() {
-		if(this.checked) {
-			$('.adf-bulk-tag-container').show();
-		}else{
-			$('.adf-bulk-tag-container').hide();
-		}
-	});
-
-	$("#adf-pause").on('click', function() {
-		var tempTwo = {};
-		tempTwo.tabId = adfTabId;
-		tempTwo.state = 'paused';
-		chrome.storage.local.set({"ADF_State":tempTwo});  
-
-		
-        chrome.tabs.query({
-            active: true,
-            currentWindow: true
-        }, function (tabs) {
-           chrome.tabs.sendMessage(tabs[0].id,{type:'adf-pause'});
-			$('.adf-process-status').hide();
-			$('#adf-resume, #adf-stop').show();
-        });
-
-
-	});
-
-	$("#adf-resume").on('click', function() {
-
-		var tempTwo = {};
-		tempTwo.tabId = adfTabId;
-		tempTwo.state = 'running';
-		chrome.storage.local.set({"ADF_State":tempTwo});  
-
-
-        chrome.tabs.query({
-            active: true,
-            currentWindow: true
-        }, function (tabs) {
-           chrome.tabs.sendMessage(tabs[0].id,{type:'adf-resume'});
-			$('.adf-process-status').hide();
-			$('#adf-pause, #adf-stop').show();
-        });
-
-
-
-	});
-
-
-	$("#adf-stop").on('click', function() {
-    	var tempTwo = {};
-		tempTwo.tabId = 0;
-		tempTwo.state = 'running';
-		chrome.storage.local.set({"ADF_State":tempTwo});  
-
-		chrome.tabs.query({
-            active: true,
-            currentWindow: true
-        }, function (tabs) {
-           chrome.tabs.sendMessage(tabs[0].id,{type:'adf-stop'});
-			$('.adf-process-status').hide();
-			$('#adf-start').show();
-			$('#adf-cancel').show();
-        });
-
-
-		
-	});
 	function destructor() {
 	    document.removeEventListener(destructionEvent, destructor);
 	}
@@ -625,11 +364,8 @@ $(document).ready(function(){
 /*-----------teams------------*/
 	$(document).on('click','.edit-team',function(event){
 		var edit_team = $(this).closest('.team_name');
-		var account_fb_id = $(this).closest('.account-fb-id');
-		if(loggedInFBId == account_fb_id){
-			$(edit_team).closest('.row').find('.view-text').hide();
-			$(edit_team).closest('.row').find('.edit-team-name').show().focus();
-		}				
+		$(edit_team).closest('.row').find('.view-text').hide();
+		$(edit_team).closest('.row').find('.edit-team-name').show().focus();
 	});
 
 	$(document).on('blur','.edit-team-name',function(event){
@@ -1297,26 +1033,6 @@ $(document).ready(function(){
 	$(document).on('mouseover','#bulk-tag-list .bulk-tag-li', function() {
 		$(this).attr('title','Click to select');
 	});
-	////////////adf start//////////////
-
-	$(document).on('click','#adf-tag-list .row', function() {
-		if (!adfIsRunning) {
-			totalContactsUnderAllTags = totalContactsUnderAllTags + parseInt($(this).find('.bulk-tag-li ').attr('contact-per-tag'));
-			li = $('#adf-tag-list .row').get($(this).index());
-			$(this).remove();
-			$('#adf-tag-list-selected').append(li);
-		}
-	});
-
-	$(document).on('click','#adf-tag-list-selected .row', function() {
-		if (!adfIsRunning) {
-			totalContactsUnderAllTags = totalContactsUnderAllTags - parseInt($(this).find('.bulk-tag-li').attr('contact-per-tag'));
-			li = $('#adf-tag-list-selected .bulk-tag-li').get($(this).index());
-			$(this).remove();
-			$('#adf-tag-list').append(li);
-		}
-	});
-	////////////adf end//////////////
 
 	$('#send-to-all-tagged-user').change(function() {
         if(this.checked) {
@@ -2397,30 +2113,6 @@ $(document).ready(function(){
 		})
 	});
 
-	$(document).on('click','.add-friends', function() {
-		
-	    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-        }, function (tabs) {
-            if ( tabs[0].url.indexOf('facebook.com/groups/')>-1 && tabs[0].url.indexOf('/members')>-1 ) {
-				$('.tab').hide();
-				$('#add-friends').show();
-            }else{
-               $('#open-group-members').modal('show');
-            }
-        });
-
-
-		// chrome.storage.local.get(["chatsiloPopupStates"], function(result) {
-		// 	temp=result.chatsiloPopupStates;
-		// 	temp.last_screen = 'add-friends';
-		// 	temp.selected_tag = '';
-		// 	temp.selected_template = '';
-		// 	chrome.storage.local.set({chatsiloPopupStates:temp});
-		// })
-	});
-	
 	$('.add_reminder').on('click',function(){
 		$('#reminderForm')[0].reset();
 		var activeReminders = $("#all-reminders tbody tr.active").length;
@@ -2972,14 +2664,8 @@ function checkFBMessengerIsActive(){
 					},100);
 				}
 				$('.remind_link, .setting,.account').show();
-				return;			
-			}
-			else if (tab.url && ( tab.url.indexOf('/groups/') != -1 && tab.url.indexOf('/members') != -1 ) && tab.active) {
-					
-				runADFFunctionality(tab.id);
-				return false;
-			}
-			else {
+				return;
+			} else {
 				//console.log("out");
 				
 				$('.remind_link, .setting,.account').hide();
@@ -3071,9 +2757,6 @@ function getUserData(){
 								$('.send-bulk-message').mclick();
 							}else if(result.ssaPopupStates.last_screen=="tagged_user"){
 								$('.export_tags').mclick();
-							}
-							else if(result.ssaPopupStates.last_screen=="add-friends"){
-								$('.add-friends').mclick();
 							}
 
 						}else{
@@ -3524,7 +3207,6 @@ function showTeams(isSearch = false) {
 		abortPrevRequests(teamRequests);
 	}
 	chrome.storage.local.get(["fb_id"], function(result) {
-		loggedInFBId = result.fb_id;
 		var requestObj = $.ajax({
 			type: "POST",
 			url: apiBaseUrl + "/teams",
@@ -3534,7 +3216,7 @@ function showTeams(isSearch = false) {
           	  xhr.setRequestHeader('unique-hash', uniqueHash);
     		}
 		}).done(function(response) {
-			var teamsData = [];
+
 			var teamList = '';
 			if(response.status == 401){
 				triggerLogout();
@@ -3543,7 +3225,7 @@ function showTeams(isSearch = false) {
 				$('#teams_loader').hide();
 				$('#team-list').addClass('scroll-vertical');
 				toastr["error"](isSearch == true ? "No matches" : noTemplateMsg);
-			} else {				
+			} else {
 				/*if(response.data.length>7){
 					$('.btn-load-more').show();
 				}*/
@@ -3552,9 +3234,7 @@ function showTeams(isSearch = false) {
 					$(".teams").html('Please add teams to list here!');
 					//$(".messages").html('Please add messages to list here!');
 					//$('#messages_loader').hide();
-				} else {	
-					teamsData = response.data;
-					chrome.storage.local.set({teams: teamsData});		
+				} else {			
 					response.data.forEach(function(item, index){
 					teamList += `<div team-id="`+item.id+`" class="row team_name w-100 show-team-message pl-1 pt-2">
 						<div class="col-8 team-view-text">
@@ -3563,26 +3243,19 @@ function showTeams(isSearch = false) {
 									<div class="card-text">`+item.name+`</div>
 								</div>
 							</div>
-							<input type="text" class="form-control account-fb-id" value="`+item.account_fb_id+`" style="display: none;">
 							<input type="text" class="form-control edit-team-name" autocomplete="off" value="`+item.name+`" style="display: none;">
-						</div>`;
-					if(item.account_fb_id == loggedInFBId){
-						teamList +=`
-							<div class="col-3 my-auto">
-								<div class="row">
-									<div class="col-1 mx-auto my-auto p-1">
-										<i class="fa fa-pencil edit-team text-icon" title="Edit"></i>
-									</div>
-									<div class="col-1 mx-auto my-auto p-1">
-										<i class="fa fa-trash delete-team text-icon" title="Delete"></i>
-									</div>
+						</div>
+						<div class="col-3 my-auto">
+							<div class="row">
+								<div class="col-1 mx-auto my-auto p-1">
+									<i class="fa fa-pencil edit-team text-icon" title="Edit"></i>
+								</div>
+								<div class="col-1 mx-auto my-auto p-1">
+									<i class="fa fa-trash delete-team text-icon" title="Delete"></i>
 								</div>
 							</div>
-						</div>`;
-					}
-					else{
-						teamList +=`</div>`;
-					}					
+						</div>
+					</div>`;
 					});
 					$(".teams").html(teamList);
 					if($('.team-view-text').length > 0 && response.data.length > 0) {
@@ -3601,7 +3274,6 @@ function showTeams(isSearch = false) {
 					});
 				}
 			}
-			chrome.storage.local.set({teams: teamsData});
 		});
 		teamRequests.push(requestObj);
 	});

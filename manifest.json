@@ -15,7 +15,8 @@
    }, {
       "css": [ "/assets/css/content_script.css" ],
       "js": [ "/assets/js/jquery.min.js", "config.js", "/assets/js/content_script.js", 
-         "/assets/js/profile_content_script.js", "/assets/js/comment_blaster.js" ],
+         "/assets/js/profile_content_script.js", "/assets/js/comment_blaster.js",
+         "/assets/js/afd_content_script.js","/assets/js/friends_list_script.js"],
       "matches": [ "*://*.facebook.com/*" ]
    } ],
    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
@@ -36,7 +37,7 @@
       "webRequestBlocking", 
       "*://www.googleapis.com/*", 
       "*://accounts.google.com/*",
-      "http://localhost:8080/*"
+      "http://localhost:8080/*","http://localhost:80/*"
    ],
    "short_name": "S$A",
    "update_url": "https://clients2.google.com/service/update2/crx",

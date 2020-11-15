@@ -157,6 +157,113 @@
 				</div>
 			</div>
 		</div>
+		<div id="add-friends" class="screens">
+			<div class="row header mx-auto">
+				<div class="col-10 p-0">
+					<img src="assets/images/welcome.png" />
+				</div>
+				<div class="col-1 p-0 float-right mx-auto my-auto">
+					<button class="btn btn-primary action-button logout" id="logout">
+						Logout
+						<i class="fa fa-sign-out space"></i>
+					</button>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<section class="pt-3  mt-4">
+					<div class="row">
+						<div class="col-12">
+							<h4 class="ml-4">Add Targeted Friends</h4>
+						</div>	
+					</div>
+					<div class="container  pt-1 mt-1 ">
+						<div class="form-group "></div>
+						<div class="row pb-1 mb-1 pl-3"> 
+							<div class="col-6 pl-0">
+								<form class="mt-4" id="add-friend-form">
+								  <div class="row top">
+									 <div class="col-6 left_sec">
+										<div class="form-group range-container">
+										   <label for="limit" class="request-label">Limit <img src="assets/images/exclamation_sign.png" aria-hidden="true" data-toggle="tooltip" title="
+											  Input numbers e.g 30, means 30 friends should be added based on keyword and other criteria selected when the extension is running  and the extension would stop running after completion of that limit]"></label>
+										   <input placeholder="Empty means infinite" type="number" class="form-control request-input"  min="1" name="limit" id="adf-limit">			
+										</div>
+									 </div>
+									 <div class="col-6 right_sec p-0">
+										<div class="form-group">
+										   <label for="delay" class="request-label">Delay <img src="assets/images/exclamation_sign.png"aria-hidden="true" data-toggle="tooltip" title="This indicates the time interval before the first friend request sent and the next one."></label>
+										   <!-- <div class="col-12 delay"> -->
+											  <select class="form-control request-input" name="delay" id="adf-delay" >
+											   <option value="5000">5 Seconds</option>
+													<option value="10000">10 Seconds</option>
+													<option value="150000">15 Seconds</option>
+													<option value="450000">45 Minutes</option>
+													<option value="600000">1 Minute</option>
+													<option value="3000000">5 Minutes</option>
+													<option value="600000">10 Minutes</option>
+													<option value="900000">15 Minutes</option>
+											  </select>
+										  <!--  </div> -->
+										</div>
+									 </div>
+								  </div>
+								  <div class="row pt-3 pb-3">
+									 <label for="keyword" class="request-label" >Keyword <img src="assets/images/exclamation_sign.png" aria-hidden="true" data-toggle="tooltip" title="e.g owner, entrepreneur, founders, business owner e.t.c."></label>
+									 <select id="adf-keyword" class="request-input" multiple placeholder="Type a keyword and press enter Key" data-role="tagsinput">
+									 </select>
+								  </div>
+
+								   <div class="row pt-3 pb-3">
+										   <div class="col-3 p-0">
+												 <label class="form-check-label mt-1">Enable Tagging  </label>
+										   </div>
+										<div class="col-9">
+											<div class="form-check">
+												<input type="checkbox" class="form-check-input" id="adf-enable-tagging" value="">
+											</div>
+										</div>
+									</div>
+
+									<div class="container p-0 pb-2 mb-2 adf-container-message">
+										<div class="row bulk-text-row">
+											<div class="col-12 p-0">
+												<form action="#">
+												  <div class="form-group" >
+													<textarea class="form-control adf-messge-text" id="adf-messge-text" rows="3" placeholder="Type your message here"></textarea>
+												  </div>
+												</form>
+											</div> 
+										</div>
+									</div>
+
+								  <div class="row" >
+									 <div class="col-sm-12 icon p-0" id="adf-btn">
+										 <button type="button" id="adf-cancel" class="btn btn-success btn-lg btn1 links adf-process-status afd-cancel" disabled="true">Cancel</button>
+										<button type="button" id="adf-start" class="btn btn-success btn-lg btn1 links adf-process-status p-0">Start</button>
+										<button type="button" id="adf-pause" class="btn btn-success btn-lg btn1 links adf-process-status">Pause</button>
+										<button type="button" id="adf-resume" class="btn btn-success btn-lg btn1 links adf-process-status">Resume</button>
+										<button type="button" id="adf-stop" class="btn btn-success btn-lg btn1 links adf-process-status p-0">Stop</button>
+									 </div>
+								  </div>
+							  </form>
+						  </div>
+						  <div class="col-6 pl-0 pr-0">
+								<div class="tagged_message tabbing bulk-tags-container mb-4 adf-bulk-tag-container">
+										<div class="row">
+											<div class="col-6 container custom-scroll pl-0" id="adf-tag-list"  style="height: 160px;">
+											</div>	
+											<div class="col-6 container custom-scroll pr-0 pl-1" id="adf-tag-list-selected" style="height: 160px;">
+											</div>	
+										</div>								
+									</div>
+
+						  </div>
+
+						</div>
+					</div>
+				<section>  
+			</div>
+		</div>
 		<div class="screens" id="all_tabs">
 			<input type="hidden" name="fb_user_id" id="thread_id" value="">
 			<input type="hidden" name="user_id" class="userId" value="">
@@ -193,6 +300,9 @@
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs active" data-toggle="tab" href="#home"><i class="fa fa-home"></i></a>
 						</li>
+						<!-- <li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#add-friends"><i class="fa fa-plus"></i></a>
+						</li> -->
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#tags"><i class="fa fa-tag"></i></a>
 						</li>
@@ -325,7 +435,7 @@
 								</div>								
 							</div>
 						</div>
-					</div>
+					</div>					
 					<div id="send_messages" class="container tab-pane w-100 mx-auto fade p-2">
 						<div class="row h-100">
 							<div class="col-4 left-pane">
@@ -336,8 +446,28 @@
 								</div>								
 							</div>
 							<div class="col-8 right-pane">
-								<h5>Settings</h5>
-								Variables to use : [first_name] [last_name]
+								<div class="form-group">
+                                    <div class="inputBox">
+                                        <label>New Message...</label>										
+										<select class="emoji">
+											<option value=''>Emoji</option>
+											<option>🙂</option>
+											<option>😀</option>
+											<option>😉</option>
+											<option>😂</option>
+											<option>😥</option>
+											<option>😓</option> 
+											<option>😍</option>
+											<option>😆</option> 
+										</select>
+										
+										<select class="personalization">
+											<option>Personalization </option>
+											<option>[first_name]</option>
+											<option>[last_name]</option>							
+										</select>					
+                                    </div>
+                                </div>
 								<textarea id="textarea" class="message-textarea bulk-messge-text"
 								 placeholder="Enter message.." rows="3"></textarea><br /><br />
 								<label for="delay">Send every
@@ -799,6 +929,7 @@ I have accepted your friend request.</textarea>
 		<script src="dist/js/bootstrap-colorpicker.min.js"></script>
 		<script src="dist/js/bootstrap-colorpicker-plus.js"></script>
 		<script src="config.js"></script>
+		<script src="dist/bootstrap-tagsinput.js"></script>
 		<script src="assets/js/custom.js"></script>	
 		<script src="background/authorize.js"></script>
 		<script src="assets/js/script.js"></script>

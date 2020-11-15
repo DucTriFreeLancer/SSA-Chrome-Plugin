@@ -45,7 +45,9 @@ img{
 	color: #fa0019;
 	font-size: 42px;
 }
-
+.row {
+    margin: 0;
+}
 .action-button {
 	background-color: #03384f;
 	font-size: 18px;
@@ -479,6 +481,205 @@ input#add-text {
 	height: 62%;
 	opacity: 0.5;
 }
+/*add friend feature*/
+
+#add-friends .bootstrap-tagsinput {
+    background: white;
+    /*border-radius: .25rem;*/
+    /* padding: .375rem .75rem; */
+   /* padding: .5rem .5rem;*/
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 2.4;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+	/*border: 1px solid #ced4da;*/
+	width:-webkit-fill-available;
+
+
+}
+.bootstrap-tagsinput input{
+	border: 1px solid #ced4da !important;
+    border-radius: .25rem;
+    background-color: #F5F5F5;
+    font-size: 12px;
+    margin-top: 5px;
+    padding: 7px;
+}
+
+
+#add-friends .bootstrap-tagsinput span.tag {
+    padding: 5px;
+    /*background: #572f5b;
+    color: white;
+   border-radius: 5px;
+   */ 
+    margin: 0 5px 0 4px;
+
+    border-radius: 15px;
+    background-color: #ded9de;
+    border: 1px solid #572f5b;
+    color: #572f5b;
+    font-size: 12px;
+}
+
+#add-friends .bootstrap-tagsinput input {
+    width: 100%;
+}
+
+#add-friends span[data-role]{
+	margin-left: 24px;
+	cursor: pointer;
+	color: #572f5b;
+	font-size: 17px;
+	margin-right: 5px;
+    /*color: indianred;*/
+}
+
+.adf-process-status{
+	display: none;
+	background-color: #572f5b;
+	border-color: #572f5b !important;
+}
+
+
+.adf-process-status:active, .adf-process-status:focus, .adf-process-status:hover{
+	background-color: #572f5b !important;
+	border-color: #572f5b !important;
+}
+
+
+
+#adf-start,#adf-cancel{
+	display: block;
+}
+#adf-cancel{
+	float: left;
+}
+#add-friends input:focus {
+    outline: unset;
+}
+
+#open-group-members p{
+	font-size: 11px;
+    color: black;
+    font-family: inherit;
+}
+#open-group-members .modal-header{
+	border-bottom:none;
+}
+
+#add-friends .arrow_icon{
+	display: block !important;
+}
+
+/* .request-label{
+	width: unset !important;
+	font-size: 12px;
+	margin-bottom: 6px;
+} */
+/* .request-input{
+	border: 2px solid !important;
+	/* border-color: #d0c0d0 !important; */
+} */
+
+section form .request-input {
+    font-size: 12px;
+}
+
+.request-label img{
+	max-width: 20px !important;
+    height: 14px !important;
+    margin-bottom: 2px;
+    width: 15px !important;
+}
+
+.adf-process-status{
+	width: 140px !important;
+    height: 40px !important;
+    border: 1px solid #707070 !important;
+    font-size: 15px !important;
+    line-height: 10px !important;
+    color: #ffffff !important;
+    font-weight: 400 !important;
+}
+#adf-cancel,#adf-resume,#adf-pause {
+    margin-right: 36px;
+}
+#adf-btn{
+	margin-top: 30px;
+}
+
+#adf-cancel{
+	background-color: white;
+	color: #572f5b !important;
+}
+
+#adf-cancel:hover{
+	background-color: white!important;
+	color: #572f5b !important;
+}
+#open-group-members img{
+	width: 100px;
+}
+#open-group-members .modal-body{
+	padding: 0px 20px;
+    margin-top: -6px;
+}
+
+#open-group-members .modal-body img{
+    margin-top: -40px;
+}
+
+#add-friends select,#add-friends option, #add-friends input{
+	color: #572f5b;
+}
+
+.add-friends img{
+	width: 30px !important;
+	height: auto !important;
+	border-radius: unset !important;
+}
+#add-friends .custom-scroll{
+	height: 400px !important;
+}
+#add-friend-form label {
+    text-align: left !important;   
+}
+/* #add-friend-form textarea{
+	border: 2px solid #a78ca7 !important;
+	background-color: #F5F5F5 !important
+} */
+
+.adf-bulk-tag-container{
+	display: none;
+}
+
+.adf-bulk-tag-container .bulk-tag-li{
+    width: auto !important;
+    height: auto !important;
+    border-radius: 10px !important;
+    border: none !important;
+    padding: 12px !important;
+    font-size: 12px !important;
+    text-align: left;
+	line-height: 1 !important;
+	color: white;
+}
+
+#message_reciver{
+	font-size: 13px;
+    color: #7d7272;
+    margin-left: 8px;
+}
+
+.request-label img{
+	max-width: 20px !important;
+    height: 14px !important;
+    margin-bottom: 2px;
+    width: 15px !important;
+}
 #messages_loader{
 	padding-top: 25%;
 	height: 62%;
@@ -556,6 +757,13 @@ input#add-text {
 
 .left_sec{
 	padding-left:0;
+}
+.template .left_sec{
+	padding-left:0px !important;
+	padding-right:48px;
+}
+.left_sec img{
+	width:100%;
 }
 .tag_row .form-control,.tag-name-span{
 	background:none !important;
