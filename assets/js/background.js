@@ -79,6 +79,14 @@ chrome.storage.local.get(["ssa_user","tags","fb_id","taggedUsers"], function(res
 	if (typeof result.taggedUsers == "undefined"){
 		chrome.storage.local.set({'taggedUsers':''});
 	}
+
+	if (typeof result.ADF_groupSettings == "undefined"){
+		chrome.storage.local.set({'ADF_groupSettings':''});
+	}
+
+	if (typeof result.ADF_state == "undefined"){
+		chrome.storage.local.set({'ADF_state':''});
+	}
 });
 
 
@@ -193,7 +201,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         chrome.tabs.create({
         	'url': message.url
         });
-    }    
+    }else if(message.action == 'sendWelcomeMessageADF'){
+    	
+    	sendWelcomeMessageADF(message.adfMemberId, message.welcomeMessageTextAdf)
+    } 
 })
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
