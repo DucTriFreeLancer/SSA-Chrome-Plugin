@@ -789,7 +789,15 @@ function tagUsersForGroupMembers(taggedUsers,tags){
 			if( temp.length > 0 ){
 				$liClass = '';
 				$colorCode = '';
-				var $tagIds = temp[0].tag_id.split(',');
+				
+				var $tagIds = [];
+				if( temp.length > 0 ){
+					if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+						$tagIds = temp[0].tag_id.split(',');
+					} else {
+						$tagIds = temp[0].tag_id;
+					}
+				}
 				var title = '';
 				var spanText = '';
 				var numeric= temp[0].numeric_fb_id;
@@ -1007,10 +1015,16 @@ function findTagListNew(profileId) {
 					var taggedUsers = result.taggedUsers;
 					var li_fb_user_id = profileId;
 					var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id)});
-				
+					var $tagIds = [];
 					if( temp.length > 0 ){
-						forProfileNumericFbId = temp[0].numeric_fb_id; 
-						var $tagIds = temp[0].tag_id.split(',');
+						forProfileNumericFbId = temp[0].numeric_fb_id; 						
+						if( temp.length > 0 ){
+							if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+								$tagIds = temp[0].tag_id.split(',');
+							} else {
+								$tagIds = temp[0].tag_id;
+							}
+						}
 						var totalTagLi = '<ul class="right-side-tag-list visiting-profile-tag-list-new">';
 						var title = '';
 						var spanText = '';

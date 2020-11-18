@@ -22,6 +22,9 @@ var bulkMessageTabId = 0;
 var bulkMessageStatus = true;
 var uniqueHash = null;
 
+////////// ADF welcome messages /////////
+var friendRequestTabIdsADF = [];
+
 var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
 
 //These make sure that our function is run every time the browser is opened.
@@ -1230,5 +1233,34 @@ function getUpdateTagsFromGropuleads(item){
 			clearUpdateFbIdsIntervals();
 		}
 	});
+}
+var requestMessageTabIdADF = 0;
+function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
+	var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids='+ADFmemberId;
+	chrome.windows.create({ 
+		url: sendWelcomeMeesageUrl,
+		focused:false, 
+		type:"popup",
+		top:Math.floor(window.screen.availHeight/4*3),
+		left:Math.floor(window.screen.availWidth/4*3), 
+		height:Math.floor(window.screen.availHeight/4), 
+		width:Math.floor(window.screen.availWidth/4) 
+	},function (tabs) {
+		requestMessageTabIdADF = tabs.tabs[0].id;
+			var temp = {};
+		
+			temp.tabId = requestMessageTabIdADF;
+			temp.ADF_welcome_message = ADF_welcome_message
+			friendRequestTabIdsADF.push(temp);
+		chrome.tabs.onUpdated.addListener(requestTabListenerADF);
+	});
+}
 
+
+function requestTabListenerADF(tabId, changeInfo, tab){
+	if (changeInfo.status === "complete" && tabId === requestMessageTabIdADF) {
+		var foundTabRecord = friendRequestTabIdsADF.filter((list)=>{ return list.tabId == requestMessageTabIdADF}); 
+		chrome.tabs.sendMessage(requestMessageTabIdADF,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:foundTabRecord[0].ADF_welcome_message});
+		chrome.tabs.onUpdated.removeListener(requestTabListenerADF);		
+	}
 }

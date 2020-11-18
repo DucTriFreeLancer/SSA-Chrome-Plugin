@@ -682,7 +682,24 @@ $(function(){
 			});
 			optionSelect += '</select>';
 
-			notesHtml = `<div class="ssa-cols ssa-col-md-12 notes add-new-note" note-id="0"><textarea rows="2" placeholder="Please Enter Note" class="notes-description ssa-teaxtarea"></textarea>` +
+			notesHtml = `<div class="ssa-cols ssa-col-md-12 notes add-new-note" note-id="0">
+						<select class="emoji">
+							<option value=''>Emoji</option>
+							<option>&#128578;</option>
+							<option>&#128512;</option>
+							<option>&#128521;</option>
+							<option>&#128514;</option>
+							<option>&#128549;</option>
+							<option>&#128531;</option> 
+							<option>&#128525;</option>
+							<option>&#128518;</option>
+						</select>									
+						<select class="personalization">
+							<option>Personalization </option>
+							<option>[first_name]</option>
+							<option>[last_name]</option>							
+						</select>
+						<textarea id="reply_text" rows="2" placeholder="Please Enter Note" class="notes-description ssa-teaxtarea"></textarea>` +
 				optionSelect +
 				`<div class="right-col-item ssa-cols ssa-col-md-8" > <button class="note-edit bg-purple ssa-btn title="Save"">Save</button><button class="note-delete bg-gray ssa-btn" title="Delete">Delete</button></div><div class="ssa-cols ssa-col-md-4 note-timing text-right" ></div></div>`;
 			if ($('.add-new-note').length == 0) {
@@ -1206,7 +1223,8 @@ function displaySelectedTagRightSide(){
 						var tempNotes = result.notes.filter(function (item) { return (item.fb_user_id == li_fb_user_id) });
 						if(tempNotes.length > 0) {
 							notesList = '<div class="notes-list-container"><div class="notes-list">';
-							notesList += '<div class="grid-container">';								
+							notesList += '<div class="grid-container">';
+							var fullName = $('._3tkv').find('a[target="_blank"]').first().text();								
 							tempNotes.forEach(function(eachNote){
 								var scope = description = '';
 								var sender = '?';
@@ -1242,6 +1260,20 @@ function displaySelectedTagRightSide(){
 								sender = '<a class="link-to-sender" target="_blank" href="https://www.facebook.com/'+
 										eachNote.sender_fb_user_id+'">' + sender + '</a>';
 								
+								if (eachNote.description.indexOf('[first_name]') > -1) {
+									first_name = fullName.split(' ')[0];
+									eachNote.description = eachNote.description.replace(/\[first_name]/g,first_name);
+								}
+				
+								if (eachNote.description.indexOf('[last_name]') > -1) {
+									nameArray = fullName.split(' ');
+									if(nameArray.length > 1){
+										last_name = nameArray[nameArray.length-1];
+										eachNote.description = eachNote.description.replace(/\[last_name]/g,last_name);
+									}else{
+										eachNote.description = eachNote.description.replace(/\[last_name]/g,'');
+									}
+								}	
 								/*notesList += '<div class="ssa-cols ssa-col-md-12 notes" note-id="'+eachNote.id+'">'+
 								'<div class="right-col-item ssa-cols ssa-col-md-4" >'+description+'</div>'+
 								'<div class="ssa-cols ssa-col-md-3 text-right">'+ scope +'</div>'+

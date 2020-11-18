@@ -1507,7 +1507,15 @@ $(document).ready(function(){
 			}
 		}
 	});
-	
+	$(document).on('click','.save-new-message', function(){
+		selected_message = $(this).parent().parent().parent().parent().find('.add-message-text');
+		var attr = $(this).parent().parent().attr('message-id');
+		if (typeof attr !== typeof undefined && attr !== false) {
+			saveMessage($(selected_message).val(), attr);
+		} else {
+			saveMessage($(selected_message).val());
+		}	
+    });
 	$(document).on('click','.delete-new-message', function(){
 		$(this).parent().parent().parent().parent().remove();	
 		if($("#message-list").length == 0){
@@ -1577,10 +1585,14 @@ $(document).ready(function(){
 							<div class="card-text"></div>
 						</div>
 					</div>
-					<textarea class="form-control edit-message-text" id="message" placeholder="write message...."></textarea>
+					<textarea class="form-control add-message-text" id="reply_text" placeholder="write message...."></textarea>
 				</div>
 				<div class="col-2 my-auto">
 					<div class="row">
+						<div class="col-6 my-auto">
+							<i class="fa fa-save save-new-message p-1 
+							text-icon" title="Save"></i>
+						</div>
 						<div class="col-6 my-auto">
 							<i class="fa fa-trash delete-new-message p-1 
 							text-icon" title="Delete"></i>
@@ -2412,12 +2424,12 @@ $(document).ready(function(){
         });
 
 
-		// chrome.storage.local.get(["chatsiloPopupStates"], function(result) {
-		// 	temp=result.chatsiloPopupStates;
+		// chrome.storage.local.get(["ssaPopupStates"], function(result) {
+		// 	temp=result.ssaPopupStates;
 		// 	temp.last_screen = 'add-friends';
 		// 	temp.selected_tag = '';
 		// 	temp.selected_template = '';
-		// 	chrome.storage.local.set({chatsiloPopupStates:temp});
+		// 	chrome.storage.local.set({ssaPopupStates:temp});
 		// })
 	});
 	

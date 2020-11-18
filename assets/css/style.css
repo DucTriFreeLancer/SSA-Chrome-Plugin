@@ -1,6 +1,6 @@
 body{
 	width:750px;
-	height:580px;
+	height:auto;
 	padding:0;
 	margin:0;
 	font-family: 'Baloo 2', cursive;
@@ -45,7 +45,7 @@ img{
 	color: #fa0019;
 	font-size: 42px;
 }
-.row {
+#add-friends .row {
     margin: 0;
 }
 .action-button {
@@ -520,7 +520,7 @@ input#add-text {
     border-radius: 15px;
     background-color: #ded9de;
     border: 1px solid #572f5b;
-    color: #572f5b;
+    color: blue;
     font-size: 12px;
 }
 
@@ -531,7 +531,7 @@ input#add-text {
 #add-friends span[data-role]{
 	margin-left: 24px;
 	cursor: pointer;
-	color: #572f5b;
+	color: #03384f;
 	font-size: 17px;
 	margin-right: 5px;
     /*color: indianred;*/
@@ -539,13 +539,13 @@ input#add-text {
 
 .adf-process-status{
 	display: none;
-	background-color: #572f5b;
+	background-color: #03384f;
 	border-color: #572f5b !important;
 }
 
 
 .adf-process-status:active, .adf-process-status:focus, .adf-process-status:hover{
-	background-color: #572f5b !important;
+	background-color: #03384f !important;
 	border-color: #572f5b !important;
 }
 
@@ -607,18 +607,18 @@ section form .request-input {
 #adf-cancel,#adf-resume,#adf-pause {
     margin-right: 36px;
 }
-#adf-btn{
-	margin-top: 30px;
-}
+/* #adf-btn{
+	margin-top: 30px; 
+} */
 
 #adf-cancel{
 	background-color: white;
-	color: #572f5b !important;
+	color: #03384f !important;
 }
 
 #adf-cancel:hover{
 	background-color: white!important;
-	color: #572f5b !important;
+	color: #03384f !important;
 }
 #open-group-members img{
 	width: 100px;
@@ -633,7 +633,7 @@ section form .request-input {
 }
 
 #add-friends select,#add-friends option, #add-friends input{
-	color: #572f5b;
+	color: blue;
 }
 
 .add-friends img{
@@ -1078,4 +1078,23 @@ label.no-flex{
 }
 .bulk-process-status, .bulk-message-unique-total, .bulk-message-counter{
 	display:inline-flex;
+}
+.personalization {
+	height: 30px;
+	/* float: right; */
+	margin-bottom: 10px;
+	cursor: pointer;
+	padding: 0 10px;
+	width: 150px;
+	margin-right: 10px;
+	border-radius: 30px;
+}
+.emoji {
+	height: 30px;
+	/* float: right; */
+	margin-bottom: 10px;
+	cursor: pointer;
+	padding: 0 10px;
+	width: 100px;
+	border-radius: 30px;
 }

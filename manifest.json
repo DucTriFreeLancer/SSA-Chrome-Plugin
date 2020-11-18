@@ -10,12 +10,14 @@
    "content_scripts": [ {
       "all_frames": true,
       "css": [ "/assets/css/content_script.css" ],
-      "js": [ "/assets/js/jquery.min.js", "config.js", "/assets/js/content_script.js", "/assets/js/page_content_script.js" ],
-      "matches": [ "*://*.facebook.com/messages*", "*://*.facebook.com/*/inbox*", "*://*.messenger.com/*" ]
-   }, {
-      "css": [ "/assets/css/content_script.css" ],
       "js": [ "/assets/js/jquery.min.js", "config.js", "/assets/js/content_script.js", 
-         "/assets/js/profile_content_script.js", "/assets/js/comment_blaster.js",
+         "/assets/js/page_content_script.js", "assets/js/cb_script.js" ],
+      "matches": [ "*://*.facebook.com/messages*", "*://*.facebook.com/*/inbox*", "*://*.messenger.com/*" ]
+   },
+   {
+      "css": [ "/assets/css/content_script.css" ,"/assets/css/adf.css" ],
+      "js": [ "/assets/js/jquery.min.js", "config.js", "/assets/js/content_script.js", 
+         "/assets/js/profile_content_script.js","/assets/js/comment_blaster.js",
          "/assets/js/afd_content_script.js","/assets/js/friends_list_script.js"],
       "matches": [ "*://*.facebook.com/*" ]
    } ],

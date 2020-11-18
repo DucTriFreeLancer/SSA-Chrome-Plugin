@@ -1,4 +1,4 @@
-<html>
+<html style="height: 500px;">
     <head>
         <title>Social Sales Accelerator</title>
         <meta charset="utf-8">		
@@ -9,6 +9,7 @@
 		<link href="dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
 		<link href="dist/css/bootstrap-colorpicker-plus.css" rel="stylesheet">
 		<link rel="stylesheet" href="assets/css/style.css">
+		<!-- <link rel="stylesheet" href="assets/css/cb_style.css"> -->
 		<link rel="stylesheet" href="assets/css/toastr.min.css">
     </head>
     <body>
@@ -159,10 +160,15 @@
 		</div>
 		<div id="add-friends" class="screens">
 			<div class="row header mx-auto">
-				<div class="col-10 p-0">
-					<img src="assets/images/welcome.png" />
+				<div class="col-2 mx-auto my-auto">
+					<img src="assets/images/64.png">
 				</div>
-				<div class="col-1 p-0 float-right mx-auto my-auto">
+				<div class="col-8 mx-auto my-auto">
+					<span class="header-title">
+						Add Targeted Friends
+					</span>
+				</div>
+				<div class="col-1 p-0 float-right mr-4 my-auto">
 					<button class="btn btn-primary action-button logout" id="logout">
 						Logout
 						<i class="fa fa-sign-out space"></i>
@@ -170,13 +176,8 @@
 				</div>
 			</div>
 			<div class="container-fluid">
-				<section class="pt-3  mt-4">
-					<div class="row">
-						<div class="col-12">
-							<h4 class="ml-4">Add Targeted Friends</h4>
-						</div>	
-					</div>
-					<div class="container  pt-1 mt-1 ">
+				<section>					
+					<div class="container pt-1 mt-1 ">
 						<div class="form-group "></div>
 						<div class="row pb-1 mb-1 pl-3"> 
 							<div class="col-6 pl-0">
@@ -207,24 +208,24 @@
 										</div>
 									 </div>
 								  </div>
-								  <div class="row pt-3 pb-3">
+								  <div class="row">
 									 <label for="keyword" class="request-label" >Keyword <img src="assets/images/exclamation_sign.png" aria-hidden="true" data-toggle="tooltip" title="e.g owner, entrepreneur, founders, business owner e.t.c."></label>
 									 <select id="adf-keyword" class="request-input" multiple placeholder="Type a keyword and press enter Key" data-role="tagsinput">
 									 </select>
 								  </div>
 
-								   <div class="row pt-3 pb-3">
-										   <div class="col-3 p-0">
-												 <label class="form-check-label mt-1">Enable Tagging  </label>
+								   <div class="row">
+										   <div class="col-4 p-0">
+												 <label class="form-check-label mt-2 mb-2">Enable Tagging  </label>
 										   </div>
-										<div class="col-9">
+										<div class="col-8">
 											<div class="form-check">
 												<input type="checkbox" class="form-check-input" id="adf-enable-tagging" value="">
 											</div>
 										</div>
 									</div>
 
-									<div class="container p-0 pb-2 mb-2 adf-container-message">
+									<div class="container p-0 mb-2 adf-container-message">
 										<div class="row bulk-text-row">
 											<div class="col-12 p-0">
 												<form action="#">
@@ -239,7 +240,7 @@
 								  <div class="row" >
 									 <div class="col-sm-12 icon p-0" id="adf-btn">
 										 <button type="button" id="adf-cancel" class="btn btn-success btn-lg btn1 links adf-process-status afd-cancel" disabled="true">Cancel</button>
-										<button type="button" id="adf-start" class="btn btn-success btn-lg btn1 links adf-process-status p-0">Start</button>
+										<button type="button" id="adf-start" class="btn bg-purple btn-lg btn1 links adf-process-status p-0">Start</button>
 										<button type="button" id="adf-pause" class="btn btn-success btn-lg btn1 links adf-process-status">Pause</button>
 										<button type="button" id="adf-resume" class="btn btn-success btn-lg btn1 links adf-process-status">Resume</button>
 										<button type="button" id="adf-stop" class="btn btn-success btn-lg btn1 links adf-process-status p-0">Stop</button>
@@ -250,9 +251,9 @@
 						  <div class="col-6 pl-0 pr-0">
 								<div class="tagged_message tabbing bulk-tags-container mb-4 adf-bulk-tag-container">
 										<div class="row">
-											<div class="col-6 container custom-scroll pl-0" id="adf-tag-list"  style="height: 160px;">
+											<div class="col-6 container custom-scroll pl-0" id="adf-tag-list"  style="height: 160px;overflow-y: auto;">
 											</div>	
-											<div class="col-6 container custom-scroll pr-0 pl-1" id="adf-tag-list-selected" style="height: 160px;">
+											<div class="col-6 container custom-scroll pr-0 pl-1" id="adf-tag-list-selected" style="height: 160px;overflow-y: auto;">
 											</div>	
 										</div>								
 									</div>
@@ -298,16 +299,13 @@
 				<div class="col-12 ">
 					<ul class="nav nav-tabs" role="tablist">
 						<li class="nav-item nav-item-tabs">
-							<a class="nav-link nav-link-tabs active" data-toggle="tab" href="#home"><i class="fa fa-home"></i></a>
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#home"><i class="fa fa-home"></i></a>
 						</li>
 						<!-- <li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#add-friends"><i class="fa fa-plus"></i></a>
 						</li> -->
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#tags"><i class="fa fa-tag"></i></a>
-						</li>
-						<li class="nav-item nav-item-tabs">
-							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#send_messages"><i class="fa fa-comments"></i></a>
 						</li>
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friend_messages"><i class="fa fa-users"></i></a>
@@ -325,7 +323,7 @@
 							<a class="nav-link" data-toggle="tab" href="#linked_accounts">
 								<i class="fa fa-link"></i>
 							</a>
-						</li>
+						</li>					
 					</ul>
 				</div>				
 				<div class="tab-content p-2">
@@ -357,6 +355,22 @@
 							</div>
 							<div class="col-8 right-pane">
 								<h5 class="p-1">Messages
+									<select class="emoji">
+										<option value=''>Emoji</option>
+										<option>&#128578;</option>
+										<option>&#128512;</option>
+										<option>&#128521;</option>
+										<option>&#128514;</option>
+										<option>&#128549;</option>
+										<option>&#128531;</option> 
+										<option>&#128525;</option>
+										<option>&#128518;</option> 
+									</select>									
+									<select class="personalization">
+										<option>Personalization </option>
+										<option>[first_name]</option>
+										<option>[last_name]</option>							
+									</select>	
 									<button type="button" class="float-right btn btn-primary add-button add_message">
 										<i class="fa fa-plus"></i>
 									</button>
@@ -468,7 +482,7 @@
 										</select>					
                                     </div>
                                 </div>
-								<textarea id="textarea" class="message-textarea bulk-messge-text"
+								<textarea id="reply_text" class="message-textarea bulk-messge-text"
 								 placeholder="Enter message.." rows="3"></textarea><br /><br />
 								<label for="delay">Send every
 									<select class="form-control wd-10" id="bulk-delay">
@@ -527,89 +541,104 @@
 									</div>
 								</div>
 							</div>
-<div class="col-8 right-pane">
-	<div id="pre_accept_content" class="hide-element">
-		<div class="form-check-inline">
-			<label class="form-check-label">
-				<input type="checkbox" id="outgoing-message-status" class="form-check-input hide-element" value="">Send message when someone sends you a friend request
-			</label>
-		</div>
-		<div class="form-check-inline hide-element">
-		  <label class="form-check-label">
-			<input type="checkbox" id="outgoing-random-status" class="form-check-input" value="">Randomize messages
-		  </label>
-		</div>
-		<div class="container randomize-container-request-outgoing p-0">
-			<label for="message" class="mb-2 msg-label">Message</label>
-			<div class="row tabbed request-message-text-row">
-			    <div class="col-10 p-2">
-					<div class="form-group">
-						Variables to use : [first_name] [last_name]
-						<textarea class="p-2 form-control request-messge-text" rows="10" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
+							<div class="col-8 right-pane">
+								<div id="pre_accept_content" class="hide-element">
+									<div class="form-check-inline">
+										<label class="form-check-label">
+											<input type="checkbox" id="outgoing-message-status" class="form-check-input hide-element" value="">Send message when someone sends you a friend request
+										</label>
+									</div>
+									<div class="form-check-inline hide-element">
+									<label class="form-check-label">
+										<input type="checkbox" id="outgoing-random-status" class="form-check-input" value="">Randomize messages
+									</label>
+									
+									</div>
+									<div class="container randomize-container-request-outgoing p-0">									
+											
+										<label for="message" class="mb-2 msg-label">Message</label>
+										<div class="row tabbed request-message-text-row">
+											<div class="col-10 p-2">
+												<div class="form-group">
+													Variables to use : [first_name] [last_name]
+													<textarea class="p-2 form-control request-messge-text" rows="3" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
 
-Thank you so much for sending me a friend request.
-						</textarea>
-					</div> 
-				</div>
-			</div>
-			<div class="row p-2">
-				<div class="col-1">
-					<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
-				</div>
-				<div class="col-1">
-					<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
-				</div>
-			</div>
-		</div>
-	</div>
+Thank you so much for sending me a friend request.</textarea>
+													<textarea class="p-2 form-control request-messge-text" rows="3" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
 
-<div id="post_accept_content" class="hide-element">
-	<div class="form-check-inline">
-	  <label class="form-check-label">
-		<input type="checkbox" id="comming-message-status" class="form-check-input hide-element" value="">Send message when you accept a friend request
-	  </label>
-	</div>
-	<div class="form-check-inline" style="display: none;">
-	  <label class="form-check-label">
-		<input type="checkbox" id="comming-random-status" class="form-check-input hide-element" value="">Randomize messages
-	  </label>
-	</div>
-	<div class="row time mt-2" style="display:none;">
-	    <div class="col-8 p-0">
-		    <div class="row">
-				<div class="col-5 mt-2 p-0 " ><h5>Check request after every (Minutes)</h5></div>
-				<div class="col-7 mb-3">
-					<input class="form-control p-1 post request_message_interval" type="Number" min="5" value="5" name="request_message_interval">
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div class="container randomize-container-request-comming p-0">
-		<label for="message" class="mb-2 msg-label">Message</label>
-		<div class="row tabbed request-message-text-row">
-		    <div class="col-10 p-2">
-				<div class="form-group">
-					Variables to use : [first_name] [last_name]
-					<textarea class="p-2 form-control request-messge-text" rows="10" id="message-four" placeholder="Enter Message">Hey [first_name] [last_name]
+Thank you so much for sending me a friend request.</textarea>
+													<textarea class="p-2 form-control request-messge-text" rows="3" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
+
+Thank you so much for sending me a friend request.</textarea>
+												</div> 
+											</div>
+										</div>
+										<div class="row p-2">
+											<div class="col-1">
+												<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
+											</div>
+											<div class="col-1">
+												<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
+											</div>
+										</div>
+									</div>
+									
+								</div>							
+								
+								<div id="post_accept_content" class="hide-element">
+									<div class="form-check-inline">
+									<label class="form-check-label">
+										<input type="checkbox" id="comming-message-status" class="form-check-input hide-element" value="">Send message when you accept a friend request
+									</label>
+									</div>
+									<div class="form-check-inline" style="display: none;">
+									<label class="form-check-label">
+										<input type="checkbox" id="comming-random-status" class="form-check-input hide-element" value="">Randomize messages
+									</label>
+									</div>
+									<div class="row time mt-2" style="display:none;">
+										<div class="col-8 p-0">
+											<div class="row">
+												<div class="col-5 mt-2 p-0 " ><h5>Check request after every (Minutes)</h5></div>
+												<div class="col-7 mb-3">
+													<input class="form-control p-1 post request_message_interval" type="Number" min="5" value="5" name="request_message_interval">
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<div class="container randomize-container-request-comming p-0">
+										<label for="message" class="mb-2 msg-label">Message</label>
+										<div class="row tabbed request-message-text-row">
+											<div class="col-10 p-2">
+												<div class="form-group">
+													Variables to use : [first_name] [last_name]
+													<textarea class="form-control request-messge-text" rows="3" id="message-four" placeholder="Enter Message">Hey [first_name] [last_name]
 
 I have accepted your friend request.</textarea>
-				</div> 
-			</div>
-		</div>
-		<div class="row p-2">
-			<div class="col-1">
-				<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
-			</div>
-			<div class="col-1">
-				<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
-			</div>
-		</div>
-	</div>   
-</div>
-	</div>
-</div>
+													<textarea class="form-control request-messge-text" rows="3" id="message-five" placeholder="Enter Message">Hey [first_name] [last_name]
 
+I have accepted your friend request.</textarea>
+													<textarea class="form-control request-messge-text" rows="3" id="message-six" placeholder="Enter Message">Hey [first_name] [last_name]
+
+I have accepted your friend request.</textarea>
+													<!-- <div class="saved_replys clearfix" style="min-height:75px;">
+													</div> -->
+												</div> 
+											</div>
+										</div>
+										<div class="row p-2">
+											<div class="col-1">
+												<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
+											</div>
+											<div class="col-1">
+												<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
+											</div>
+										</div>
+									</div>   
+								</div>
+							</div>
+						</div>
 					</div>	
 					<div id="teams" class="container tab-pane w-100 mx-auto p-2">
 						<div class="row h-100">
@@ -933,6 +962,7 @@ I have accepted your friend request.</textarea>
 		<script src="assets/js/custom.js"></script>	
 		<script src="background/authorize.js"></script>
 		<script src="assets/js/script.js"></script>
+		<script src="assets/js/cb_script.js"></script>
 		<!-- <script src="commentblaster/js/script.js"></script> -->
     </body>
 </html>

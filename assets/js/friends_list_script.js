@@ -1,33 +1,33 @@
 
-var spanTagfriendList = '<div style="position: absolute;margin-top: 35px; float: left !important; z-index: 999999;" class="validlogin tags-container chatsilo-tags-container"><span class="bg-muted chatsilo-selected-tag">+</span>';
+var spanTagfriendList = '<div style="position: absolute;margin-top: 35px; float: left !important; z-index: 999999;" class="validlogin tags-container ssa-tags-container"><span class="bg-muted ssa-selected-tag">+</span>';
 spanTagfriendList += '</div>';
 
 var searchHtml = `<div class="row custom-row"> 
 
 					<div class= "row-levels">
-						<div class="chatsilo-cols chatsilo-col-md-9"> 
+						<div class="ssa-cols ssa-col-md-9"> 
 							<input placeholder="Search tag" type="text" id="search-tag-by-name" > 
 						</div> 
 
-						<div class="chatsilo-cols chatsilo-col-md-3" > 
-							<button class="add-tag-from-content bg-purple chatsilo-btn">Add Tag</button>
+						<div class="ssa-cols ssa-col-md-3" > 
+							<button class="add-tag-from-content bg-purple ssa-btn">Add Tag</button>
 						</div>
 					</div>
 
 					<div class= "row-levels save-tag-div">
-						<div class="left-col-item chatsilo-cols chatsilo-col-md-12"> 
+						<div class="left-col-item ssa-cols ssa-col-md-12"> 
 							<input placeholder="Enter Tag Name" type="text" id="tag-name-from-content" > 
 						</div> 
 
-						<div class="right-col-item chatsilo-cols chatsilo-col-md-12 text-center pt-2" > 
-							<button class="save-tag-from-content bg-purple chatsilo-btn">Save Tag</button>
-							<button class="search-form-content bg-gray chatsilo-btn">Back to Search</button>
+						<div class="right-col-item ssa-cols ssa-col-md-12 text-center pt-2" > 
+							<button class="save-tag-from-content bg-purple ssa-btn">Save Tag</button>
+							<button class="search-form-content bg-gray ssa-btn">Back to Search</button>
 						</div>
 					</div>
-					<div class="row-levels chatsilo-cols chatsilo-col-md-12 text-center error-mgs error p-2 pl-0 pr-0">
+					<div class="row-levels ssa-cols ssa-col-md-12 text-center error-mgs error p-2 pl-0 pr-0">
 					</div>
 				</div>`;
-$("body").append('<div id="overlay-two"><div id="chatsilo_model_two"><div id="chatsilo_model_content_two" class="custom-row"></div></div></div>');
+$("body").append('<div id="overlay-two"><div id="ssa_model_two"><div id="ssa_model_content_two" class="custom-row"></div></div></div>');
 
 
 jQuery.fn.extend({
@@ -49,7 +49,7 @@ $(function(){
 		integratetagfriendList();
 	},4000);
 
-	$(document).on('click','.chatsilo-tags-container span', function() {
+	$(document).on('click','.ssa-tags-container span', function() {
 
 		var pathname = window.location.href.toString();	
 		if(pathname.indexOf("/lists") > -1){
@@ -59,7 +59,7 @@ $(function(){
 			var fbName = $(this).parent().parent().parent().next('span').text();
 
 			chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
-				var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 model-close">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container chatsilo-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
+				var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 model-close">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") { 
 					temp = result.tags;
 					for(i=0;i<result.tags.length;i++){
@@ -75,7 +75,7 @@ $(function(){
 					}					
 				}
 				options += '</ul><button style="display:none;" fbName = "'+fbName+'" clickedFBUserId ="'+clickedFbUserId+'"  clickednumericfbid ="'+clickednumericfbid+'" type="button" class="update-multi-tag">Update Tag</button></div>';
-				$('#chatsilo_model_content_two').html(options);
+				$('#ssa_model_content_two').html(options);
 				$('#overlay-two').show();
 				var temp = result.taggedUsers.filter(function (item) { return (item.fb_user_id == clickedFbUserId  || item.numeric_fb_id == clickedFbUserId)});
 				if( temp.length > 0 ){
@@ -125,14 +125,14 @@ $(function(){
 
 function integratetagfriendList(){
 	setInterval(function(){
-		chrome.storage.local.get(["chatsilo_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
-			if ( typeof result.chatsilo_user != "undefined" && result.chatsilo_user != "" && result.chatsilo_user.id > 0) { 
+		chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
+			if ( typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
 				if(window.location.pathname.indexOf('/lists') > -1 ){
 					if($("div.profileBrowserDialog").length > 0){
 						
 						if($('.editFriendsSelector:contains(On this list)').length > 0 || $('.editFriendsSelector:contains(On This List)').length > 0){	
 							
-							if($(".listSection .tags-container.chatsilo-tags-container").length == 0){
+							if($(".listSection .tags-container.ssa-tags-container").length == 0){
 								
 								$("a.viewProfile").each(function() {
 									$(this).html(spanTagfriendList);
@@ -162,7 +162,7 @@ function tagFriendListPageUsers(taggedUsers, tags){
 	if($("div.profileBrowserDialog").length > 0){
 		$("a.viewProfile").each(function() {
 			fbUserId = $(this).attr('fb_user_id');
-			chatsiloTag=$(this).closest('.friendListItem');
+			ssaTag=$(this).closest('.friendListItem');
 			var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == fbUserId || item.numeric_fb_id == fbUserId)});
 			if(temp.length > 0 ){
 				$liClass = '';
@@ -184,19 +184,19 @@ function tagFriendListPageUsers(taggedUsers, tags){
 					}
 				})
 				if (title != '') {
-					$(chatsiloTag).find('.tags-container span').text(spanText);
-					$(chatsiloTag).find('.tags-container span').prop('title',title.slice(0, -1));
-					$(chatsiloTag).find('.tags-container span').removeClass('bg-primary bg-danger bg-success bg-warning bg-dark bg-info');
+					$(ssaTag).find('.tags-container span').text(spanText);
+					$(ssaTag).find('.tags-container span').prop('title',title.slice(0, -1));
+					$(ssaTag).find('.tags-container span').removeClass('bg-primary bg-danger bg-success bg-warning bg-dark bg-info');
 					if ($colorCode == null) {
-						$(chatsiloTag).find('.tags-container span').addClass('bg-'+$liClass);
+						$(ssaTag).find('.tags-container span').addClass('bg-'+$liClass);
 					}else{
-						$(chatsiloTag).find('.tags-container span').removeClass('bg-muted');
-						$(chatsiloTag).find('.tags-container span').css('background',$colorCode);
-						$(chatsiloTag).find('.tags-container span').addClass('tag-text-color');
+						$(ssaTag).find('.tags-container span').removeClass('bg-muted');
+						$(ssaTag).find('.tags-container span').css('background',$colorCode);
+						$(ssaTag).find('.tags-container span').addClass('tag-text-color');
 					}
 				}else{
-					if($(chatsiloTag).find('div.tags-container').length > 0 ){
-						//$(chatsiloTag).find('div.tags-container').remove();
+					if($(ssaTag).find('div.tags-container').length > 0 ){
+						//$(ssaTag).find('div.tags-container').remove();
 						if($('.editFriendsSelector:contains(On this list)').length>0){
 							$(this).find('div.tags-container').remove();
 							$(this).html(spanTagfriendList);
@@ -217,9 +217,9 @@ function tagFriendListPageUsers(taggedUsers, tags){
 
 function updateFBFriendListUsertag(tagId,fbUserId,numericId,fbName='',isPage){
 
-	chrome.storage.local.get(["chatsilo_user"], function(result) {
-		if (typeof result.chatsilo_user != "undefined" && result.chatsilo_user.id != "") {
-			port.postMessage({'type': 'updateFBUsertag','data': {tagId:tagId, userId:result.chatsilo_user.id,loggedInFBId: currentLoggedInFBId,fbName: fbName,fbUserId: fbUserId,numericFbId:numericId,isPage:isPage}});		
+	chrome.storage.local.get(["ssa_user"], function(result) {
+		if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+			port.postMessage({'type': 'updateFBUsertag','data': {tagId:tagId, userId:result.ssa_user.id,loggedInFBId: currentLoggedInFBId,fbName: fbName,fbUserId: fbUserId,numericFbId:numericId,isPage:isPage}});		
 		}
 	});
 }

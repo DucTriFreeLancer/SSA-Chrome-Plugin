@@ -34,7 +34,7 @@ var ADF_PopUp = `
 						<span class="total-friends" id="limit">0</span>
 						</h2>
 					</div>
-					<div class="block" id="chatsilo-msgs">
+					<div class="block" id="ssa-msgs">
 					Progress
 					</div><br>
 					
@@ -81,7 +81,7 @@ chrome.extension.onMessage.addListener(function(message, sender, send_response) 
 						ADF_processingTabId = message.tabId;
 						ADF_add_friend_processingStatus = 'running';
 					 	
-				 		$('#chatsilo_model_content').html(ADF_PopUp);
+				 		$('#ssa_model_content').html(ADF_PopUp);
 				 		$('#friend-convert-action').text('Is sending friend request');
 					 	$('#limit').text(ADF_limit);
 					 	$('.member-name').text('');
@@ -101,7 +101,7 @@ chrome.extension.onMessage.addListener(function(message, sender, send_response) 
     }else if(message.type == 'adf-pause'){
     	ADF_add_friend_processingStatus = 'paused';
     	ADF_add_friend_processing = false; 
-    	$('#chatsilo-msgs').text("Paused");
+    	$('#ssa-msgs').text("Paused");
     	$('.member-name').text('');
     	adfClearAutomaticIntervals();
     }else if(message.type == 'adf-resume'){
@@ -114,7 +114,7 @@ chrome.extension.onMessage.addListener(function(message, sender, send_response) 
     	ADF_add_friend_stopProcess = true;
     	ADF_add_friend_processingStatus = 'stopped';
     	$('.member-name').text('');
-    	$('#chatsilo-msgs').text('Stopped.');
+    	$('#ssa-msgs').text('Stopped.');
     	ADF_profileDelay = 0;
     	adfClearAutomaticIntervals();
     	ADF_hide_loader();
@@ -134,7 +134,7 @@ function AFD_processGroupMembersForNew(history = 0) {
 	}
 	ADF_total = $('h2.gmql0nx0.l94mrbxd span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7:contains(Members):eq(0)').text().replace(/[^\d]/g, '');
 	$('.total-friends:not([id])').text(ADF_total);
-	$('#chatsilo-msgs').text("In progress");
+	$('#ssa-msgs').text("In progress");
 	$('#text h2').text("Total Members");
 	$('#overlay').show();
 	
@@ -177,7 +177,7 @@ function AFD_processGroupMembersForNew(history = 0) {
 
 										ADF_add_friend_totalSend=ADF_add_friend_totalSend+1;										
 									    $('#processed-members').text(ADF_add_friend_totalSend);
-									    $('#chatsilo-msgs').text("Requests sent");
+									    $('#ssa-msgs').text("Requests sent");
 									    changeProgressBar(ADF_limit,ADF_add_friend_totalSend);
 									}else{
 										//console.log($(this).find('.qzhwtbm6.knvmm38d:eq(0) a:eq(0)').text());
@@ -196,7 +196,7 @@ function AFD_processGroupMembersForNew(history = 0) {
 		                        tempTwo.state = '';
 		                        chrome.storage.local.set({"ADF_State":tempTwo}); 
 		                        adfClearAutomaticIntervals();
-								$('#chatsilo-msgs').text('Limit exceeded..');
+								$('#ssa-msgs').text('Limit exceeded..');
 								ADF_hide_loader();
 							}
 						},ADF_profileDelay);
@@ -236,7 +236,7 @@ function AFD_processGroupMembersForNew(history = 0) {
 			chrome.storage.local.set({"ADF_State":tempTwo}); 
 			adfClearAutomaticIntervals();
 			ADF_add_friend_processingStatus = 'completed';
-			$('#chatsilo-msgs').text("Completed");
+			$('#ssa-msgs').text("Completed");
 			ADF_hide_loader()
 
 		}
@@ -317,9 +317,9 @@ function addTagAndSendWelcomeMessage(adfMemberId){
 }
 
 function updateFBUsertagViaADF(tagId, fbUserId, numericFbId, profilePic, fbName='',page){
-	chrome.storage.local.get(["chatsilo_user"], function(result) {
-		if (typeof result.chatsilo_user != "undefined" && result.chatsilo_user.id != "") {
-			port.postMessage({'type': 'updateFBUsertag','data': {tagId:tagId, userId:result.chatsilo_user.id, isPage:page, loggedInFBId: currentLoggedInFBId, fbUserId: fbUserId,numericFbId:numericFbId, profilePic:profilePic, fbName: fbName}});		
+	chrome.storage.local.get(["ssa_user"], function(result) {
+		if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+			port.postMessage({'type': 'updateFBUsertag','data': {tagId:tagId, userId:result.ssa_user.id, isPage:page, loggedInFBId: currentLoggedInFBId, fbUserId: fbUserId,numericFbId:numericFbId, profilePic:profilePic, fbName: fbName}});		
 		}
 	});
 }

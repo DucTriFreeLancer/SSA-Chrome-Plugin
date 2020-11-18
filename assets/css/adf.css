@@ -1,0 +1,124 @@
+#ssa_model_content {
+    border-radius: 7px;
+}
+
+#ssa_model_content {
+    position: fixed;
+    right:  20px;
+    width: 300px;
+    bottom: 20px;
+    background: rgb(255, 255, 255);
+}
+#ssa_model_content div {
+    float: left;
+}
+
+#ssa_model_content_content {
+    float: left;
+    width: 100%;
+    height: auto;
+    padding-bottom: 30px;
+}
+#ssa_model_content .text {
+    width: 100%;
+    line-height: 23px;
+    color: rgb(0, 0, 0);
+    margin-top: 14%;
+    text-align: center !important;
+    font-size: 20px !important;
+}
+
+#ssa_model_content div {
+    float: left;
+}
+
+#sfr-popup {
+    margin-top: 0px !important;
+    background:#03384f;
+    border-radius: 7px;
+}
+#ssa_model_content .text h3 {
+    font-size: 13px !important;
+}
+
+#sfr-popup h3 {
+    color: white;
+    text-align: center;
+    padding-bottom: 8px !important;
+}
+#ssa_model_content .text {
+    width: 100%;
+    line-height: 23px;
+    color: rgb(0, 0, 0);
+    margin-top: 14%;
+    text-align: center !important;
+    font-size: 20px !important;
+}
+#ssa_model_content .text h2 {
+    width: 100%;
+    line-height: 23px;
+    color: rgb(51, 51, 51);
+    margin-top: 0px;
+    text-align: center !important;
+    font-size: 24px !important;
+}
+
+#ssa_model_content div {
+    float: left;
+}
+#processed-members {
+    color: #03384f !important;
+    font-size: 50px !important;
+}
+#subdivision {
+    font-size: 28px;
+}
+
+.total-friends, #subdivision {
+    margin-left: -5px;
+    color: #03384f;
+}
+.total-friends, #subdivision {
+    margin-left: -5px;
+    color: #03384f;
+}
+#ssa_model_content .block {
+    width: 100%;
+    line-height: 18px;
+    text-align: center;
+    color: #03384f;
+    font-weight: 500;
+    margin-top: 4%;
+    font-size: 12px !important;
+}
+
+#ssa_model_content div {
+    float: left;
+}
+
+#chatsilo-msgs {
+    margin-top: 3%;
+    margin-bottom: 5%;
+    padding-bottom: 21px !important;
+}
+.progress {
+    display: block;
+    width: 90%;
+    height: 5px;
+    margin-left: 13px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: linear-gradient(to right, black, black) 0% 0% / 0px 100% no-repeat rgb(245, 245, 245);
+    background-repeat: no-repeat;
+    transition: background-size 0.4s ease-in-out 0s;
+}
+.sendRequestName {
+    text-align: center;
+    width: 100%;
+    float: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: #03384f;
+    padding-top: 8px;
+    padding-bottom: 10px;
+}
