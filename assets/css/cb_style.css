@@ -73,9 +73,9 @@ h1 {
     font-size: 28px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+/* h1, h2, h3, h4, h5, h6 {
     margin: 1.5em 0 1em;
-}
+} */
 .card_style{
     padding: 0;
 }

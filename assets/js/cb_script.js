@@ -72,6 +72,12 @@ $(document).ready(function () {
 		 $('.saved_reply_filters p').remove();
 		 
     });
+    $('#remove_message').click(function () {
+
+        chrome.storage.sync.set({message_friends: []});
+        $('.saved_message_friends p').remove();
+        
+   });
 
     $('#new_reply_filter').click(function () {
 
@@ -334,7 +340,7 @@ $(document).ready(function () {
             let reply_filters = [];
             if (reply_filter_bytes != 0) {
                 reply_filters = items.reply_filters;
-                console.log(reply_filters);
+                // console.log(reply_filters);
             }
             let reply_filter_input = $('#reply_filter');
             if (reply_filter_input.val().length > 1) {
@@ -348,13 +354,11 @@ $(document).ready(function () {
                     reply_filter +
                     " <button class='btn btn-sm btn-default float-right remove_reply_filter' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
                     "</p>");
-            }
+            }remove_reply_filter
         });
     });
-
-
-    /////* Remove Reply Filter */////
-    $(document).on('click', '.remove_reply_filter', function (e) {
+     /////* Remove Reply Filter */////
+     $(document).on('click', '.remove_reply_filter', function (e) {
 
         chrome.storage.sync.getBytesInUse(['reply_filters'], replyFilterBytes);
         chrome.storage.sync.get('reply_filters', items => {
@@ -374,6 +378,90 @@ $(document).ready(function () {
         });
 
     });
+
+    /////* Show Reply Texts onLoad */////
+    var message_bytes = '';
+
+    function replyBytes(bytes) {
+        message_bytes = bytes;
+    }
+
+    // gets the number of bytes used in sync storage area
+   chrome.storage.sync.getBytesInUse(['message_friends'], replyBytes);
+    chrome.storage.sync.get('message_friends', items => {
+
+        if (message_bytes != 0) {
+            const message_friends = items.message_friends;
+            Object.keys(message_friends).forEach(key => {
+                var reply = message_friends[key];
+				var reg = /'/g;
+				var newstr = "";
+				var datareply =  reply.replace(reg,newstr);
+				
+                $(".saved_replys").prepend("<p class='btn-outline-rounded  saved_tags'  data-url='"+datareply+"'>"+
+                    reply +
+                    " <button class='btn btn-sm btn-default float-right remove_reply' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
+                    "</p>");
+            });
+
+            if (!message_friends.length) {
+                $(".saved_replys").prepend('<p class="text-center text-danger nothing_text">Please add some replies</p>');
+
+            }
+        }else{
+            $(".saved_replys").prepend('<p class="text-center text-danger nothing_text">Please add some replies</p>');
+        }
+    });
+
+    /////* Add New Reply Filter */////
+    $(document).on('click', '#submit_message_friend', function (e) {
+        e.preventDefault();
+
+        chrome.storage.sync.getBytesInUse(['message_friends'], replyFilterBytes);
+        chrome.storage.sync.get('message_friends', items => {
+            let message_friends = [];
+            if (message_bytes != 0) {
+                message_friends = items.message_friends;
+                // console.log(reply_filters);
+            }
+            let message_friend_input = $('#message_text');
+            if (message_friend_input.val().length > 1) {
+                let message_friend = reply_filter_input.val();
+                message_friends.push(message_friend);
+                chrome.storage.sync.set({message_friends: message_friends});
+                message_friend_input.val('');
+
+                $(".saved_reply_filters").find('.nothing_text').remove();
+                $(".saved_reply_filters").prepend("<p class='btn-outline-rounded saved_tags'  data-reply_filter='"+message_friend+"'>"+
+                    message_friend +
+                    " <button class='btn btn-sm btn-default float-right remove_reply_filter' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
+                    "</p>");
+            }
+        });
+    });
+
+     /////* Remove Reply Filter */////
+     $(document).on('click', '.remove_message', function (e) {
+
+        chrome.storage.sync.getBytesInUse(['message_friends'], replyFilterBytes);
+        chrome.storage.sync.get('message_friends', items => {
+            let message_friends = [];
+            if (reply_filter_bytes != 0) {
+                message_friends = items.message_friends;
+                let message_friend = $(this).closest('p');
+                message_friends.splice(message_friends.indexOf(message_friend.data('reply_filter')),1);
+                message_friend.remove();
+                chrome.storage.sync.set({message_friends: message_friends});
+
+                if (!message_friends.length) {
+                    $(".saved_reply_filters").prepend('<p class="text-center text-danger nothing_text">No Filter Text added yet</p>');
+
+                }
+            }
+        });
+
+    });
+   
 
 
     ////* Populate Post id if we have in URL *////
