@@ -1479,7 +1479,7 @@ $(document).ready(function(){
 											<div class="card-text">`+message.message+`</div>
 										</div>
 									</div>
-									<textarea class="form-control edit-message-text" style="display: none;" id="message" placeholder="write message... ">`+message.message+`</textarea>
+									<textarea class="form-control edit-message-text" style="display: none;" id="reply_text" placeholder="write message... ">`+message.message+`</textarea>
 								</div>
 								<div class="col-2 my-auto">
 									<div class="row">
@@ -1488,7 +1488,10 @@ $(document).ready(function(){
 										</div>
 										<div class="col-4 my-auto">
 											<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
-										</div>						
+										</div>		
+										<div class="col-4 my-auto">
+											<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
+										</div>				
 										<div class="col-4 my-auto">
 											<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
 										</div>
@@ -1522,7 +1525,17 @@ $(document).ready(function(){
 			$("#message-list").html(noMessagesUnderTemplate);
 		}
     });
-
+	$(document).on('click','.save-message', function(){
+		var edit_message = $(this).closest('.message_name');	
+		selected_message=	$(edit_message).find('.edit-message-text');
+		tempMessage = $(this).parent().parent().parent().parent();
+		tempMessageId = tempMessage.attr('message-id');	
+		if (typeof tempMessageId !== typeof undefined && tempMessageId !== false) {
+			saveMessage($(selected_message).val(), tempMessageId);
+		} else {
+			saveMessage($(selected_message).val());
+		}
+    });
 	$(document).on('click','.delete-message', function(){
 		tempMessage = $(this).parent().parent().parent().parent();
 		tempMessageId = tempMessage.attr('message-id');	
@@ -1616,15 +1629,15 @@ $(document).ready(function(){
 		$(edit_message).find('.edit-message-text').show().focus();
 	});
 
-    $(document).on('blur','.edit-message-text', function() {
-		selected_message = this;
-		var attr = $(this).parent().parent().attr('message-id');
-		if (typeof attr !== typeof undefined && attr !== false) {
-			saveMessage($(this).val(), attr);
-		} else {
-			saveMessage($(this).val());
-		}	
-	});	
+    // $(document).on('blur','.edit-message-text', function() {
+	// 	selected_message = this;
+	// 	var attr = $(this).parent().parent().attr('message-id');
+	// 	if (typeof attr !== typeof undefined && attr !== false) {
+	// 		saveMessage($(this).val(), attr);
+	// 	} else {
+	// 		saveMessage($(this).val());
+	// 	}	
+	// });	
 
 /*----------------tag-------------------*/
 
@@ -3900,7 +3913,7 @@ function loadMoreMessages() {
 						messageList +=`<div class="row tabbing message-item" message-id="`+message.id+`">
 										<div class="col-10 pl-1">
 											Variables to use : [first_name] [last_name]
-											<textarea class="form-control edit-message-text" id="message" placeholder="write message... ">`+message.message+`</textarea>
+											<textarea class="form-control edit-message-text" id="reply_text" placeholder="write message... ">`+message.message+`</textarea>
 										</div>
 										<div class="col-2 mt-3">
 											<img src="assets/images/delete_icon.png" class="mt-1 delete-msg" title="delete">
@@ -5176,7 +5189,7 @@ function getTemplateMessages(isSearch = false){
 										<div class="card-text">`+message.message+`</div>
 									</div>
 								</div>
-								<textarea class="form-control edit-message-text" id="message" placeholder="write message... " style="display: none;">`+message.message+`</textarea>
+								<textarea class="form-control edit-message-text" id="reply_text" placeholder="write message... " style="display: none;">`+message.message+`</textarea>
 							</div>
 							<div class="col-2 my-auto">
 								<div class="row">
@@ -5185,6 +5198,9 @@ function getTemplateMessages(isSearch = false){
 									</div>
 									<div class="col-4 my-auto">
 										<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
+									</div>
+									<div class="col-4 my-auto">
+										<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
 									</div>						
 									<div class="col-4 my-auto">
 										<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
@@ -5341,7 +5357,96 @@ function getSearchTagContact(){
 	    }
 	});
 }
+$(document).on('change', '.emojiBulk', function (e) {
+	let emoji= $(this).val();
+	if(emoji!==''){
+		let bulk_text = $('#bulk_text').val(); 
+		//var position = $('#reply_text').prop("selectionStart");
+		 chrome.storage.sync.get('emoji_bulk_focus', item => {
+			 
+			if (bulk_text.length > 1 && item.emoji_bulk_focus!=0) {
+				var count = Array.from(bulk_text.split(/[\ufe00-\ufe0f]/).join("")).length;
+			 
+				const usingSpread = [...bulk_text]; 
+			  
+				 var output = usingSpread.slice(0, item.emoji_bulk_focus).join('') +  emoji + usingSpread.slice(item.emoji_bulk_focus, count).join('');
+					  
+				 $('#bulk_text').val(output);  
 
+			}
+			 else if (bulk_text.length > 1 && item.emoji_bulk_focus==0) {
+ 
+				 $('#bulk_text').val(bulk_text + emoji); 
+			}else{
+				 $('#bulk_text').val(emoji); 
+			} 
+			chrome.storage.sync.set({emoji_bulk_focus: parseInt(item.emoji_bulk_focus) +1 });
+		
+		 });
+	}
+		  
+   
+});
+
+
+$( "#bulk_text" ).click(function() { 
+ var position = $('#bulk_text').prop("selectionStart"); 
+ var bulk_text = $('#bulk_text').val().substr(0, position);
+ var minus= ((bulk_text.match(/🙂/g) || []).length) + ((bulk_text.match(/😀/g) || []).length) + 
+ ((bulk_text.match(/😉/g) || []).length)+
+ ((bulk_text.match(/😂/g) || []).length)+ 
+ ((bulk_text.match(/😥/g) || []).length) + 
+ ((bulk_text.match(/😓/g) || []).length)+ 
+ ((bulk_text.match(/😍/g) || []).length)+ 
+ ((bulk_text.match(/😆/g) || []).length)
+			
+  chrome.storage.sync.set({emoji_bulk_focus: position-minus });
+});
+
+$( "#bulk_text" ).blur(function() { 
+ var position = $('#bulk_text').prop("selectionStart"); 
+ var bulk_text = $('#bulk_text').val().substr(0, position);
+var minus= ((bulk_text.match(/🙂/g) || []).length) + ((bulk_text.match(/😀/g) || []).length) + 
+ ((bulk_text.match(/😉/g) || []).length)+
+ ((bulk_text.match(/😂/g) || []).length)+ 
+ ((bulk_text.match(/😥/g) || []).length) + 
+ ((bulk_text.match(/😓/g) || []).length)+ 
+ ((bulk_text.match(/😍/g) || []).length)+ 
+ ((bulk_text.match(/😆/g) || []).length)
+   
+ var position = $('#bulk_text').prop("selectionStart"); 
+  chrome.storage.sync.set({emoji_bulk_focus: position-minus  });
+});
+
+$(document).on('change', '.personalizationBulk', function (e) {
+	let personalizationBulk= $(this).val();
+	if(personalizationBulk!==''){
+		let bulk_text = $('#bulk_text').val();  
+		var length = personalizationBulk.length;
+		 chrome.storage.sync.get('emoji_bulk_focus', item => {
+			 
+			if (bulk_text.length > 1 && item.emoji_bulk_focus!=0) {
+				var count = Array.from(bulk_text.split(/[\ufe00-\ufe0f]/).join("")).length;
+			 
+				const usingSpread = [...bulk_text]; 
+			  
+				 var output = usingSpread.slice(0, item.emoji_bulk_focus).join('') +  personalizationBulk + usingSpread.slice(item.emoji_bulk_focus, count).join('');
+					  
+				 $('#bulk_text').val(output);  
+
+			}
+			 else if (bulk_text.length > 1 && item.emoji_bulk_focus==0) {
+ 
+				 $('#bulk_text').val(bulk_text + personalizationBulk); 
+			}else{
+				 $('#bulk_text').val(personalizationBulk); 
+			} 
+			 
+			chrome.storage.sync.set({emoji_bulk_focus: parseInt(item.emoji_bulk_focus) + length });
+		
+		 });
+	} 
+});
 jQuery.fn.extend({
 	'showInlineBlock': function () {
 		$(this).css('display','inline-block');

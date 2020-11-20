@@ -9,7 +9,7 @@
 		<link href="dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
 		<link href="dist/css/bootstrap-colorpicker-plus.css" rel="stylesheet">
 		<link rel="stylesheet" href="assets/css/style.css">
-		<link rel="stylesheet" href="assets/css/cb_style.css">
+		<!-- <link rel="stylesheet" href= "assets/css/cb_style.css"> -->
 		<link rel="stylesheet" href="assets/css/toastr.min.css">
     </head>
     <body>
@@ -372,6 +372,9 @@
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#tags"><i class="fa fa-tag"></i></a>
 						</li>
 						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#send_messages"><i class="fa fa-comments"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friend_messages"><i class="fa fa-users"></i></a>
 						</li>
 						<li class="nav-item nav-item-tabs">
@@ -527,7 +530,7 @@
 								<div class="form-group">
                                     <div class="inputBox">
                                         <label>New Message...</label>										
-										<select class="emoji">
+										<select class="emojiBulk">
 											<option value=''>Emoji</option>
 											<option>🙂</option>
 											<option>😀</option>
@@ -539,14 +542,14 @@
 											<option>😆</option> 
 										</select>
 										
-										<select class="personalization">
+										<select class="personalizationBulk">
 											<option>Personalization </option>
 											<option>[first_name]</option>
 											<option>[last_name]</option>							
 										</select>					
                                     </div>
                                 </div>
-								<textarea id="reply_text" class="message-textarea bulk-messge-text"
+								<textarea id="bulk_text" class="message-textarea bulk-messge-text"
 								 placeholder="Enter message.." rows="3"></textarea><br /><br />
 								<label for="delay">Send every
 									<select class="form-control wd-10" id="bulk-delay">

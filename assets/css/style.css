@@ -90,10 +90,10 @@ img{
 }
 
 .scroll {
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 .scroll-vertical {
-	overflow-y: scroll;
+	overflow-y: auto;
 	height: 350px;
 }
 
