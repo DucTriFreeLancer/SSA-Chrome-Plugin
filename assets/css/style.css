@@ -1079,7 +1079,7 @@ label.no-flex{
 .bulk-process-status, .bulk-message-unique-total, .bulk-message-counter{
 	display:inline-flex;
 }
-.personalization {
+.personalization,.personalizationTemplates,.personalizationBulk {
 	height: 30px;
 	/* float: right; */
 	margin-bottom: 10px;
@@ -1089,7 +1089,7 @@ label.no-flex{
 	margin-right: 10px;
 	border-radius: 30px;
 }
-.emoji {
+.emoji,.emojiTemplates,.emojiBulk {
 	height: 30px;
 	/* float: right; */
 	margin-bottom: 10px;
@@ -1097,4 +1097,56 @@ label.no-flex{
 	padding: 0 10px;
 	width: 100px;
 	border-radius: 30px;
+
+}
+#new_message_friend {
+    color: #ffffff;
+}
+.bg-blue {
+    background-color: #2c9deb;
+    margin: 20px 0px;
+}
+
+.bg-red {
+    background-color: #DD2D00;
+    margin: 20px 0px;
+}
+.bg-red:hover{
+	color:#ffffff;
+}
+.message_texts{
+    display: block;
+    overflow: hidden;
+    background: rgba(245, 245, 255, 0.6);
+    padding-top: 15px;
+    margin: 10px 0px;
+}
+
+.saved_tags{
+    padding: 4px 8px;
+    background: #ebebeb;
+    float: left;
+    margin: 5px;
+    border-radius: 25px;
+    font-style: italic;
+    color: #333;
+	max-width:500px;
+}
+.saved_message_friends{
+    background: #fff;
+    padding: 15px 5px;
+    box-shadow: 1px 1px 6px #ccc;
+}
+.remove_message_friend{
+    background: gray;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 25px;
+}
+#new_message_friend{
+    color:#ffffff;
+}
+textarea {
+	min-height: 100px !important;
+	width: 100%;
 }

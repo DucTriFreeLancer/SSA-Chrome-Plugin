@@ -84,6 +84,16 @@ $(document).ready(function () {
         $('#reply_filters').modal(300);
 
     });
+    $('#new_message_friend').click(function () {
+
+        $('#message_texts').modal(300);
+
+    });
+
+    $('#remove_message_friend').click(function () {
+        chrome.storage.sync.set({messages: []});
+		$('.saved_message_friends p').remove();
+    });
 
     $('#post_id').keyup(function (ev) {
 
@@ -297,7 +307,90 @@ $(document).ready(function () {
 
     });
 
+    /////* Show Message Texts onLoad */////
+    var message_bytes = '';
 
+    function messageBytes(bytes) {
+        message_bytes = bytes;
+    }
+
+    // gets the number of bytes used in sync storage area
+   chrome.storage.sync.getBytesInUse(['messages'], messageBytes);
+    chrome.storage.sync.get('messages', items => {
+
+        if (message_bytes != 0) {
+            const messages = items.messages;
+            Object.keys(messages).forEach(key => {
+                var message = messages[key];
+				var reg = /'/g;
+				var newstr = "";
+				var datamessage =  message.replace(reg,newstr);
+				
+                $(".saved_message_friends").prepend("<p class='btn-outline-rounded  saved_tags'  data-message='"+datamessage+"'>"+
+                    message +
+                    " <button class='btn btn-sm btn-default float-right remove_message_friend' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
+                    "</p>");
+            });
+
+            if (!messages.length) {
+                $(".saved_message_friends").prepend('<p class="text-center text-danger nothing_text">Please add some messages</p>');
+
+            }
+        }else{
+            $(".saved_message_friends").prepend('<p class="text-center text-danger nothing_text">Please add some messages</p>');
+        }
+    });
+
+     /////* Add New Message Text */////
+    $(document).on('click', '#submit_message', function (e) {
+        e.preventDefault();
+
+        chrome.storage.sync.getBytesInUse(['messages'], messageBytes);
+        chrome.storage.sync.get('messages', items => {
+            let messages = [];
+            if (message_bytes != 0) {
+                messages = items.messages;
+                //console.log(replys);
+            }
+            let message_input = $('#reply_text');
+            if (message_input.val().length > 1) {
+                let message = message_input.val().replace(/\r?\n/g, '<br />');
+                messages.push(message);
+                chrome.storage.sync.set({messages: messages});
+                message_input.val('');
+                var reg = /'/g;
+                var newstr = "";
+                var datareply =  message.replace(reg,newstr);
+    
+                $(".saved_message_friends").find('.nothing_text').remove();
+                $(".saved_message_friends").prepend("<p class='btn-outline-rounded saved_tags'  data-message='"+datareply+"'>"+
+                message +
+                    " <button class='btn btn-sm btn-default float-right remove_message_friend' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
+                    "</p>");
+            }
+        });
+    });
+     /////* Remove Message Filter */////
+     $(document).on('click', '.remove_message_friend', function (e) {
+
+        chrome.storage.sync.getBytesInUse(['messages'], messageBytes);
+        chrome.storage.sync.get('messages', items => {
+            let messages = [];
+            if (message_bytes != 0) {
+                messages = items.messages;
+                let message = $(this).closest('p');
+                messages.splice(messages.indexOf(message.data('message')),1);
+                message.remove();
+                chrome.storage.sync.set({messages: messages});
+
+                if (!messages.length) {
+                    $(".saved_message_friends").prepend('<p class="text-center text-danger nothing_text">No Filter Text added yet</p>');
+
+                }
+            }
+        });
+
+    });
 
     /////* Show Reply Filters onLoad */////
     var reply_filter_bytes = '';
@@ -379,15 +472,15 @@ $(document).ready(function () {
 
     });
 
-    /////* Show Reply Texts onLoad */////
+    /////* Show Message Texts onLoad */////
     var message_bytes = '';
 
-    function replyBytes(bytes) {
+    function messageBytes(bytes) {
         message_bytes = bytes;
     }
 
     // gets the number of bytes used in sync storage area
-   chrome.storage.sync.getBytesInUse(['message_friends'], replyBytes);
+   chrome.storage.sync.getBytesInUse(['message_friends'], messageBytes);
     chrome.storage.sync.get('message_friends', items => {
 
         if (message_bytes != 0) {
@@ -417,7 +510,7 @@ $(document).ready(function () {
     $(document).on('click', '#submit_message_friend', function (e) {
         e.preventDefault();
 
-        chrome.storage.sync.getBytesInUse(['message_friends'], replyFilterBytes);
+        chrome.storage.sync.getBytesInUse(['message_friends'], messageBytes);
         chrome.storage.sync.get('message_friends', items => {
             let message_friends = [];
             if (message_bytes != 0) {
@@ -426,7 +519,7 @@ $(document).ready(function () {
             }
             let message_friend_input = $('#message_text');
             if (message_friend_input.val().length > 1) {
-                let message_friend = reply_filter_input.val();
+                let message_friend = message_friend_input.val();
                 message_friends.push(message_friend);
                 chrome.storage.sync.set({message_friends: message_friends});
                 message_friend_input.val('');
@@ -443,7 +536,7 @@ $(document).ready(function () {
      /////* Remove Reply Filter */////
      $(document).on('click', '.remove_message', function (e) {
 
-        chrome.storage.sync.getBytesInUse(['message_friends'], replyFilterBytes);
+        chrome.storage.sync.getBytesInUse(['message_friends'], messageBytes);
         chrome.storage.sync.get('message_friends', items => {
             let message_friends = [];
             if (reply_filter_bytes != 0) {

@@ -225,26 +225,27 @@
 										</div>
 									</div>
 									<div class="row">
-										<div class="col-sm-12 p-0">									
-											<label class="request-label">Reply text (variations)<img src="assets/images/exclamation_sign.png"aria-hidden="true" data-toggle="tooltip" title='Social Sales Accelerator will randomly cycle through these variations so that your replies are not all identical. You can add as many variations as you like. Add a new variation by clicking the "Add New Reply" button.'></label>
-						
+										<div class="bootstrap-tagsinput">
+											<label class="request-label" >Message text (variations)<img src="assets/images/exclamation_sign.png" aria-hidden="true" data-toggle="tooltip" title='Social Growth Accelerator will randomly cycle through these variations so that your replies are not all identical. You can add as many variations as you like. Add a new variation by clicking the "Add New Reply" button.'></label>
+											
 											<div class="saved_message_friends clearfix" style="min-height:75px;">
-											</div>
+											</div>											
 										</div>
-						
+										
 										<!-- Modal -->
-										<div class="modal fade" id="reply_texts" role="dialog">
+										<div class="modal fade" id="message_texts" role="dialog">
 											<div class="modal-dialog">
 												<!-- Modal content-->
 												<div class="modal-content">
 													<div class="modal-header">
-														<h4 class="modal-title">Add New Reply</h4>
+														<h4 class="modal-title">Add New Message</h4>
 														<button type="button" class="close" data-dismiss="modal">&times;</button>
 													</div>
 													<div class="modal-body">
-														<p><small><i><span class="fa fa-question"></span> Type in the new variation you'd like to add below, then click the "Add Reply" button...</i></small></p>
+														<p><small><i><span class="fa fa-question"></span> Type in the new variation you'd like to add below, then click the "Add Message" button...</i></small></p>
 														<div class="form-group">
 															<div class="inputBox">
+																															
 																<select class="emoji">
 																	<option value=''>Emoji</option>
 																	<option>🙂</option>
@@ -259,37 +260,35 @@
 																
 																<select class="personalization">
 																	<option>Personalization </option>
-																	<option>{full_name}</option>
-																	<option>{first_name}</option>
-																	<option>{last_name}</option>
+																	<option>[full_name]</option>
+																	<option>[first_name]</option>
+																	<option>[last_name]</option>	
 																	<!--<option>{m:type any text here}</option>
 																	<option>{f:type any text here}</option>-->
 																</select>
 																
-																<textarea name="" id="message_text" class="input"  cols ="20"> </textarea>
+																<textarea name="" id="reply_text" class="input"  cols ="20"> </textarea>
 															</div>
 														</div>
 													</div>
 													<div class="modal-footer">
 														<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-														<button type="button" id="submit_message_friend" class="btn btn-success" data-dismiss="modal">Add Reply</button>
+														<button type="button" id="submit_message" class="btn btn-success" data-dismiss="modal">Add Message</button>
 													</div>
 												</div>
 											</div>
 										</div>
 						
-										<div class="col-sm-12">
-											<button type="button" id="new_reply" class="btn bg-blue fs-it-btn" style="border: 0px !important; border-radius: 20px !important; box-shadow: rgba(0,0,0,0.1) 0px 3px 10px;">
-												<i class="fa fa-plus" aria-hidden="true"></i>
-												<span class="fs-it-btn-vertical-line"></span>
-												Add New Reply
+										<div class="col-sm-12">											
+											<button type="button" id="new_message_friend" class="btn bg-blue fs-it-btn" style="border: 0px !important; border-radius: 20px !important; box-shadow: rgba(0,0,0,0.1) 0px 3px 10px;">
+												Add New Message
 											</button>
-											<button type="button" id="remove_message" class="btn bg-red fs-it-btn" style="border: 0px !important; border-radius: 20px !important; box-shadow: rgba(0,0,0,0.1) 0px 3px 10px;float: right;">
+											<button type="button" id="remove_message_friend" class="btn bg-red fs-it-btn float-right" style="border: 0px !important; border-radius: 20px !important; box-shadow: rgba(0,0,0,0.1) 0px 3px 10px;">
 												Remove all 
 											</button>											
-										</div>
+										</div>										
 									</div>
-									<div class="container p-0 mb-2 adf-container-message">
+									<!-- <div class="container p-0 mb-2 adf-container-message">
 										<div class="row bulk-text-row">
 											<div class="col-12 p-0">
 												<form action="#">
@@ -299,7 +298,7 @@
 												</form>
 											</div> 
 										</div>
-									</div>
+									</div> -->
 
 								  <div class="row" >
 									 <div class="col-sm-12 icon p-0" id="adf-btn">
@@ -422,7 +421,7 @@
 							</div>
 							<div class="col-8 right-pane">
 								<h5 class="p-1">Messages
-									<select class="emoji">
+									<select class="emojiTemplates">
 										<option value=''>Emoji</option>
 										<option>&#128578;</option>
 										<option>&#128512;</option>
@@ -433,7 +432,7 @@
 										<option>&#128525;</option>
 										<option>&#128518;</option> 
 									</select>									
-									<select class="personalization">
+									<select class="personalizationTemplates">
 										<option>Personalization </option>
 										<option>[first_name]</option>
 										<option>[last_name]</option>							
@@ -455,7 +454,7 @@
 									<div class="container message-list pt-1 scroll-vertical">
 										<div class="row h-100 new_message messages message_sec" id="message-listing">
 											<div class="">
-										</div>
+											</div>
 										</div>
 									</div>
 								</div>								

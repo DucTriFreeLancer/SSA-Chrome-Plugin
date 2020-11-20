@@ -304,15 +304,15 @@ function addTagAndSendWelcomeMessage(adfMemberId){
 	}
 
 
-	if (currentADF_groupSettingsObject.adf_message_text != '') {
+	if (typeof currentADF_groupSettingsObject.adf_message_texts != '' && currentADF_groupSettingsObject.adf_message_texts.length > 0) {
 		fbName = $('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('a:eq(1)').text();
-		var welcomeMessageTextAdf = getADFWelcomeMessage(currentADF_groupSettingsObject.adf_message_text, fbName); 
+		var adf_message_text = currentADF_groupSettingsObject.adf_message_texts[Math.floor(Math.random()*currentADF_groupSettingsObject.adf_message_texts.length)];
+		var welcomeMessageTextAdf = getADFWelcomeMessage(adf_message_text, fbName); 
 		console.log('hseere')
 
 		chrome.runtime.sendMessage({'action': 'sendWelcomeMessageADF',adfMemberId:adfMemberId, welcomeMessageTextAdf:welcomeMessageTextAdf})
 
 	}
-
 
 }
 

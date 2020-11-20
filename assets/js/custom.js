@@ -102,7 +102,11 @@ function startSendFriendRequests() { ///1433
 
     $("#adf-keyword option").each(function(){
         keyword.push($(this).val().toLowerCase());
-    });
+	});
+	var messages=[];
+	$('.saved_message_friends p').each(function(){
+        messages.push($(this).data('message'));
+	});
 
     chrome.tabs.query({
         active: true,
@@ -131,8 +135,8 @@ function startSendFriendRequests() { ///1433
 					}
 
 					temp.selectedAdfTagIds = selectedAdfTagIds;
-
-					temp.adf_message_text = $.trim($('#adf-messge-text').val());
+						
+					temp.adf_message_texts = messages;
 
 					chrome.storage.local.set({'ADF_groupSettings':temp, "ADF_State":tempTwo}); 
 					chrome.tabs.sendMessage(tabs[0].id,{type:'startLoading','tabId':tabs[0].id});
@@ -1479,7 +1483,7 @@ $(document).ready(function(){
 											<div class="card-text">`+message.message+`</div>
 										</div>
 									</div>
-									<textarea class="form-control edit-message-text" style="display: none;" id="reply_text" placeholder="write message... ">`+message.message+`</textarea>
+									<textarea class="form-control edit-message-text" style="display: none;" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
 								</div>
 								<div class="col-2 my-auto">
 									<div class="row">
@@ -1598,7 +1602,7 @@ $(document).ready(function(){
 							<div class="card-text"></div>
 						</div>
 					</div>
-					<textarea class="form-control add-message-text" id="reply_text" placeholder="write message...."></textarea>
+					<textarea class="form-control add-message-text" id="template_text" placeholder="write message...."></textarea>
 				</div>
 				<div class="col-2 my-auto">
 					<div class="row">
@@ -3913,7 +3917,7 @@ function loadMoreMessages() {
 						messageList +=`<div class="row tabbing message-item" message-id="`+message.id+`">
 										<div class="col-10 pl-1">
 											Variables to use : [first_name] [last_name]
-											<textarea class="form-control edit-message-text" id="reply_text" placeholder="write message... ">`+message.message+`</textarea>
+											<textarea class="form-control edit-message-text" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
 										</div>
 										<div class="col-2 mt-3">
 											<img src="assets/images/delete_icon.png" class="mt-1 delete-msg" title="delete">
@@ -5189,7 +5193,7 @@ function getTemplateMessages(isSearch = false){
 										<div class="card-text">`+message.message+`</div>
 									</div>
 								</div>
-								<textarea class="form-control edit-message-text" id="reply_text" placeholder="write message... " style="display: none;">`+message.message+`</textarea>
+								<textarea class="form-control edit-message-text" id="template_edit_text" placeholder="write message... " style="display: none;">`+message.message+`</textarea>
 							</div>
 							<div class="col-2 my-auto">
 								<div class="row">
@@ -5357,6 +5361,10 @@ function getSearchTagContact(){
 	    }
 	});
 }
+
+
+// gets the number of bytes used in sync storage area
+chrome.storage.sync.getBytesInUse(['emoji_bulk_focus'], bulkBytes);
 $(document).on('change', '.emojiBulk', function (e) {
 	let emoji= $(this).val();
 	if(emoji!==''){
@@ -5443,6 +5451,97 @@ $(document).on('change', '.personalizationBulk', function (e) {
 			} 
 			 
 			chrome.storage.sync.set({emoji_bulk_focus: parseInt(item.emoji_bulk_focus) + length });
+		
+		 });
+	} 
+});
+
+$(document).on('change', '.emojiTemplates', function (e) {
+	let emoji= $(this).val();
+	if(emoji!==''){
+		let template_text = $('#template_text').val(); 
+		//var position = $('#reply_text').prop("selectionStart");
+		 chrome.storage.sync.get('emoji_template_focus', item => {
+			 
+			if (template_text.length > 1 && item.emoji_template_focus!=0) {
+				var count = Array.from(template_text.split(/[\ufe00-\ufe0f]/).join("")).length;
+			 
+				const usingSpread = [...template_text]; 
+			  
+				 var output = usingSpread.slice(0, item.emoji_template_focus).join('') +  emoji + usingSpread.slice(item.emoji_template_focus, count).join('');
+					  
+				 $('#template_text').val(output);  
+
+			}
+			 else if (template_text.length > 1 && item.emoji_template_focus==0) {
+ 
+				 $('#template_text').val(template_text + emoji); 
+			}else{
+				 $('#template_text').val(emoji); 
+			} 
+			chrome.storage.sync.set({emoji_template_focus: parseInt(item.emoji_template_focus) +1 });
+		
+		 });
+	}
+		  
+   
+});
+
+
+$( "#template_text" ).click(function() { 
+ var position = $('#template_text').prop("selectionStart"); 
+ var template_text = $('#template_text').val().substr(0, position);
+ var minus= ((template_text.match(/🙂/g) || []).length) + ((template_text.match(/😀/g) || []).length) + 
+ ((template_text.match(/😉/g) || []).length)+
+ ((template_text.match(/😂/g) || []).length)+ 
+ ((template_text.match(/😥/g) || []).length) + 
+ ((template_text.match(/😓/g) || []).length)+ 
+ ((template_text.match(/😍/g) || []).length)+ 
+ ((template_text.match(/😆/g) || []).length)
+			
+  chrome.storage.sync.set({emoji_template_focus: position-minus });
+});
+
+$( "#template_text" ).blur(function() { 
+ var position = $('#template_text').prop("selectionStart"); 
+ var template_text = $('#template_text').val().substr(0, position);
+var minus= ((template_text.match(/🙂/g) || []).length) + ((template_text.match(/😀/g) || []).length) + 
+ ((template_text.match(/😉/g) || []).length)+
+ ((template_text.match(/😂/g) || []).length)+ 
+ ((template_text.match(/😥/g) || []).length) + 
+ ((template_text.match(/😓/g) || []).length)+ 
+ ((template_text.match(/😍/g) || []).length)+ 
+ ((template_text.match(/😆/g) || []).length)
+   
+ var position = $('#template_text').prop("selectionStart"); 
+  chrome.storage.sync.set({emoji_template_focus: position-minus  });
+});
+
+$(document).on('change', '.personalizationTemplates', function (e) {
+	let personalizationTemplate= $(this).val();
+	if(personalizationTemplate!==''){
+		let template_text = $('#template_text').val();  
+		var length = personalizationTemplate.length;
+		 chrome.storage.sync.get('emoji_template_focus', item => {
+			 
+			if (template_text.length > 1 && item.emoji_template_focus!=0) {
+				var count = Array.from(template_text.split(/[\ufe00-\ufe0f]/).join("")).length;
+			 
+				const usingSpread = [...template_text]; 
+			  
+				 var output = usingSpread.slice(0, item.emoji_template_focus).join('') +  personalizationTemplate + usingSpread.slice(item.emoji_template_focus, count).join('');
+					  
+				 $('#template_text').val(output);  
+
+			}
+			 else if (template_text.length > 1 && item.emoji_template_focus==0) {
+ 
+				 $('#template_text').val(bulk_text + personalizationTemplate); 
+			}else{
+				 $('#template_text').val(personalizationTemplate); 
+			} 
+			 
+			chrome.storage.sync.set({emoji_template_focus: parseInt(item.emoji_template_focus) + length });
 		
 		 });
 	} 
