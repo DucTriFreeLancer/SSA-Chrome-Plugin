@@ -42,13 +42,13 @@
 				<div class="col-12">
 					<ul class="nav justify-content-center">
 					    <li class="nav-item">
-						  <a class="nav-link forgot_password" id="forgot-pass-link" href="#">Forgot your Password ?</a>
+						  <a class="nav-link forgot_password" id="forgot-pass-link" href="https://members.socialsalesaccelerator.app" target="_blank">Forgot your Password ?</a>
 						</li>
 						<li class="nav-item">
-						  <a class="nav-link forgot_password" href="https://members.socialsalesaccelerator.app/signup" target="_blank"> New User</a>
+						  <a class="nav-link forgot_password" href="https://socialsalesaccelerator.app/sales" target="_blank"> New User</a>
 						</li>
 						<li class="nav-item">
-						  <a class="nav-link support"  target="_blank" href="https://members.socialsalesaccelerator.app/help">Help</a>
+						  <a class="nav-link support"  target="_blank" href="https://members.socialsalesaccelerator.app/help/index">Help</a>
 						</li>
 					</ul>
 				</div>
@@ -87,7 +87,7 @@
 						  <a class="nav-link new_user" href="https://members.socialsalesaccelerator.app" target="_blank"> New User</a>
 						</li>
 						<li class="nav-item">
-						  <a class="nav-link support"  target="_blank" href="https://members.socialsalesaccelerator.app/help">Help</a>
+						  <a class="nav-link support"  target="_blank" href="https://members.socialsalesaccelerator.app/help/index">Help</a>
 						</li>
 					</ul>
 				</div>
@@ -608,15 +608,15 @@
 								</div>
 							</div>
 							<div class="col-8 right-pane">
-								<div id="pre_accept_content" class="hide-element">
+								<div id="pre_accept_content">
 									<div class="form-check-inline">
 										<label class="form-check-label">
-											<input type="checkbox" id="outgoing-message-status" class="form-check-input hide-element" value="">Send message when someone sends you a friend request
+											<input type="checkbox" id="outgoing-message-status" class="form-check-input" value="true">Send message when someone sends you a friend request
 										</label>
 									</div>
-									<div class="form-check-inline hide-element">
+									<div class="form-check-inline">
 									<label class="form-check-label">
-										<input type="checkbox" id="outgoing-random-status" class="form-check-input" value="">Randomize messages
+										<input type="checkbox" id="outgoing-random-status" class="form-check-input" value="true">Randomize messages
 									</label>
 									
 									</div>
@@ -627,15 +627,29 @@
 											<div class="col-10 p-2">
 												<div class="form-group">
 													Variables to use : [first_name] [last_name]
-													<textarea class="p-2 form-control request-messge-text" rows="3" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
+													<textarea class="p-2 form-control request-messge-text" rows="3" id="message-one" placeholder="Enter Message">Hey [first_name] [last_name],
 
-Thank you so much for sending me a friend request.</textarea>
-													<textarea class="p-2 form-control request-messge-text" rows="3" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
+Thank you so much for sending me a friend request.</textarea>													
+												</div> 
+											</div>
+										</div>
+										<div class="row tabbed request-message-text-row hide-element">
+											<div class="col-10 p-2">
+												<div class="form-group">
+													Variables to use : [first_name] [last_name]
+													<textarea class="p-2 form-control request-messge-text" rows="3" id="message-two" placeholder="Enter Message">Hey [first_name] [last_name],
 
-Thank you so much for sending me a friend request.</textarea>
-													<textarea class="p-2 form-control request-messge-text" rows="3" id="message" placeholder="Enter Message">Hey [first_name] [last_name],
+Thank you so much for sending me a friend request.</textarea>													
+												</div> 
+											</div>
+										</div>
+										<div class="row tabbed request-message-text-row hide-element">
+											<div class="col-10 p-2">
+												<div class="form-group">
+													Variables to use : [first_name] [last_name]
+													<textarea class="p-2 form-control request-messge-text" rows="3" id="message-three" placeholder="Enter Message">Hey [first_name] [last_name],
 
-Thank you so much for sending me a friend request.</textarea>
+Thank you so much for sending me a friend request.</textarea>													
 												</div> 
 											</div>
 										</div>
@@ -651,22 +665,22 @@ Thank you so much for sending me a friend request.</textarea>
 									
 								</div>							
 								
-								<div id="post_accept_content" class="hide-element">
+								<div id="post_accept_content">
 									<div class="form-check-inline">
 									<label class="form-check-label">
-										<input type="checkbox" id="comming-message-status" class="form-check-input hide-element" value="">Send message when you accept a friend request
+										<input type="checkbox" id="comming-message-status" class="form-check-input" value="">Send message when you accept a friend request
 									</label>
 									</div>
-									<div class="form-check-inline" style="display: none;">
+									<div class="form-check-inline">
 									<label class="form-check-label">
-										<input type="checkbox" id="comming-random-status" class="form-check-input hide-element" value="">Randomize messages
+										<input type="checkbox" id="comming-random-status" class="form-check-input" value="true">Randomize messages
 									</label>
 									</div>
-									<div class="row time mt-2" style="display:none;">
-										<div class="col-8 p-0">
+									<div class="row time mt-2">
+										<div class="col-8 pl-4">
 											<div class="row">
-												<div class="col-5 mt-2 p-0 " ><h5>Check request after every (Minutes)</h5></div>
-												<div class="col-7 mb-3">
+												<div class="col-8 mt-2" ><label>Check request after every (Minutes)</h5></div>
+												<div class="col-4 mb-3">
 													<input class="form-control p-1 post request_message_interval" type="Number" min="5" value="5" name="request_message_interval">
 												</div>
 											</div>
@@ -682,9 +696,27 @@ Thank you so much for sending me a friend request.</textarea>
 													<textarea class="form-control request-messge-text" rows="3" id="message-four" placeholder="Enter Message">Hey [first_name] [last_name]
 
 I have accepted your friend request.</textarea>
+													<!-- <div class="saved_replys clearfix" style="min-height:75px;">
+													</div> -->
+												</div> 
+											</div>
+										</div>
+										<div class="row tabbed request-message-text-row hide-element">
+											<div class="col-10 p-2">
+												<div class="form-group">
+													Variables to use : [first_name] [last_name]
 													<textarea class="form-control request-messge-text" rows="3" id="message-five" placeholder="Enter Message">Hey [first_name] [last_name]
 
 I have accepted your friend request.</textarea>
+													<!-- <div class="saved_replys clearfix" style="min-height:75px;">
+													</div> -->
+												</div> 
+											</div>
+										</div>
+										<div class="row tabbed request-message-text-row hide-element">
+											<div class="col-10 p-2">
+												<div class="form-group">
+													Variables to use : [first_name] [last_name]
 													<textarea class="form-control request-messge-text" rows="3" id="message-six" placeholder="Enter Message">Hey [first_name] [last_name]
 
 I have accepted your friend request.</textarea>

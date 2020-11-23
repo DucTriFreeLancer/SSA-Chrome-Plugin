@@ -159,7 +159,11 @@ $(document).ready(function () {
 		}
 	});
 
-
+    chrome.storage.local.get(["emoji_focus"], function(result) {
+		if(result != null && typeof result.emoji_focus) {
+			chrome.storage.sync.set({emoji_focus: 0 });
+		}
+	});	
 
    /////* Add New Reply Text */////
     $(document).on('click', '#submit_reply', function (e) {

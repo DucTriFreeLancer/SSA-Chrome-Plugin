@@ -2244,27 +2244,27 @@ $(document).ready(function(){
 		getRequestMessages();
 	});
 
-	$('#add-random-msg-outgoing').on('click',function() {
+	// $('#add-random-msg-outgoing').on('click',function() {
 
-		if($('.randomize-container-request-outgoing .request-message-text-row').length < 3 && $('#outgoing-random-status').is(':checked')){
-			$('.randomize-container-request-outgoing').append(randomRequestPreMessageField);
-		}	
+	// 	if($('.randomize-container-request-outgoing .request-message-text-row').length < 3 && $('#outgoing-random-status').is(':checked')){
+	// 		$('.randomize-container-request-outgoing').append(randomRequestPreMessageField);
+	// 	}	
 
-		if($('.randomize-container-request-outgoing .request-message-text-row').length == 3 ){
-			$(this).hide();
-		}					
-	});
+	// 	if($('.randomize-container-request-outgoing .request-message-text-row').length == 3 ){
+	// 		$(this).hide();
+	// 	}					
+	// });
 
-	$('#add-random-msg-comming').on('click', function() {
+	// $('#add-random-msg-comming').on('click', function() {
 		
-		if($('.randomize-container-request-comming .request-message-text-row').length < 3 && $('#comming-random-status').is(':checked')){
-			$('.randomize-container-request-comming').append(randomRequestMessageField);
-		}
+	// 	if($('.randomize-container-request-comming .request-message-text-row').length < 3 && $('#comming-random-status').is(':checked')){
+	// 		$('.randomize-container-request-comming').append(randomRequestMessageField);
+	// 	}
 
-		if($('.randomize-container-request-comming .request-message-text-row').length == 3 ){
-			$(this).hide();
-		}						
-	});
+	// 	if($('.randomize-container-request-comming .request-message-text-row').length == 3 ){
+	// 		$(this).hide();
+	// 	}						
+	// });
 
 	$('#outgoing-random-status').change(function() {
         if(this.checked) {
@@ -2304,7 +2304,7 @@ $(document).ready(function(){
 
 	$('#comming-random-status').change(function() {
         if(this.checked) {
-          	$('randomize-container-request-comming .request-message-text-row').show();
+          	$('.randomize-container-request-comming .request-message-text-row').show();
           	$('#add-random-msg-comming').show();
           	$('randomize-container-request-comming .delete-request-textarea').show();
         }else{
