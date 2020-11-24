@@ -97,6 +97,13 @@ function startSendFriendRequests() { ///1433
         limit = parseInt(limit)
     }
 
+	var startat= $('#adf-start-at').val();
+	if (startat == '') {
+        startat = 0;
+    }else {
+        startat = parseInt(startat)
+	}
+	
     var keyword = [];
     var delay = $( "#adf-delay option:selected" ).val();
 
@@ -117,6 +124,7 @@ function startSendFriendRequests() { ///1433
                     
 					temp = {};
 					temp.limit = limit;
+					temp.startat= startat;
 					temp.keyword = keyword;
 					temp.delay = delay;
 				
@@ -166,6 +174,7 @@ function runADFFunctionality(tabId) {
 			
 			$('#adf-limit').val(result.ADF_groupSettings.limit);
 			$('#adf-delay option[value="'+result.ADF_groupSettings.delay+'"]').prop('selected', true);
+			$('#adf-start-at').val(result.ADF_groupSettings.startat);
 			if(result.ADF_groupSettings.keyword.length > 0){
 			    result.ADF_groupSettings.keyword.forEach(function (item) {
 			        $('#adf-keyword').tagsinput('add', item);
@@ -204,11 +213,12 @@ function runADFFunctionality(tabId) {
 					// $('#adf-delay option[value="150000"]');
 				}
 			}
-		}else{
+		}
+		else
+		{
 			$('#adf-limit').val(2);
-			$('#adf-delay option[value="150000"]');
-
-			
+			$('#adf-delay option[value="150000"]');		
+			$('#adf-start-at').val(0);	
 		}
     }); 
 	$('.screens').hide();	

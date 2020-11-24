@@ -1,5 +1,6 @@
 var ADF_add_friend_processing = true;
 var ADF_limit = null;
+var ADF_startat = null;
 var ADF_keyword = [];
 var ADF_add_friend_delay = null; 
 var ADF_add_friend_totalSend = 0;
@@ -65,7 +66,8 @@ chrome.extension.onMessage.addListener(function(message, sender, send_response) 
 			    			limitSetByTotalMembers = false;
 			    			$('#limit').show();
 			    			
-			    		}
+						}
+						ADF_startat = parseInt(result.ADF_groupSettings.startat);
 
 			    		ADF_add_friend_delay = parseInt(result.ADF_groupSettings.delay);
 					 	ADF_keyword = result.ADF_groupSettings.keyword;
@@ -124,9 +126,8 @@ chrome.extension.onMessage.addListener(function(message, sender, send_response) 
 
 var timeOutIdsArray = [];
 
-function AFD_processGroupMembersForNew(history = 0) {
+function AFD_processGroupMembersForNew(history = 0) {	
 	
-
 	if (ADF_limit == 10000000) {
 		$('#limit').hide();
 		$('.progress').hide();
@@ -137,14 +138,15 @@ function AFD_processGroupMembersForNew(history = 0) {
 	$('#ssa-msgs').text("In progress");
 	$('#text h2').text("Total Members");
 	$('#overlay').show();
-	
-	ADF_loadedMembers = $('div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]').length;
+	if(ADF_startat < $(ADF_memberListSelectorNew).length){
+		ADF_loadedMembers = $('div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]').length;
 
 		if(  ADF_loadedMembers > history){
 		
-			var outerTimeOut = setTimeout(function(){
-					$(ADF_memberListSelectorNew).each(function(index) {
-			
+			var outerTimeOut = setTimeout(function(){		
+					
+					$(ADF_memberListSelectorNew).slice(ADF_startat).each(function(index) {
+		
 						timeOutIds = setTimeout(()=>{
 							if (ADF_add_friend_totalSend <= ADF_limit-1 && ADF_add_friend_processing && !ADF_add_friend_stopProcess) {
 								$(this).addClass('adf-processed');
@@ -153,14 +155,14 @@ function AFD_processGroupMembersForNew(history = 0) {
 									var description = $(this).find('.qzhwtbm6.knvmm38d:eq(2) span').text().toLowerCase();
 
 									if (ADF_keyword.length > 0) {
-										 if (description != '') {
-											 matched = ADF_keyword.filter((item) => description.indexOf(item.toLowerCase()) > -1);
-											 if(matched.length == 0){
-												 validDescription = false;
-											 }
-										 }else{
-										 	validDescription = false;
-										 }
+											if (description != '') {
+												matched = ADF_keyword.filter((item) => description.indexOf(item.toLowerCase()) > -1);
+												if(matched.length == 0){
+													validDescription = false;
+												}
+											}else{
+												validDescription = false;
+											}
 									}
 
 								if (validDescription) {
@@ -176,9 +178,9 @@ function AFD_processGroupMembersForNew(history = 0) {
 										addTagAndSendWelcomeMessage(memberIdTemp);
 
 										ADF_add_friend_totalSend=ADF_add_friend_totalSend+1;										
-									    $('#processed-members').text(ADF_add_friend_totalSend);
-									    $('#ssa-msgs').text("Requests sent");
-									    changeProgressBar(ADF_limit,ADF_add_friend_totalSend);
+										$('#processed-members').text(ADF_add_friend_totalSend);
+										$('#ssa-msgs').text("Requests sent");
+										changeProgressBar(ADF_limit,ADF_add_friend_totalSend);
 									}else{
 										//console.log($(this).find('.qzhwtbm6.knvmm38d:eq(0) a:eq(0)').text());
 									}
@@ -192,10 +194,10 @@ function AFD_processGroupMembersForNew(history = 0) {
 								chrome.runtime.sendMessage({'action': 'adf-complete'});
 
 								tempTwo = {};
-		                        tempTwo.tabId = 0;
-		                        tempTwo.state = '';
-		                        chrome.storage.local.set({"ADF_State":tempTwo}); 
-		                        adfClearAutomaticIntervals();
+								tempTwo.tabId = 0;
+								tempTwo.state = '';
+								chrome.storage.local.set({"ADF_State":tempTwo}); 
+								adfClearAutomaticIntervals();
 								$('#ssa-msgs').text('Limit exceeded..');
 								ADF_hide_loader();
 							}
@@ -203,12 +205,10 @@ function AFD_processGroupMembersForNew(history = 0) {
 
 						timeOutIdsArray.push(timeOutIds)
 
-						ADF_profileDelay = (ADF_profileDelay + parseInt(ADF_add_friend_delay));											
-					
-					
-				    });	
+						ADF_profileDelay = (ADF_profileDelay + parseInt(ADF_add_friend_delay));
+					});	
 
-				    var callAgain = setTimeout(()=>{
+					var callAgain = setTimeout(()=>{
 						if (ADF_underLimit) {
 							$("html, body").animate({ scrollTop: $(document).height() }, 1000);
 							setTimeout(()=>{
@@ -216,11 +216,9 @@ function AFD_processGroupMembersForNew(history = 0) {
 								AFD_processGroupMembersForNew(ADF_loadedMembers);
 							}, 5000)
 						}
-					},ADF_profileDelay + 5000);
-
-				    timeOutIdsArray.push(callAgain)
-
-
+					},ADF_profileDelay + 5000);							   
+					
+					timeOutIdsArray.push(callAgain)
 				},3000);
 
 				timeOutIdsArray.push(outerTimeOut)
@@ -240,6 +238,17 @@ function AFD_processGroupMembersForNew(history = 0) {
 			ADF_hide_loader()
 
 		}
+	}
+	else{
+		chrome.runtime.sendMessage({'action': 'adf-complete'});
+		tempTwo = {};
+		tempTwo.tabId = 0;
+		tempTwo.state = '';
+		chrome.storage.local.set({"ADF_State":tempTwo}); 
+		adfClearAutomaticIntervals();
+		$('#ssa-msgs').text('Limit exceeded..');		
+		ADF_hide_loader();
+	}
 }
 
 

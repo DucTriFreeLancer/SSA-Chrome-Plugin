@@ -209,20 +209,27 @@
 									 </div>
 								  </div>
 								  <div class="row">
-									 <label for="keyword" class="request-label" >Keyword <img src="assets/images/exclamation_sign.png" aria-hidden="true" data-toggle="tooltip" title="e.g owner, entrepreneur, founders, business owner e.t.c."></label>
-									 <select id="adf-keyword" class="request-input" multiple placeholder="Type a keyword and press enter Key" data-role="tagsinput">
-									 </select>
+									<label for="keyword" class="request-label" >Keyword <img src="assets/images/exclamation_sign.png" aria-hidden="true" data-toggle="tooltip" title="e.g owner, entrepreneur, founders, business owner e.t.c."></label>
+									<select id="adf-keyword" class="request-input" multiple placeholder="Type a keyword and press enter Key" data-role="tagsinput">
+									</select>
 								  </div>
 
 								   <div class="row">
-										   <div class="col-4 p-0">
-												 <label class="form-check-label mt-2 mb-2">Enable Tagging  </label>
-										   </div>
-										<div class="col-8 pt-2">
-											<div class="form-check">
-												<input type="checkbox" class="form-check-input" id="adf-enable-tagging" value="">
+										<div class="col-6 left_sec">
+											<div class="form-group">
+												<label class="form-check-label mt-2 mb-2">Enable Tagging  </label>
+												<div class="form-check">
+													<input type="checkbox" class="form-check-input" id="adf-enable-tagging" value="">
+												</div>
+										  	</div>											
+										</div>										
+										<div class="col-6 right_sec">
+											<div class="form-group range-container">
+											   <label for="start-at" class="request-label mt-2 mb-2">Start at:<img src="assets/images/exclamation_sign.png" aria-hidden="true" data-toggle="tooltip" title="
+												Start at the number you choose"></label>
+											   <input placeholder="Empty means not ignore" type="number" class="form-control request-input"  min="0" name="start-at" id="adf-start-at">			
 											</div>
-										</div>
+										 </div>
 									</div>
 									<div class="row">
 										<div class="bootstrap-tagsinput">
@@ -267,7 +274,7 @@
 																	<option>{f:type any text here}</option>-->
 																</select>
 																
-																<textarea name="" id="reply_text" class="input"  cols ="20"> </textarea>
+																<textarea name="" id="reply_text" class="input" placeholder="If you want to send mutliple messages to people them please use the | character to separate out the messages"  cols ="20"></textarea>
 															</div>
 														</div>
 													</div>

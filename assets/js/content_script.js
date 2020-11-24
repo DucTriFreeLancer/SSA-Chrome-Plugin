@@ -1417,19 +1417,43 @@ function displayNotes(notesArray) {
 }
 
 function triggerRequestSendMessage(bulkMsgText) {
+	
+	let message_total_send =0;
+	var delay=500;
+	if(bulkMsgText.includes("|")){
+		var res = bulkMsgText.split("|");		
+		res.forEach(function(text){			
+			let messId=setTimeout(()=>{
+				$('textarea').val(text);
+				if ($('button[name="Send"]').length > 0) {
+					$('button[name="Send"]').mclick();
+				}else if($('input[name="Send"]').length > 0){
+					$('input[name="Send"]').mclick();
+				}
+				message_total_send = message_total_send + 1;
+			},delay);
+			bulkMessageTimeout.push(messId);
+			delay=delay+500;
+		});		
+	} 
+	else{
+		$('textarea').val(bulkMsgText);
+		let messId = setTimeout(()=>{
+			if ($('button[name="Send"]').length > 0) {
+				$('button[name="Send"]').mclick();
+			}else if($('input[name="Send"]').length > 0){
+				$('input[name="Send"]').mclick();
+			}
+			message_total_send = message_total_send + 1;
+		},delay);
+		bulkMessageTimeout.push(messId);
+		delay=delay+500;		
+	}
 
-	$('textarea').val(bulkMsgText);
-	setTimeout(()=>{
-		if ($('button[name="Send"]').length > 0) {
-			$('button[name="Send"]').mclick();
-		}else if($('input[name="Send"]').length > 0){
-			$('input[name="Send"]').mclick();
-		}
-	},500);
-
-	setTimeout(()=>{
+	setTimeout(function(){			
+		clearTimeOutIntervals();
 		chrome.runtime.sendMessage({closeRequestMessageTab: "closeRequestMessageTab"});	
-	},1500);
+	},delay +1500);	
 }
 
 
