@@ -189,7 +189,22 @@
 	display:block;
 	z-index:9;
 	cursor:pointer;
-}    
+}   
+.ssa-tags-right{
+	align-items: center;
+  display: block;
+  width: 100%;
+	border:1px solid #f5f5f5;
+  border-radius: 7px;
+  min-width: 45px;
+} 
+.ssa-tags-right span {
+  width: calc(100% - 6px); 
+  display: block;
+  z-index: 9;
+  cursor: pointer;
+  padding: 3px;
+}
 
 /* #facebook ._-kb a{
 	z-index:9
@@ -474,6 +489,22 @@ li[fb_user_id],li[fb_user_id] > div{
   border: 1px solid #03384f;
   border-radius: 7px!important;
 }
+.get-gl-right-notes{
+  /*float: left;*/
+  width: 90%;
+  color: #03384f;
+  font-weight: 500;
+  text-align: right;
+  padding: 3px;
+  background: #ffff;
+
+  position: inherit;
+  left: 0;
+  top: 32px;
+  text-align: center;
+  border: 1px solid #03384f;
+  border-radius: 7px!important;
+}
 
 .get-gl-team-notes{
   /*float: left;*/
@@ -639,9 +670,16 @@ hr{
 .get-gl-notes{
   display: none;
 }
+.get-gl-right-notes{
+  display: none;
+}
 
 li[fb_user_id]:hover .get-gl-notes{
   display: block;
+}
+.ssa-tags-right:hover .get-gl-right-notes{
+  display: block;
+  position: inherit;
 }
 
 .get-gl-team-notes{

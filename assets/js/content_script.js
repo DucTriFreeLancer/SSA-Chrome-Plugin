@@ -649,7 +649,16 @@ $(function(){
 		chrome.runtime.sendMessage({getUserNotes: "getUserNotes", fb_user_id: cliked_Fb_Id});
 		return false;
 	});
-
+	//////// user notes////
+	$(document).on('click','.get-gl-right-notes', function() {		
+		var cliked_Fb_Id =$(this).parent().attr('fb_user_id');
+		fbNameForNotes = $(this).parent().parent().find('a[target="_blank"]').first().text();
+		
+		$('#ssa_model_two').addClass('notes-modal');
+		$('#overlay-two #ssa_model_content_two').text('loading notes for '+fbNameForNotes).show();
+		chrome.runtime.sendMessage({getUserNotes: "getUserNotes", fb_user_id: cliked_Fb_Id});
+		return false;
+	});
 	$(document).on('click','.add-notes-from-content', function() {
 		var options = [{id: 0, name: 'Private'}];
 		var fb_user_id = window.location.pathname.split('/t/')[1];
@@ -886,7 +895,12 @@ $(function(){
 		}
 
 	});
-
+    $(document).on('click','.ssa-tags-right',function(){	
+		var fb_user_id = $(this).attr('fb_user_id');
+		if($(fb_ul_selector+" li[fb_user_id='"+fb_user_id+"']").length > 0){
+			$(fb_ul_selector+" li[fb_user_id='"+fb_user_id+"']").find('.ssa-tags-container span').mclick();
+		}	
+	});
 	$(document).on('keyup','#search-tag-by-name', function() {
 		 var typpedTagName = $(this).val();
 		
@@ -1317,7 +1331,13 @@ function displaySelectedTagRightSide(){
 					totalTagLi += '</ul>';
 					
 					if(window.location.origin.indexOf('messenger.com') > -1){
+						
 						// _3tkv
+						if ($('._3tkv .tags-container').length == 0) {
+							var options = '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+							options += '<div class="get-gl-right-notes">Add Notes</div>';
+							$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().prepend(options); 					
+						}
 						if ($('._3tkv .right-side-tag-list').length > 0) {
 							$('._3tkv .right-side-tag-list').remove();
 						}
@@ -1325,8 +1345,8 @@ function displaySelectedTagRightSide(){
 						if ($('._3tkv .notes-list-container').length > 0) {
 							$('._3tkv .notes-list-container').remove();
 						}
- 						//$('._3tkv').find('a[target="_blank"]').first().after(totalTagLi);
- 						$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);
+						 //$('._3tkv').find('a[target="_blank"]').first().after(totalTagLi);
+						$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);
  						$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().parent().after(notesList);
 					}else{
 
