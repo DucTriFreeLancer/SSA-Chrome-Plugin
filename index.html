@@ -554,9 +554,14 @@
 											<option>[last_name]</option>							
 										</select>					
                                     </div>
-                                </div>
-								<textarea id="bulk_text" class="message-textarea bulk-messge-text"
+								</div>
+								<div class="input-bulk-container">
+									<input id="upload-bulk-image" type="file" name="upload-image" class="hide-element" />
+									<i class="fa fa-upload icon-bulk-example"></i>
+									<textarea id="bulk_text" class="message-textarea bulk-messge-text"
 								 placeholder="Enter message.." rows="3"></textarea><br /><br />
+								</div>
+								<br /><br />
 								<label for="delay">Send every
 									<select class="form-control wd-10" id="bulk-delay">
 										<option value="30000">30 Seconds</option>

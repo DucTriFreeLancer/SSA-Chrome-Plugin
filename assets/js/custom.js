@@ -1776,7 +1776,11 @@ $(document).ready(function(){
 							<div class="card-text"></div>
 						</div>
 					</div>
-					<textarea class="form-control add-message-text" id="template_text" placeholder="write message...."></textarea>
+					<div class="input-container">
+						<input id="upload-image" type="file" name="upload-image" class="hide-element" />
+						<i class="fa fa-upload icon-example"></i>
+						<textarea class="form-control add-message-text" id="template_text" placeholder="write message...."></textarea>				
+					</div>
 				</div>
 				<div class="col-2 my-auto">
 					<div class="row">
@@ -1806,8 +1810,194 @@ $(document).ready(function(){
 		$(edit_message).find('.view-message').hide();
 		$(edit_message).find('.edit-message-text').show().focus();
 	});
+	$(document).on('click','.icon-example',function(event){
+		$('#upload-image')[0].value='';
+		$('#upload-image').mclick();
+	});
+	$(document).on('change', '#upload-image', function(){
+		if(document.getElementById("upload-image").files[0] == null)
+		{
+			return false;
+		}
+		var name = document.getElementById("upload-image").files[0].name;
+		
+		var ext = name.split('.').pop().toLowerCase();
+		if(jQuery.inArray(ext, ['gif','png','jpg','jpeg']) == -1) 
+		{
+			alert("Invalid Image File");
+		}		
+		var oFReader = new FileReader();
+		oFReader.readAsDataURL(document.getElementById("upload-image").files[0]);
+		var f = document.getElementById("upload-image").files[0];
+		var fsize = f.size||f.fileSize;
+		if(fsize > 2048000)
+		{
+		 	alert("Image File Size is very big");
+		}
+		else
+		{
+			chrome.storage.local.get(["ssa_user", "fb_id"], function(result) {
+			
+				if( typeof result.ssa_user != "undefined" && result.ssa_user != "" && typeof result.fb_id != "undefined" && result.fb_id != "" ){
+					
+					var form_data = new FormData();
+					form_data.append("upload-image", document.getElementById('upload-image').files[0]);
+					form_data.append("user_id", result.ssa_user.id);
+					form_data.append("fb_user_id", result.fb_id);
+					// form_data.append("upload-image", $('input[type=file]')[0].files[0]);
+					$.ajax({
+						url:apiBaseUrl + "/uploads/images",
+						method:"POST",
+						data: form_data,
+						contentType: false,
+						cache: false,
+						processData: false,
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+						},  
+						success:function(response)
+						{
+							if(response.status == 401){
+								triggerLogout();
+								return false;
+							} else if(response.status == 200 || response.result == 'success') {
+								let imageTemplate= response.file_path;
+								imageTemplate='<img src="' + imageTemplate +'" width="70" height="70">';
+								if(imageTemplate!==''){
+									let template_text = $('#template_text').val(); 
+									if(typeof template_text !="undefined"){ 
+										var length = imageTemplate.length;
+										chrome.storage.sync.get('emoji_template_focus', item => {
+										
+										if (template_text.length > 1 && item.emoji_template_focus!=0) {
+											var count = Array.from(template_text.split(/[\ufe00-\ufe0f]/).join("")).length;
+										
+											const usingSpread = [...template_text]; 
+										
+											var output = usingSpread.slice(0, item.emoji_template_focus).join('') +  imageTemplate + usingSpread.slice(item.emoji_template_focus, count).join('');
+												
+											$('#template_text').val(output);  
 
-    // $(document).on('blur','.edit-message-text', function() {
+										}
+										else if (template_text.length > 1 && item.emoji_template_focus==0) {
+							
+											$('#template_text').val(bulk_text + imageTemplate); 
+										}else{
+											$('#template_text').val(imageTemplate); 
+										} 
+										
+										chrome.storage.sync.set({emoji_template_focus: parseInt(item.emoji_template_focus) + length });
+									
+									});
+									} 
+								}
+							}
+							else{
+								toastr["error"](response.msg);
+							}
+						},
+						error: function(error) {
+							console.log(error);
+						}
+					});
+				} 
+			});	
+			
+		}
+	});
+	$(document).on('click','.icon-bulk-example',function(event){
+		$('#upload-bulk-image')[0].value='';
+		$('#upload-bulk-image').mclick();
+	});
+	$(document).on('change', '#upload-bulk-image', function(){
+		if(document.getElementById("upload-bulk-image").files[0] == null)
+		{
+			return false;
+		}
+		var name = document.getElementById("upload-bulk-image").files[0].name;
+		
+		var ext = name.split('.').pop().toLowerCase();
+		if(jQuery.inArray(ext, ['gif','png','jpg','jpeg']) == -1) 
+		{
+			alert("Invalid Image File");
+		}		
+		var oFReader = new FileReader();
+		oFReader.readAsDataURL(document.getElementById("upload-bulk-image").files[0]);
+		var f = document.getElementById("upload-bulk-image").files[0];
+		var fsize = f.size||f.fileSize;
+		if(fsize > 2048000)
+		{
+		 	alert("Image File Size is very big");
+		}
+		else
+		{
+			chrome.storage.local.get(["ssa_user", "fb_id"], function(result) {
+				if( typeof result.ssa_user != "undefined" && result.ssa_user != "" && typeof result.fb_id != "undefined" && result.fb_id != "" ){
+					var form_data = new FormData();
+					form_data.append("upload-image", document.getElementById('upload-bulk-image').files[0]);
+					form_data.append("user_id", result.ssa_user.id);
+					form_data.append("fb_user_id", result.fb_id);
+					// form_data.append("upload-image", $('input[type=file]')[0].files[0]);
+					$.ajax({
+						url:apiBaseUrl + "/uploads/images",
+						method:"POST",
+						data: form_data,
+						contentType: false,
+						cache: false,
+						processData: false,
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+						},  
+						success:function(response)
+						{
+							if(response.status == 401){
+								triggerLogout();
+								return false;
+							} else if(response.status == 200 || response.result == 'success') {
+								let imageBulk= response.file_path;
+								imageBulk='<img src="' + imageBulk +'" width="70" height="70">';
+								if(imageBulk!==''){
+									let bulk_text = $('#bulk_text').val(); 
+									if(typeof bulk_text !="undefined"){ 
+										var length = imageBulk.length;
+										chrome.storage.sync.get('emoji_bulk_focus', item => {
+										
+										if (bulk_text.length > 1 && item.emoji_bulk_focus!=0) {
+											var count = Array.from(bulk_text.split(/[\ufe00-\ufe0f]/).join("")).length;
+										
+											const usingSpread = [...bulk_text]; 
+										
+											var output = usingSpread.slice(0, item.emoji_bulk_focus).join('') +  imageBulk + usingSpread.slice(item.emoji_bulk_focus, count).join('');
+												
+											$('#bulk_text').val(output);  
+
+										}
+										else if (bulk_text.length > 1 && item.emoji_bulk_focus==0) {
+							
+											$('#bulk_text').val(bulk_text + imageBulk); 
+										}else{
+											$('#bulk_text').val(imageBulk); 
+										} 
+										
+										chrome.storage.sync.set({emoji_bulk_focus: parseInt(item.emoji_bulk_focus) + length });
+									
+									});
+									} 
+								}
+							}
+							else{
+								toastr["error"](response.msg);
+							}
+						},
+						error: function(error) {
+							console.log(error);
+						}
+					});
+				}
+			});			
+		}
+	   });
+	// $(document).on('blur','.edit-message-text', function() {
 	// 	selected_message = this;
 	// 	var attr = $(this).parent().parent().attr('message-id');
 	// 	if (typeof attr !== typeof undefined && attr !== false) {

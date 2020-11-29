@@ -14,6 +14,28 @@ img{
 .container, .container-sm {
     max-width: 100%;
 }
+.input-container{
+	position: relative;
+	display:inline-block;
+	width: 98%;
+}
+.icon-example {    
+    position:absolute;
+    z-index:9999;
+    right: 12px;
+    bottom: 6px;
+}
+.input-bulk-container{
+	position: relative;
+	display:inline-block;
+	width: 80%;
+}
+.icon-bulk-example {    
+    position:absolute;
+    z-index:9999;
+    right: 12px;
+    bottom: 28px;
+}
 
 .profile-image {
 	border-radius: 5px;
@@ -171,7 +193,7 @@ img{
 
 .message-textarea {
 	border: 1px solid #03384f !important;
-	width: 80%;
+	width: 100%;
 }
 
 .message-card:hover {

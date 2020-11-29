@@ -133,7 +133,29 @@ var fb_list_selectors = "ul[aria-label='"+conversionListText+"'] li:not([fb_user
 		}
 	})
 
-	
+var rejectedProfiles = [];
+processRejectedProfiles();
+
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	if(request.cmd == "profileRejected") {
+		//add to the end of queue
+		rejectedProfiles.push({url: request.url, other: request.parameters});
+	}
+	sendResponse({});
+});
+
+function processRejectedProfiles() {
+	if(rejectedProfiles.length > 0) {
+		//get the oldest element in queue
+		var profile = rejectedProfiles.shift();
+
+		//process profile
+		//...
+	}
+
+	//process next entry in the queue in 3 seconds
+	setTimeout(processRejectedProfiles, 3000);
+}
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {	
 	
 	if(message.from === 'popup' && message.subject === 'sendTemplateMessage') {	
