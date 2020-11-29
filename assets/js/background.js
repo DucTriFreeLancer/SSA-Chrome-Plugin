@@ -690,9 +690,8 @@ function readFriendRequestsConfirmPageTabListener(tabId, changeInfo, tab){
 		chrome.tabs.onUpdated.removeListener(readFriendRequestsConfirmPageTabListener);		
 
 		// lastFocusedWindow
-
 		 chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) { //0309          
-            chrome.tabs.update(tabs[0].id, {active: true});
+            chrome.tabs.update(tabId, {active: true});
         });
 	}
 }
@@ -825,7 +824,7 @@ function startPostMessageInterval() {
 				startPostMessage();
 			}
 		});
-	},60000);
+	},900000);
 }
 
 

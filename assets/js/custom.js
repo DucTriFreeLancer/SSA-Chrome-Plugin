@@ -1121,11 +1121,11 @@ $(document).ready(function(){
 		if(selectedType == 'pre_accept') {
 			$('#pre_accept_content').show();
 			$('#post_accept_content').hide();
-			$('#outgoing-message-status').prop("checked", true);
-			$('#comming-message-status').prop("checked", false);
+			// $('#outgoing-message-status').prop("checked", true);
+			// $('#comming-message-status').prop("checked", false);
 		} else if(selectedType == 'post_accept') {
-			$('#outgoing-message-status').prop("checked", false);
-			$('#comming-message-status').prop("checked", true);
+			// $('#outgoing-message-status').prop("checked", false);
+			// $('#comming-message-status').prop("checked", true);
 			$('#pre_accept_content').hide();
 			$('#post_accept_content').show();
 		} else {
