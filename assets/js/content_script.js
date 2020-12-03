@@ -167,6 +167,7 @@ async function pasteImage(blob) {
 		console.log(error);
 	  });
 	document.execCommand('paste');
+	chrome.runtime.sendMessage({triggerChatImage: "triggerChatImage"});
   }
   function sendImage(canvasData) {
 	setTimeout(async () => {
@@ -189,7 +190,7 @@ async function pasteImage(blob) {
 		  pasteImage(blob);
 		}
 	  }, 'image/png', 1);
-	}, 200);
+	}, 50);
   }
   
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {	
@@ -219,7 +220,15 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 		findBTN = setInterval(function () {
 			if ($('a[aria-label="Send"]').length > 0 ) {
 				clearInterval(findBTN);
+				$('a[aria-label="Send"]').mclick();				
+			}
+		},200)
+	}else if(message.from === 'background' && message.subject === 'triggerClickToSendImage'){
+		findBTN = setInterval(function () {
+			if ($('a[aria-label="Send"]').length > 0 ) {
+				clearInterval(findBTN);
 				$('a[aria-label="Send"]').mclick();
+				// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
 			}
 		},200)
 	} else if(message.from === 'popup') {
@@ -253,7 +262,47 @@ async function sendMessage(message){
 						canvasElement.height = imgHeight;
 						const ctx = canvasElement.getContext('2d');
 						ctx.drawImage(imageToBeSend, 0, 0, imgWidth, imgHeight);
-						sendImage(canvasElement);				
+						$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
+						let loc = window.location.href;
+						loc = loc.split('/t/');
+						if (loc[1].indexOf('?') > 0) {
+							// eslint-disable-next-line prefer-destructuring
+							loc[1] = loc[1].split('?')[0];
+						}
+						// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+						// location.replace(loc[0]+'/t/'+loc[1]);	
+						const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
+						const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+						// console.log(':::::$next::::::', $next);
+						// console.log(':::::$prev::::::', $prev);
+						let flag = true;
+
+						if ($next.length > 0) {
+							$next.mclick();
+							flag = true;
+						} else if ($prev.length > 0) {
+							$prev.mclick();
+							flag = false;
+						} else {
+							location.reload();
+						}
+						setTimeout(() => {
+							let loc1 = window.location.href;
+							loc1 = loc1.split('/t/');
+							if (loc1[1].indexOf('?') > 0) {
+							// eslint-disable-next-line prefer-destructuring
+								loc1[1] = loc1[1].split('?')[0];
+							}
+							const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
+							const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+							if (flag) {
+								$prevUser.mclick();
+							} else {
+								$nextUser.mclick();
+							}					
+							sendImage(canvasElement);			
+						}, 100);	
+										
 					} catch (e) {
 						error(e, ":", name);
 					}					
@@ -317,26 +366,23 @@ async function sendMessage(message){
 					loc1 = loc1.split('/t/');
 					if (loc1[1].indexOf('?') > 0) {
 					// eslint-disable-next-line prefer-destructuring
-					loc1[1] = loc1[1].split('?')[0];
+						loc1[1] = loc1[1].split('?')[0];
 					}
 					const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
 					const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
 					if (flag) {
-					$prevUser.mclick();
+						$prevUser.mclick();
 					} else {
-					$nextUser.mclick();
-					}
-
-					setTimeout(() => {
+						$nextUser.mclick();
+					}					
 					chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
 					const k = $('._5jpt ._4rv3 ._2pen');
 					if (k.length === 1) {
 						location.reload();
-					}
-					}, 100);
+					}				
 				}, 100);			
-						}
-					}
+			}
+		}
 	}	
 }
 async function sendMessageFromPopup(message){

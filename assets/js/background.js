@@ -160,7 +160,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     	   setTimeout(()=>{ 
 	   			chrome.tabs.sendMessage(sender.tab.id,{from: 'background', subject: 'triggerClickToSendChat'});
     	   }, 5000);
-    }else if (message.randomHashForBackgroundCTS == 'randomHashForBackgroundCTS') {
+	}else if(message.triggerChatImage == 'triggerChatImage'){
+		chrome.tabs.sendMessage(sender.tab.id,{from: 'background', subject: 'triggerClickToSendImage'});
+	}else if (message.randomHashForBackgroundCTS == 'randomHashForBackgroundCTS') {
             uniqueHash = message.uniqueHash;  
     }else if (message.saveTagFromContent == 'saveTagFromContent') {
             saveTagFromContent(message.data, sender.tab.id);  
@@ -203,8 +205,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }else if (message.action == 'create_tab'){
         chrome.tabs.create({
         	'url': message.url
-        });
-    }else if(message.action == 'sendWelcomeMessageADF'){
+		});
+	}
+	// }else if (message.action == 'triggerShowPopup'){
+    //     chrome.tabs.create({
+    //     	'url': message.url
+    //     });
+    // }
+	else if(message.action == 'sendWelcomeMessageADF'){
     	
     	sendWelcomeMessageADF(message.adfMemberId, message.welcomeMessageTextAdf)
     } 

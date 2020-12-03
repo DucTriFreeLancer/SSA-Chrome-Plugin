@@ -1600,22 +1600,25 @@ $(document).ready(function(){
 									<textarea class="form-control edit-message-text" style="display: none;" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
 								</div>
 								<div class="col-2 my-auto">
-									<div class="row">
-										<div class="col-4 my-auto">
-											<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
-										</div>
-										<div class="col-4 my-auto">
-											<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
-										</div>		
-										<div class="col-4 my-auto">
-											<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
-										</div>				
-										<div class="col-4 my-auto">
-											<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
+									<div class="row">`
+								if (message.message.indexOf('--template--') <0) {	
+									messageList +=`<div class="col-4 my-auto">
+													<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
+												</div>`;												
+								}
+								messageList+=`<div class="col-4 my-auto">
+												<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
+											</div>		
+											<div class="col-4 my-auto">
+												<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
+											</div>				
+											<div class="col-4 my-auto">
+												<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
+											</div>
 										</div>
 									</div>
-								</div>
-							</div>`;
+								</div>`;
+										
 						});						
 					} else {
 						messageList = noMessagesUnderTemplate;
@@ -1903,33 +1906,12 @@ $(document).ready(function(){
 								return false;
 							} else if(response.status == 200 || response.result == 'success') {
 								let imageTemplate= response.file_path;
-								imageTemplate='<img src="' + imageTemplate +'" width="70" height="70">';
+								imageTemplate='<img src="' + imageTemplate +'" width="400" height="70">';
 								if(imageTemplate!==''){
 									let template_text = $('#template_text').val(); 
 									if(typeof template_text !="undefined"){ 
-										var length = imageTemplate.length;
-										chrome.storage.sync.get('emoji_template_focus', item => {
-										
-										if (template_text.length > 1 && item.emoji_template_focus!=0) {
-											var count = Array.from(template_text.split(/[\ufe00-\ufe0f]/).join("")).length;
-										
-											const usingSpread = [...template_text]; 
-										
-											var output = usingSpread.slice(0, item.emoji_template_focus).join('') +  imageTemplate + usingSpread.slice(item.emoji_template_focus, count).join('');
-												
-											$('#template_text').val(output);  
-
-										}
-										else if (template_text.length > 1 && item.emoji_template_focus==0) {
-							
-											$('#template_text').val(bulk_text + imageTemplate); 
-										}else{
-											$('#template_text').val(imageTemplate); 
-										} 
-										
-										chrome.storage.sync.set({emoji_template_focus: parseInt(item.emoji_template_focus) + length });
-									
-									});
+										$('#template_text').val(imageTemplate);
+										$(".save-new-message").mclick();
 									} 
 								}
 							}
@@ -1996,7 +1978,7 @@ $(document).ready(function(){
 								return false;
 							} else if(response.status == 200 || response.result == 'success') {
 								let imageBulk= response.file_path;
-								imageBulk='<img src="' + imageBulk +'" width="70" height="70">';
+								imageBulk='<img src="' + imageBulk +'" width="400" height="70">';
 								if(imageBulk!==''){
 									let bulk_text = $('#bulk_text').val(); 
 									if(typeof bulk_text !="undefined"){ 
@@ -5609,31 +5591,33 @@ function getTemplateMessages(isSearch = false){
 					response.data.forEach(function(message){
 						//console.log(message.id);
 						messageList += `<div message-id="`+message.id+`" class="row message_name w-100 show-message">
-							<div class="col-10 pl-2 pt-1 message-view-text">
-								<div class="card bg-light template-message-card view-message">
-									<div class="card-body">
-										<div class="card-text">`+message.message+`</div>
+								<div class="col-10 pl-2 pt-1 message-view-text">
+									<div class="card bg-light template-message-card view-message">
+										<div class="card-body">
+											<div class="card-text">`+message.message+`</div>
+										</div>
 									</div>
+									<textarea class="form-control edit-message-text" style="display: none;" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
 								</div>
-								<textarea class="form-control edit-message-text" id="template_edit_text" placeholder="write message... " style="display: none;">`+message.message+`</textarea>
-							</div>
-							<div class="col-2 my-auto">
-								<div class="row">
-									<div class="col-4 my-auto">
-										<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
-									</div>
-									<div class="col-4 my-auto">
+								<div class="col-2 my-auto">
+									<div class="row">`
+						if (message.message.indexOf('--template--') <0) {	
+							messageList +=`<div class="col-4 my-auto">
+											<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
+										</div>`;												
+						}
+						messageList+=`<div class="col-4 my-auto">
 										<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
-									</div>
+									</div>		
 									<div class="col-4 my-auto">
 										<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
-									</div>						
+									</div>				
 									<div class="col-4 my-auto">
 										<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
 									</div>
 								</div>
 							</div>
-						</div>`;									
+						</div>`;								
 					});						
 				} else {
 					//console.log('message.id.no');
