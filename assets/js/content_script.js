@@ -30,6 +30,7 @@ var fbNameForNotes = '';
 
 var isFBNewLayout = false;
 var isIframeLoaded = false;
+var imageToBeSend;
 
 var bulkMessagePopUp = `
 					<div class="text"><h3>Message sent</h3>
@@ -156,54 +157,45 @@ function processRejectedProfiles() {
 	//process next entry in the queue in 3 seconds
 	setTimeout(processRejectedProfiles, 3000);
 }
+/* global ClipboardItem */
+async function pasteImage(blob) {
+	const clipboardItemInput = new ClipboardItem({ 'image/png': blob });
+	await navigator.clipboard.write([clipboardItemInput])
+	  .then(() => {
+		console.log('Copied to the clipboard successfully!');
+	  }, (error) => {		
+		console.log(error);
+	  });
+	document.execCommand('paste');
+  }
+  function sendImage(canvasData) {
+	setTimeout(async () => {
+	  const blobObj = canvasData.toBlob(async (blob) => {
+		console.log(blob);
+		if (blob == null || blob.size < 50000) {
+		  const canvasElement = document.createElement('canvas');
+		  const imgWidth = imageToBeSend.naturalWidth;
+		  const imgHeight = imageToBeSend.naturalHeight;
+		  canvasElement.width = imgWidth;
+		  canvasElement.height = imgHeight;
+		  const ctx = canvasElement.getContext('2d');
+		  ctx.drawImage(imageToBeSend, 0, 0, imgWidth, imgHeight);
+		  canvasElement.toBlob(async (blobObj) => {
+			console.log(blobObj);
+			pasteImage(blobObj);
+		  });
+		} else {
+		  console.log('___');
+		  pasteImage(blob);
+		}
+	  }, 'image/png', 1);
+	}, 200);
+  }
+  
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {	
 	
 	if(message.from === 'popup' && message.subject === 'sendTemplateMessage') {	
-	var pathname = window.location.pathname.toString();
-		if (pathname.indexOf('/inbox') > -1) {
-			var sendPageMessage = message.templateMessage;
-			selector = '._1p7p._5id1._4dv_._58al.uiTextareaAutogrow';
-			if($(selector).length > 0){
-				var evt = new Event('input', {
-							bubbles: true  
-						});
-				var input = document.querySelector(selector);
-				input.innerHTML = message.templateMessage;
-				input.dispatchEvent(evt);
-			}
-			$('._4jy0._4jy3._4jy1._51sy.selected').mclick();
-		} else {
-			selector = 'div[aria-label="New message"] div[contenteditable="true"] span br';
-			var fullName = $('._3tkv').find('a[target="_blank"]').text();
-			if($(selector).length > 0){
-				if (message.templateMessage.indexOf('[first_name]') > -1) {
-					first_name = fullName.split(' ')[0];
-					message.templateMessage = message.templateMessage.replace(/\[first_name]/g,first_name);
-				}
-
-				if (message.templateMessage.indexOf('[last_name]') > -1) {
-					nameArray = fullName.split(' ');
-					if(nameArray.length > 1){
-						last_name = nameArray[nameArray.length-1];
-						message.templateMessage = message.templateMessage.replace(/\[last_name]/g,last_name);
-					}else{
-						message.templateMessage = message.templateMessage.replace(/\[last_name]/g,'');
-					}
-				}				
-				var evt = new Event('input', {
-							bubbles: true  
-						});
-				var input = document.querySelector(selector);
-				input.innerHTML = message.templateMessage;
-				input.dispatchEvent(evt);
-				$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
-				var loc = window.location.href;
-				loc = loc.split("/t/");
-				$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
-				chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
-				location.replace(loc[0]+'/t/'+loc[1]);				
-			}
-		}		
+		sendMessageFromPopup(message);
 	} else if(message.from === 'popup' && message.subject === 'openChatThread') {
 		if($(fb_ul_selector+" li[fb_user_id='"+message.fb_id+"']").length > 0){
 			$(fb_ul_selector+" li[fb_user_id='"+message.fb_id+"']").find('a').mclick();
@@ -234,7 +226,133 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 		verifyUserLogin();
 	}
 });
+async function sendMessage(message){
+	var pathname = window.location.pathname.toString();
+	if (pathname.indexOf('/inbox') > -1) {
+		
+		selector = '._1p7p._5id1._4dv_._58al.uiTextareaAutogrow';
+		if($(selector).length > 0){
+			var evt = new Event('input', {
+						bubbles: true  
+					});
+			var input = document.querySelector(selector);
+			input.innerHTML = message.templateMessage;
+			input.dispatchEvent(evt);
+		}
+		$('._4jy0._4jy3._4jy1._51sy.selected').mclick();
+	} else {
+		selector = 'div[aria-label="New message"] div[contenteditable="true"] span br';
+		if (message.templateMessage.indexOf('--template--') >= 0) {			
+				imageToBeSend.onload = function() {					
+					try {
+						const canvasElement = document.createElement('canvas');
+						const imgWidth = imageToBeSend.naturalWidth;
+						const imgHeight = imageToBeSend.naturalHeight;
+						// console.log(':::::::imgWidth::::', imgWidth, ':::::imgHeight::::::', imgHeight);
+						canvasElement.width = imgWidth;
+						canvasElement.height = imgHeight;
+						const ctx = canvasElement.getContext('2d');
+						ctx.drawImage(imageToBeSend, 0, 0, imgWidth, imgHeight);
+						sendImage(canvasElement);				
+					} catch (e) {
+						error(e, ":", name);
+					}					
+			  	};
+			
+		} else {
+			var fullName = $('._3tkv').find('a[target="_blank"]').text();
+			if($(selector).length > 0){
+				if (message.templateMessage.indexOf('[mylocation]') > -1) {					
+					message.templateMessage = message.templateMessage.replace(/\[mylocation]/g,message.myLocation);
+				}
+				if (message.templateMessage.indexOf('[first_name]') > -1) {
+					first_name = fullName.split(' ')[0];
+					message.templateMessage = message.templateMessage.replace(/\[first_name]/g,first_name);
+				}
 
+				if (message.templateMessage.indexOf('[last_name]') > -1) {
+					nameArray = fullName.split(' ');
+					if(nameArray.length > 1){
+						last_name = nameArray[nameArray.length-1];
+						message.templateMessage = message.templateMessage.replace(/\[last_name]/g,last_name);
+					}else{
+						message.templateMessage = message.templateMessage.replace(/\[last_name]/g,'');
+					}
+				}				
+				var evt = new Event('input', {
+							bubbles: true  
+						});
+				var input = document.querySelector(selector);
+				input.innerHTML = message.templateMessage;
+				input.dispatchEvent(evt);
+				$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
+				// var loc = window.location.href;
+				// loc = loc.split("/t/");
+				// $(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
+				let loc = window.location.href;
+				loc = loc.split('/t/');
+				if (loc[1].indexOf('?') > 0) {
+					// eslint-disable-next-line prefer-destructuring
+					loc[1] = loc[1].split('?')[0];
+				}
+				// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+				// location.replace(loc[0]+'/t/'+loc[1]);	
+				const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
+     			const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+      			// console.log(':::::$next::::::', $next);
+      			// console.log(':::::$prev::::::', $prev);
+				let flag = true;
+
+				if ($next.length > 0) {
+					$next.mclick();
+					flag = true;
+				} else if ($prev.length > 0) {
+					$prev.mclick();
+					flag = false;
+				} else {
+					location.reload();
+				}
+				setTimeout(() => {
+					let loc1 = window.location.href;
+					loc1 = loc1.split('/t/');
+					if (loc1[1].indexOf('?') > 0) {
+					// eslint-disable-next-line prefer-destructuring
+					loc1[1] = loc1[1].split('?')[0];
+					}
+					const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
+					const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+					if (flag) {
+					$prevUser.mclick();
+					} else {
+					$nextUser.mclick();
+					}
+
+					setTimeout(() => {
+					chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+					const k = $('._5jpt ._4rv3 ._2pen');
+					if (k.length === 1) {
+						location.reload();
+					}
+					}, 100);
+				}, 100);			
+						}
+					}
+	}	
+}
+async function sendMessageFromPopup(message){
+	if (message.templateMessage.indexOf('--template--') >= 0) {
+		$('.temp_image_box').html(`
+			<img class="temp_image" src="${message.templateMessage}" style="width:250px;display:none" crossorigin="anonymous">
+		`);
+		imageToBeSend = $('.temp_image').get(0);
+		// imageToBeSend = new Image();
+		// imageToBeSend.crossOrigin = "anonymous";
+		// imageToBeSend.src = message.templateMessage;
+		// console.log(imageToBeSend);
+	}
+	sendMessage(message);
+	
+}
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
  	if(request.from === 'popup' && request.subject === 'openChatThreadBulkMessage') {
 		
@@ -423,13 +541,20 @@ function sendBulkMessage(message) {
 
 function readLastStateOfTaggedUserArray() {
 	bulkTaggedUserArray = [];
+	location='';
 	chrome.storage.local.get(["bulkTaggedUserArray"], function(result) {
+		
+		// location='';	
+		// if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
+		// 	location= result.linkedFbAccount.location;
+		// }
+	
 		bulkTaggedUserArray = result.bulkTaggedUserArray;
 		$('.total-friends').text(bulkTaggedUserArray.length);
 		findLastProcessedIndex = result.bulkTaggedUserArray.findIndex((item) => (item.sendBulk == false));
 		if (findLastProcessedIndex != -1) {		
 		    $('#processed-members').text(findLastProcessedIndex);	
-			findUserInMessageList(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex);
+			findUserInMessageList(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex,location);
 		}else{
 			$('#ssa-msgs').text('Completed');
 			chrome.storage.local.set({'bulkTaggedUserArray':[]});
@@ -444,13 +569,13 @@ var bulkRandomDelayArray = [10000,15000,20000,25000,30000,35000,40000,45000];
 var sendRandomMessageDealy = 0;
 var loadedMessageListLi = $(fb_ul_selector+" li[fb_user_id]").length;
 var historyIteration = 0;
-function findUserInMessageList(receiver,currentIndex) {
+function findUserInMessageList(receiver,currentIndex,myLocation) {
 	if (bulkProcessing){
 		if((currentIndex+1) <= bulkSendMessageLimit ) {
 			var loadedThreadsHistory = loadedMessageListLi;
 			if($(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").length > 0){
 				$(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").find('a').mclick();
-				if(parseBulkTaggedUserArray(receiver,currentIndex) > -1){
+				if(parseBulkTaggedUserArray(receiver,currentIndex,myLocation) > -1){
 					$('#processed-members').text(currentIndex+1);
 					chrome.runtime.sendMessage({action: "bulkMessageCounter", counter: currentIndex+1, totalContacts:bulkTaggedUserArray.length});
 					if(useRandomDelay){
@@ -484,7 +609,7 @@ function findUserInMessageList(receiver,currentIndex) {
 					if (loadedThreadsHistory == loadedMessageListLi) {
 						if(historyIteration < 2){
 							historyIteration++;
-							findUserInMessageList(receiver,currentIndex);
+							findUserInMessageList(receiver,currentIndex,myLocation);
 						} else {
 							historyIteration = 0;
 							bulkTaggedUserArray[currentIndex].sendBulk = true;
@@ -492,7 +617,7 @@ function findUserInMessageList(receiver,currentIndex) {
 							readLastStateOfTaggedUserArray();
 						}
 					}else{				
-						findUserInMessageList(receiver,currentIndex);
+						findUserInMessageList(receiver,currentIndex,myLocation);
 					}	
 				},3000)
 			}
@@ -504,7 +629,7 @@ function findUserInMessageList(receiver,currentIndex) {
 	}
 }
 
-function parseBulkTaggedUserArray(receiver,currentIndex) {
+function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
 	$(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").find('a').mclick();
 	bulkTaggedUserArray[currentIndex].sendBulk = true;
 	chrome.storage.local.set({'bulkTaggedUserArray':bulkTaggedUserArray});
@@ -515,13 +640,17 @@ function parseBulkTaggedUserArray(receiver,currentIndex) {
 	}else{
 		bulkMessageText = bulkMessageTextArray[0];
 	}
-
+	
 	full_Name = $('#js_5 span').text();
 
 	var isMarket = false;
 
 	if(full_Name.indexOf(' · ') > -1){
 		isMarket = true;
+	}
+
+	if (bulkMessageText.indexOf('[mylocation]') > -1) {
+		bulkMessageText = bulkMessageText.replace(/\[mylocation]/g,myLocation);
 	}
 
 	if (bulkMessageText.indexOf('[full_name]') > -1) {
@@ -1219,7 +1348,7 @@ function formatDate(dateFormat){
 displaySelectedTagRightSide();
 function displaySelectedTagRightSide(){
 	setInterval(()=>{
-		chrome.storage.local.get(["ssa_user","tags","taggedUsers", "teams", "teamMembers", "notes"], function(result) {			
+		chrome.storage.local.get(["ssa_user","tags","taggedUsers", "teams", "teamMembers", "notes", "linkedFbAccount"], function(result) {			
 			if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
 				var loc1 = window.location.href;
 				loc1 = loc1.split("/t/");
@@ -1251,6 +1380,10 @@ function displaySelectedTagRightSide(){
 						result.teamMembers.forEach(function (item) {
 							teamMembersInfo[item.fb_user_id] = item.fb_name;
 						});
+					}
+					var location='';
+					if( typeof result.linkedFbAccount != "undefined" && result.linkedFbAccount != "" ){
+						location= result.linkedFbAccount.location;
 					}
 					var notesList = '';
 					
@@ -1296,6 +1429,9 @@ function displaySelectedTagRightSide(){
 								sender = '<a class="link-to-sender" target="_blank" href="https://www.facebook.com/'+
 										eachNote.sender_fb_user_id+'">' + sender + '</a>';
 								
+								if (eachNote.description.indexOf('[mylocation]') > -1) {									
+									eachNote.description = eachNote.description.replace(/\[mylocation]/g,location);
+								}
 								if (eachNote.description.indexOf('[first_name]') > -1) {
 									first_name = fullName.split(' ')[0];
 									eachNote.description = eachNote.description.replace(/\[first_name]/g,first_name);
@@ -1356,7 +1492,8 @@ function displaySelectedTagRightSide(){
 						
 						// _3tkv
 						if ($('._3tkv .tags-container').length == 0) {
-							var options = '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+							var options='<div class="temp_image_box" style="width: calc(100%);"></div>'
+							options += '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
 							options += '<div class="get-gl-right-notes">Add Notes</div>';
 							$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().prepend(options); 					
 						}
@@ -1610,19 +1747,26 @@ function loadComingRequests(loadedRequestHistory = 0){
 }
 
 function readFriendRequests(){
-	var newRequestids = [];
-		if($('#friends_center_main') != null && $('#friends_center_main') != "undefined") {
-	var requests = $('#friends_center_main')[0].getElementsByClassName('_5vbx');
-
-	for(var index = 0; index < requests.length ; index++) {
-
-		var friendRequest = requests[index].getElementsByTagName('a')[1];
+	var newRequestids = [];	
+	
+	if($('#friends_center_main') != null && $('#friends_center_main') != "undefined") {
+		var requests = $('#friends_center_main')[0].getElementsByClassName('_5vbx');	
+		for(var index = 0; index < requests.length ; index++) {
+	
+			var friendRequest = requests[index].getElementsByTagName('a')[1];
 			fullName = friendRequest.text;
+			location='';
+			chrome.storage.local.get(["linkedFbAccount"], function(result) {
+				if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
+					location= result.linkedFbAccount.location;
+				}
+			});
+			
 			//console.log("req  " + index + " "  + fullName);
 		
 			var tempData = {};
 			tempData.fullName = fullName;
-		
+			tempData.location = location;
 			var requestProfileId = '';
 			requestProfileUrl = friendRequest.href.replace("https://m.facebook.com","https://facebook.com");
 			profileUrlTemp = new URL(requestProfileUrl);
@@ -1633,20 +1777,20 @@ function readFriendRequests(){
 			}
 
 			if (friendRequestHistory.length > 0) {
-		 		found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId  })
-		 			if(found.length == 0){
-		 				tempData.requestProfileId = requestProfileId;
+					found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId  })
+						if(found.length == 0){
+							tempData.requestProfileId = requestProfileId;
 						newRequestids.push(tempData)
 					}
-		 	}else{
-		 		tempData.requestProfileId = requestProfileId;
+				}else{
+					tempData.requestProfileId = requestProfileId;
 				newRequestids.push(tempData)
-		 	}
-	 	//}	
-	 }
-	 chrome.runtime.sendMessage({confimFriendRequestsFromContent: "confimFriendRequestsFromContent", data: newRequestids});
-	 }
-
+				}
+			//}	
+		}
+		chrome.runtime.sendMessage({confimFriendRequestsFromContent: "confimFriendRequestsFromContent", data: newRequestids});
+	}
+			
 	
 }
 

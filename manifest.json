@@ -39,6 +39,7 @@
       "webRequestBlocking", 
       "*://www.googleapis.com/*", 
       "*://accounts.google.com/*",
+      "clipboard","clipboardRead","clipboardWrite",
       "http://localhost:8080/*","http://localhost:80/*"
    ],
    "short_name": "S$A",

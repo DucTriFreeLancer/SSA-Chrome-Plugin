@@ -351,12 +351,17 @@
 						Accelerator
 					</span>
 				</div>
+				
 				<div class="col-2 my-auto float-right">
 					<div class="row mt-2">
 						<a class="dropdown-toggle" href="#" id="profile" data-toggle="dropdown">
 							<img class="mr-3 profile-image" src="assets/images/64.png" width = "40" height = "40"/>
 						</a>
 						<div class="dropdown-menu">
+							<a class="dropdown-item setting" id="drsetting" >
+								<i class="fa fa-cog space"></i>
+								Setting
+							</a>							
 							<a class="dropdown-item logout" id="logout" >
 								<i class="fa fa-sign-out space"></i>
 								Logout
@@ -638,7 +643,7 @@
 										<div class="row tabbed request-message-text-row">
 											<div class="col-10 p-2">
 												<div class="form-group">
-													Variables to use : [first_name] [last_name]
+													Variables to use : [first_name] [last_name] [mylocation]
 													<textarea class="p-2 form-control request-messge-text" rows="3" id="message-one" placeholder="Enter Message">Hey [first_name] [last_name],
 
 Thank you so much for sending me a friend request.</textarea>													
@@ -648,7 +653,7 @@ Thank you so much for sending me a friend request.</textarea>
 										<div class="row tabbed request-message-text-row hide-element">
 											<div class="col-10 p-2">
 												<div class="form-group">
-													Variables to use : [first_name] [last_name]
+													Variables to use : [first_name] [last_name] [mylocation]
 													<textarea class="p-2 form-control request-messge-text" rows="3" id="message-two" placeholder="Enter Message">Hey [first_name] [last_name],
 
 Thank you so much for sending me a friend request.</textarea>													
@@ -658,7 +663,7 @@ Thank you so much for sending me a friend request.</textarea>
 										<div class="row tabbed request-message-text-row hide-element">
 											<div class="col-10 p-2">
 												<div class="form-group">
-													Variables to use : [first_name] [last_name]
+													Variables to use : [first_name] [last_name] [mylocation]
 													<textarea class="p-2 form-control request-messge-text" rows="3" id="message-three" placeholder="Enter Message">Hey [first_name] [last_name],
 
 Thank you so much for sending me a friend request.</textarea>													
@@ -704,7 +709,7 @@ Thank you so much for sending me a friend request.</textarea>
 										<div class="row tabbed request-message-text-row">
 											<div class="col-10 p-2">
 												<div class="form-group">
-													Variables to use : [first_name] [last_name]
+													Variables to use : [first_name] [last_name] [mylocation]
 													<textarea class="form-control request-messge-text" rows="3" id="message-four" placeholder="Enter Message">Hey [first_name] [last_name]
 
 I have accepted your friend request.</textarea>
@@ -716,7 +721,7 @@ I have accepted your friend request.</textarea>
 										<div class="row tabbed request-message-text-row hide-element">
 											<div class="col-10 p-2">
 												<div class="form-group">
-													Variables to use : [first_name] [last_name]
+													Variables to use : [first_name] [last_name] [mylocation]
 													<textarea class="form-control request-messge-text" rows="3" id="message-five" placeholder="Enter Message">Hey [first_name] [last_name]
 
 I have accepted your friend request.</textarea>
@@ -728,7 +733,7 @@ I have accepted your friend request.</textarea>
 										<div class="row tabbed request-message-text-row hide-element">
 											<div class="col-10 p-2">
 												<div class="form-group">
-													Variables to use : [first_name] [last_name]
+													Variables to use : [first_name] [last_name] [mylocation]
 													<textarea class="form-control request-messge-text" rows="3" id="message-six" placeholder="Enter Message">Hey [first_name] [last_name]
 
 I have accepted your friend request.</textarea>
@@ -1056,6 +1061,32 @@ I have accepted your friend request.</textarea>
 			<i class="fa fa-check text-icon fb-unlink-conformation p-2" id="saveReminder"></i>
 			</div>
 			</div>
+			</div>
+		</div>
+		<div class="modal fade" id="setting" style="display: none;" tabindex="-1" role="dialog" aria-labelledby="settingModalLabel">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<p class="modal-title" id="settingModalLabel">Setting</p>
+						<button type="button" class="close update-multi-tag-btn" data-dismiss="modal">&times;</button>						
+					</div>
+					<div class="modal-body">
+						<form>
+							<div class="form-group">
+							  <label for="location-name" class="col-form-label">Location:</label>
+							  <input type="text" class="form-control" id="location-name">
+							</div>							
+						  </form>
+					</div>
+					<div class="modal-footer mx-auto">
+						<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+							<i class="fa fa-close"></i>
+						</button>
+						<button type="button" class="btn btn-primary action-button modal-confirm-save" id="confirm-setting-save">
+							<i class="fa fa-save"></i>
+						</button>					
+					</div>
+				</div>
 			</div>
 		</div>
 		<script src="assets/js/jquery.min.js"></script>

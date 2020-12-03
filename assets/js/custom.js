@@ -499,6 +499,9 @@ $(document).ready(function(){
 		chrome.storage.local.set({ssaPopupStates:ssaPopupStates});
 		triggerLogout();
 	});
+	$(document).on('click','.setting', function() {		
+		triggerSettings();
+	});
 
 	$("#forgot_password_form").validate({
         rules: {
@@ -603,7 +606,34 @@ $(document).ready(function(){
 		$(".templates").html('');
 		showMessageTemplates();
 	});
-
+	$('#confirm-setting-save').on('click',function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+				let location = $("#setting #location-name").val();
+				if(!location){
+					toastr["error"]("Please fill the input.");	
+					return false;
+				}
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/fb_accounts/settings/update",
+					data: {userId:result.ssa_user.id,fb_account_id:result.fb_id,location:location},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {						
+						toastr["success"]("Setting updated successfully.");	
+						chrome.storage.local.set({'linkedFbAccount':response.linkedFbAccount});					
+					}
+				});
+			}		
+		});		
+	});
 	$('.add_new_template').on('click',function(){
 
 		templateList = `<div class="row raw-template template_name w-100 p-2">
@@ -1758,12 +1788,23 @@ $(document).ready(function(){
     });
 
     $(document).on('click','.send-message', function() {
+		var myLocation='';
+		chrome.storage.local.get(["linkedFbAccount"], function(result) {
+			if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != "") {
+				myLocation = result.linkedFbAccount.location;
+			}
+		});
 		var templateMessage = $(this).parent().parent().parent().prev().find('textarea').val();
+		
+		if (templateMessage == null || templateMessage.indexOf('--template--') >= 0) {
+			templateMessage = $(this).parent().parent().parent().prev().find('img').attr('src');
+			window.close();
+		}
 		chrome.tabs.query({
 			active: true,
 			currentWindow: true
 		}, function (tabs) {
-			chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'sendTemplateMessage', templateMessage: templateMessage});
+			chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'sendTemplateMessage', templateMessage: templateMessage, myLocation: myLocation});
 		});
 	});
 
@@ -3364,7 +3405,7 @@ function checkFBMessengerIsActive(){
 						isFacebookMessagePage = false;
 					},100);
 				}
-				$('.remind_link, .setting,.account').show();
+				$('.remind_link,.account').show();
 				return;			
 			}
 			else if (tab.url && ( tab.url.indexOf('/groups/') != -1 && tab.url.indexOf('/members') != -1 ) && tab.active) {
@@ -3375,7 +3416,7 @@ function checkFBMessengerIsActive(){
 			else {
 				//console.log("out");
 				
-				$('.remind_link, .setting,.account').hide();
+				$('.remind_link, .account').hide();
 				$('.upgraded').show();
 				$('.arrow_icon').hide();
 				$(".screens").hide();
@@ -3429,16 +3470,17 @@ function getUserData(){
 					}		*/							
 					$(".userId").val(userId);												
 					displayTags(response.tags, response.taggedUsers, result.fb_id);
-					isCurrentFBLinked = response.linkedFbAccounts.filter((item) => item.fb_account_id == result.fb_id);	
-					if (isCurrentFBLinked.length > 0 && isCurrentFBLinked[0].google_sheet_url != null) {
-						$('#google_sheet_url').val(isCurrentFBLinked[0].google_sheet_url);
-						if(isCurrentFBLinked[0].account_image_url){
-							$('.current-profile-image').attr('src',isCurrentFBLinked[0].account_image_url);
+					linkedFbAccount = response.linkedFbAccounts.filter((item) => item.fb_account_id == result.fb_id);	
+					if (linkedFbAccount.length > 0 && linkedFbAccount[0].google_sheet_url != null) {
+						$('#google_sheet_url').val(linkedFbAccount[0].google_sheet_url);
+						if(linkedFbAccount[0].account_image_url){
+							$('.current-profile-image').attr('src',linkedFbAccount[0].account_image_url);
 						}
+
 					}
 
-					isCurrentFBLinked = (isCurrentFBLinked.length > 0)?true:false;
-					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers, 'isCurrentFBLinked':isCurrentFBLinked});
+					isCurrentFBLinked = (linkedFbAccount.length > 0)?true:false;
+					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked});
 					
 					createUpgradeButton(response.data);
 
@@ -3684,6 +3726,28 @@ function triggerLogout() {
 	dashboard();
 	toastr["info"]("You have logged out.");
 	$("#upgrade-link-container").hide();
+}
+
+function triggerSettings() {
+	chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+		if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/fb_accounts/settings",
+				data: {fb_account_id:result.fb_id, userId: result.ssa_user.id},
+				dataType: 'json',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('unique-hash', uniqueHash);
+                }
+			}).done(function(response) {
+			
+				if (response.status == 200 || response.result == 'success') {				
+					$("#setting #location-name").val(response.linkedFbSetting.location);
+					$("#setting").modal('show');
+				} 
+			});
+		}		
+	});	
 }
 
 function createUpgradeButton(userData){

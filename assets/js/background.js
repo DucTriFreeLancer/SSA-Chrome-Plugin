@@ -242,10 +242,11 @@ chrome.runtime.onConnect.addListener(function(port) {
 						}else if (response.status == 404) {
 							//port.postMessage({'false': true});
 						} else {
-							isCurrentFBLinked = response.linkedFbAccounts.filter((item) => item.fb_account_id == result.fb_id);	
-							isCurrentFBLinked = (isCurrentFBLinked.length > 0)?true:false;
+							linkedFbAccount = response.linkedFbAccounts.filter((item) => item.fb_account_id == result.fb_id);	
+							isCurrentFBLinked = (linkedFbAccount.length > 0)?true:false;
+							linkedFbAccount=(linkedFbAccount.length > 0)?linkedFbAccount[0]:null;
 							
-							chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers, 'isCurrentFBLinked':isCurrentFBLinked});
+							chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers,'linkedFbAccount':linkedFbAccount, 'isCurrentFBLinked':isCurrentFBLinked});
 							
 							getAllTagsFromGropuleads(response.taggedUserfromGroupleads);
 
@@ -730,7 +731,7 @@ function friendRequestsFromContent(friendRequests) {   /////// for premessages
 					var toggle = result.friendRequestFlow;
 					if (typeof toggle != "undefined" && toggle != "" &&
 						toggle == 'on') {				
-						sendRequestWelcomeMessage(item.requestProfileId, item.fullName, 1); /// for pre
+						sendRequestWelcomeMessage(item.requestProfileId, item.fullName, item.location, 1); /// for pre
 					}
 				});
 			}, index * 60000);
@@ -739,7 +740,7 @@ function friendRequestsFromContent(friendRequests) {   /////// for premessages
 }
 
 var requestMessageTabId = 0;
-function sendRequestWelcomeMessage(threadId, fullName, isPre) {	/// 1 for pre // 2for post message
+function sendRequestWelcomeMessage(threadId, fullName,mylocation, isPre) {	/// 1 for pre // 2for post message
 	threadId = threadId.replace('/','');
 	if (/[a-zA-Z]/.test(threadId)) {   /// having alphabets id
 			$.ajax({
@@ -767,6 +768,7 @@ function sendRequestWelcomeMessage(threadId, fullName, isPre) {	/// 1 for pre //
 						var temp = {};
 						temp.currentRequestId = threadId;
 						temp.fullName = fullName;
+						temp.mylocation = mylocation;
 						temp.tabId = requestMessageTabId;
 						temp.isPre = isPre;
 						friendRequestTabIds.push(temp);
@@ -789,6 +791,7 @@ function sendRequestWelcomeMessage(threadId, fullName, isPre) {	/// 1 for pre //
 				var temp = {};
 				temp.currentRequestId = threadId;
 				temp.fullName = fullName;
+				temp.mylocation = mylocation;
 				temp.tabId = requestMessageTabId;
 				temp.isPre = isPre;
 				friendRequestTabIds.push(temp);
@@ -804,7 +807,7 @@ function requestTabListener(tabId, changeInfo, tab){
 		var welcomeMessageText = '';
 
 		if (foundTabRecord.length > 0) {
-				welcomeMessageText = getFriendRequestMessage(foundTabRecord[0].currentRequestId, foundTabRecord[0].fullName, foundTabRecord[0].isPre);
+				welcomeMessageText = getFriendRequestMessage(foundTabRecord[0].currentRequestId, foundTabRecord[0].fullName, foundTabRecord[0].myLocation, foundTabRecord[0].isPre);
 		}
 		chrome.tabs.sendMessage(requestMessageTabId,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:welcomeMessageText});
 		chrome.tabs.onUpdated.removeListener(requestTabListener);		
@@ -905,6 +908,12 @@ function addFriendRequestHistory(currentRequestId) {
 }
 
 function sendPostMessage(friendRequests) {
+	var location='';
+	chrome.storage.local.get(["linkedFbAccount"], function(result) {
+		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
+			location= result.linkedFbAccount.location;
+		}
+	});
 	if(friendRequests.length > 0){
 		friendRequests.forEach(function (item, index) {
 			setTimeout(()=>{
@@ -912,7 +921,7 @@ function sendPostMessage(friendRequests) {
 					var toggle = result.friendRequestFlow;
 					if (typeof toggle != "undefined" && toggle != "" &&
 						toggle == 'on') {
-						sendRequestWelcomeMessage(item.requestProfileId, item.fullName, 2);
+						sendRequestWelcomeMessage(item.requestProfileId, item.fullName, location, 2);
 						if (index == friendRequests.length-1) {
 							isPreMessagingProcessing = true;
 						}
@@ -924,7 +933,7 @@ function sendPostMessage(friendRequests) {
 }
 
 
-function getFriendRequestMessage(currentRequestId, fullName ,isPre) {
+function getFriendRequestMessage(currentRequestId, fullName, myLocation ,isPre) {
 	var friendRequestSettingsTemp = friendRequestSettings; 
 	var welcomeMessageText ='';
 	var randomMessageTextArray = [];
@@ -986,6 +995,10 @@ function getFriendRequestMessage(currentRequestId, fullName ,isPre) {
 			welcomeMessageText = welcomeMessageText.replace(/\[last_name]/g,'');
 		}
 	}
+
+	if (welcomeMessageText.indexOf('[myLocation]') > -1) {		
+		welcomeMessageText = welcomeMessageText.replace(/\[myLocation]/g,myLocation);
+	}
 	return welcomeMessageText;
 }
 
@@ -1045,10 +1058,11 @@ function currentFBLogin(activeTabId) {
 								if (response.status == 404) {
 									//port.postMessage({'false': true});
 								} else {
-									isCurrentFBLinked = response.linkedFbAccounts.filter((item) => item.fb_account_id == result.fb_id);	
-									isCurrentFBLinked = (isCurrentFBLinked.length > 0)?true:false;
+								
+									linkedFbAccount = response.linkedFbAccounts.filter((item) => item.fb_account_id == result.fb_id);	
+									isCurrentFBLinked = (linkedFbAccount.length > 0)?true:false;
 									
-									chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers, 'isCurrentFBLinked':isCurrentFBLinked});
+									chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null,'isCurrentFBLinked':isCurrentFBLinked});
 									//port.postMessage({'login': true});
 									getAllTagsFromGropuleads(response.taggedUserfromGroupleads);
 									chrome.tabs.sendMessage(activeTabId,{from: 'background', subject: 'facebookLoggedInUser',currentLoggedInFBId:currentLoggedInFBId });

@@ -18,6 +18,7 @@ var ADF_add_friend_processingStatus = false;
 var limitSetByTotalMembers = false;
 
 var currentADF_groupSettingsObject = '';
+var currentLinkedFbAccountObject = '';
 
 
 var ADF_memberListSelector = '#groupsMemberSection_all_members [data-testid="GroupMemberGrid"] div.clearfix._60rh._gse:not(.adf-processed)';
@@ -50,9 +51,10 @@ var ADF_PopUp = `
 
 chrome.extension.onMessage.addListener(function(message, sender, send_response) {
     if (message.type == 'startLoading') {
-		chrome.storage.local.get(["ADF_groupSettings"], function(result) {
+		chrome.storage.local.get(["ADF_groupSettings","linkedFbAccount"], function(result) {
 		    if (typeof result.ADF_groupSettings != "undefined") {
-		    		currentADF_groupSettingsObject = result.ADF_groupSettings;
+					currentADF_groupSettingsObject = result.ADF_groupSettings;
+					currentLinkedFbAccountObject = result.linkedFbAccount;
 		    		if ($('#bluebarRoot').length == 0) { /// new layout 
 						totalGroupMembers = $('h2.gmql0nx0.l94mrbxd span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7:contains(Members):eq(0)').text();
 
@@ -280,6 +282,7 @@ function addTagAndSendWelcomeMessage(adfMemberId){
 		var clikedNumericFbId = 0;
 		var profilePic = ''
 		var fbName = '';
+		var location ='';
 		var page  = 0;
 		var selectedAdfTagIdsTemp = currentADF_groupSettingsObject.selectedAdfTagIds;
 
@@ -314,9 +317,12 @@ function addTagAndSendWelcomeMessage(adfMemberId){
 
 
 	if (typeof currentADF_groupSettingsObject.adf_message_texts != '' && currentADF_groupSettingsObject.adf_message_texts.length > 0) {
+		if (typeof currentLinkedFbAccountObject != "undefined" && typeof currentLinkedFbAccountObject.location != '' && currentLinkedFbAccountObject.location.length > 0) {
+			mylocation= currentLinkedFbAccountObject.location;
+		}
 		fbName = $('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('a:eq(1)').text();
 		var adf_message_text = currentADF_groupSettingsObject.adf_message_texts[Math.floor(Math.random()*currentADF_groupSettingsObject.adf_message_texts.length)];
-		var welcomeMessageTextAdf = getADFWelcomeMessage(adf_message_text, fbName); 
+		var welcomeMessageTextAdf = getADFWelcomeMessage(adf_message_text, fbName,mylocation); 
 		console.log('hseere')
 
 		chrome.runtime.sendMessage({'action': 'sendWelcomeMessageADF',adfMemberId:adfMemberId, welcomeMessageTextAdf:welcomeMessageTextAdf})
@@ -334,7 +340,7 @@ function updateFBUsertagViaADF(tagId, fbUserId, numericFbId, profilePic, fbName=
 }
 
 
-function getADFWelcomeMessage(welcomeMessageTextAdf, fullName) {
+function getADFWelcomeMessage(welcomeMessageTextAdf, fullName,mylocation) {
 	if (welcomeMessageTextAdf.indexOf('[full_name]') > -1) {
 		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[full_name]/g,fullName);
 	}
@@ -353,6 +359,8 @@ function getADFWelcomeMessage(welcomeMessageTextAdf, fullName) {
 			welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[last_name]/g,'');
 		}
 	}
-
+	if (welcomeMessageTextAdf.indexOf('[mylocation]') > -1) {
+		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[mylocation]/g,mylocation);
+	}
 	return welcomeMessageTextAdf;
 }
