@@ -198,7 +198,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 			currentFBLogin(sender.tab.id);		
 	}else if(message.action == 'content_script'){
         profile_pic=message.profilePic;
-        updateAccountImage(profile_pic);
+        // updateAccountImage(profile_pic);
 
     }else if(message.action == 'taggedUserfromGroupleads'){
     	getAllTagsFromGropuleads(message.taggedUserfromGroupleads);
@@ -1004,7 +1004,11 @@ function getFriendRequestMessage(currentRequestId, fullName, myLocation ,isPre) 
 		}
 	}
 
-	if (welcomeMessageText.indexOf('[myLocation]') > -1) {		
+	if (welcomeMessageText.indexOf('[myLocation]') > -1) {	
+		if(myLocation.includes("|")){
+			var locations = myLocation.split("|");		
+			myLocation = locations[Math.floor(Math.random() * locations.length)];	
+		}		
 		welcomeMessageText = welcomeMessageText.replace(/\[myLocation]/g,myLocation);
 	}
 	return welcomeMessageText;

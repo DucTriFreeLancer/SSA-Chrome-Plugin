@@ -314,7 +314,7 @@ img{
 	width: 124px !important;
 	height: 32px !important;
 	border-radius: 8px !important;
-	background-color: #572f5b !important;
+	background-color: #03384f !important;
 	font-size: 15px !important;
 	color: #ffffff !important;
 	border:none !important;
@@ -326,8 +326,8 @@ img{
 }
 .modal-footer .cancel{
 	background:white !important;
-	color: #572f5b !important;
-	border: 2px solid #572f5b !important;
+	color: #03384f !important;
+	border: 2px solid #03384f !important;
 }
 #myModal1 .modal-content{
 	width: 362px !important;
