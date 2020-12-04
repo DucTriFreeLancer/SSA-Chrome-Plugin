@@ -360,6 +360,10 @@ function getADFWelcomeMessage(welcomeMessageTextAdf, fullName,mylocation) {
 		}
 	}
 	if (welcomeMessageTextAdf.indexOf('[mylocation]') > -1) {
+		if(myLocation.includes("|")){
+			var locations = myLocation.split("|");		
+			myLocation = locations[Math.floor(Math.random() * locations.length)];	
+		}	
 		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[mylocation]/g,mylocation);
 	}
 	return welcomeMessageTextAdf;

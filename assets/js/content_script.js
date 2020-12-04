@@ -311,7 +311,11 @@ async function sendMessage(message){
 		} else {
 			var fullName = $('._3tkv').find('a[target="_blank"]').text();
 			if($(selector).length > 0){
-				if (message.templateMessage.indexOf('[mylocation]') > -1) {					
+				if (message.templateMessage.indexOf('[mylocation]') > -1) {		
+					if(message.myLocation.includes("|")){
+						var locations = message.myLocation.split("|");		
+						message.myLocation = locations[Math.floor(Math.random() * locations.length)];	
+					}				
 					message.templateMessage = message.templateMessage.replace(/\[mylocation]/g,message.myLocation);
 				}
 				if (message.templateMessage.indexOf('[first_name]') > -1) {
@@ -586,21 +590,19 @@ function sendBulkMessage(message) {
 }
 
 function readLastStateOfTaggedUserArray() {
-	bulkTaggedUserArray = [];
-	location='';
-	chrome.storage.local.get(["bulkTaggedUserArray"], function(result) {
-		
-		// location='';	
-		// if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
-		// 	location= result.linkedFbAccount.location;
-		// }
+	bulkTaggedUserArray = [];	
+	chrome.storage.local.get(["bulkTaggedUserArray","linkedFbAccount"], function(result) {		
 	
+		var mylocation='';
+		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
+			mylocation= result.linkedFbAccount.location;
+		}
 		bulkTaggedUserArray = result.bulkTaggedUserArray;
 		$('.total-friends').text(bulkTaggedUserArray.length);
 		findLastProcessedIndex = result.bulkTaggedUserArray.findIndex((item) => (item.sendBulk == false));
 		if (findLastProcessedIndex != -1) {		
 		    $('#processed-members').text(findLastProcessedIndex);	
-			findUserInMessageList(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex,location);
+			findUserInMessageList(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex,mylocation);
 		}else{
 			$('#ssa-msgs').text('Completed');
 			chrome.storage.local.set({'bulkTaggedUserArray':[]});
@@ -696,6 +698,10 @@ function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
 	}
 
 	if (bulkMessageText.indexOf('[mylocation]') > -1) {
+		if(myLocation.includes("|")){
+			var myLocations = myLocation.split("|");		
+			myLocation = myLocations[Math.floor(Math.random() * myLocations.length)];	
+		}
 		bulkMessageText = bulkMessageText.replace(/\[mylocation]/g,myLocation);
 	}
 
@@ -1475,7 +1481,11 @@ function displaySelectedTagRightSide(){
 								sender = '<a class="link-to-sender" target="_blank" href="https://www.facebook.com/'+
 										eachNote.sender_fb_user_id+'">' + sender + '</a>';
 								
-								if (eachNote.description.indexOf('[mylocation]') > -1) {									
+								if (eachNote.description.indexOf('[mylocation]') > -1) {	
+									if(location.includes("|")){
+										var locations = location.split("|");		
+										location = locations[Math.floor(Math.random() * locations.length)];	
+									}								
 									eachNote.description = eachNote.description.replace(/\[mylocation]/g,location);
 								}
 								if (eachNote.description.indexOf('[first_name]') > -1) {
@@ -1498,7 +1508,7 @@ function displaySelectedTagRightSide(){
 								'<div class="ssa-cols ssa-col-md-5 note-timing text-right" >'+eachNote.updatedDate+'</div></div>';*/
 								
 								notesList += '<div class="grid-item"><div class="grid-notes-sender">'+sender
-												+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div>' + scope + '</div>';
+												+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div><div class="grid-notes-team">' + scope + '</div></div>';
 								notesList += '<div class="grid-item custom-scroll">'+eachNote.description+'</div>';
 						
 							});
@@ -1801,10 +1811,10 @@ function readFriendRequests(){
 	
 			var friendRequest = requests[index].getElementsByTagName('a')[1];
 			fullName = friendRequest.text;
-			location='';
+			mylocation='';
 			chrome.storage.local.get(["linkedFbAccount"], function(result) {
 				if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
-					location= result.linkedFbAccount.location;
+					mylocation= result.linkedFbAccount.location;
 				}
 			});
 			
@@ -1812,7 +1822,7 @@ function readFriendRequests(){
 		
 			var tempData = {};
 			tempData.fullName = fullName;
-			tempData.location = location;
+			tempData.location = mylocation;
 			var requestProfileId = '';
 			requestProfileUrl = friendRequest.href.replace("https://m.facebook.com","https://facebook.com");
 			profileUrlTemp = new URL(requestProfileUrl);

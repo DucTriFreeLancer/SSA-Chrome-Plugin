@@ -565,6 +565,24 @@ li[fb_user_id],li[fb_user_id] > div{
   border: 1px solid #03384f !important;
 
 }
+.grid-notes-team {
+  background: #1ca8e4;
+  color: #fff;
+  font-size: 15px;
+  font-style: bold;
+  border-radius: 5px;
+  vertical-align: center;
+  text-align: center;
+  border: 1px solid #fff !important;
+  height: 22px;
+}
+.grid-notes-team:hover {
+  background: #fff;
+  color: #1ca8e4;
+  text-decoration: underline;
+  border: 1px solid #1ca8e4 !important;
+
+}
 .grid-notes-update {   
   vertical-align: center;
   text-align: center;

@@ -1792,23 +1792,24 @@ $(document).ready(function(){
 
     $(document).on('click','.send-message', function() {
 		var myLocation='';
+		let thisme= this;
 		chrome.storage.local.get(["linkedFbAccount"], function(result) {
 			if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != "") {
 				myLocation = result.linkedFbAccount.location;
 			}
-		});
-		var templateMessage = $(this).parent().parent().parent().prev().find('textarea').val();
+			var templateMessage = $(thisme).parent().parent().parent().prev().find('textarea').val();
 		
-		if (templateMessage == null || templateMessage.indexOf('--template--') >= 0) {
-			templateMessage = $(this).parent().parent().parent().prev().find('img').attr('src');
-			window.close();
-		}
-		chrome.tabs.query({
-			active: true,
-			currentWindow: true
-		}, function (tabs) {
-			chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'sendTemplateMessage', templateMessage: templateMessage, myLocation: myLocation});
-		});
+			if (templateMessage == null || templateMessage.indexOf('--template--') >= 0) {
+				templateMessage = $(thisme).parent().parent().parent().prev().find('img').attr('src');
+				window.close();
+			}
+			chrome.tabs.query({
+				active: true,
+				currentWindow: true
+			}, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'sendTemplateMessage', templateMessage: templateMessage, myLocation: myLocation});
+			});
+		});		
 	});
 
 	$(".add_message").on('click', function() {
@@ -1906,7 +1907,7 @@ $(document).ready(function(){
 								return false;
 							} else if(response.status == 200 || response.result == 'success') {
 								let imageTemplate= response.file_path;
-								imageTemplate='<img src="' + imageTemplate +'" width="400" height="70">';
+								imageTemplate='<img src="' + imageTemplate +'" width="400" height="auto">';
 								if(imageTemplate!==''){
 									let template_text = $('#template_text').val(); 
 									if(typeof template_text !="undefined"){ 
@@ -1978,7 +1979,7 @@ $(document).ready(function(){
 								return false;
 							} else if(response.status == 200 || response.result == 'success') {
 								let imageBulk= response.file_path;
-								imageBulk='<img src="' + imageBulk +'" width="400" height="70">';
+								imageBulk='<img src="' + imageBulk +'" width="400" height="auto">';
 								if(imageBulk!==''){
 									let bulk_text = $('#bulk_text').val(); 
 									if(typeof bulk_text !="undefined"){ 
