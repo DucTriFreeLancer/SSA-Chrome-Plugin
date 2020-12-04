@@ -22,8 +22,6 @@ var bulkMessageTabId = 0;
 var bulkMessageStatus = true;
 var uniqueHash = null;
 
-////////// ADF welcome messages /////////
-var friendRequestTabIdsADF = [];
 
 var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
 
@@ -1276,7 +1274,7 @@ function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
 		
 			temp.tabId = requestMessageTabIdADF;
 			temp.ADF_welcome_message = ADF_welcome_message
-			friendRequestTabIdsADF.push(temp);
+			friendRequestTabIds.push(temp);
 		chrome.tabs.onUpdated.addListener(requestTabListenerADF);
 	});
 }
@@ -1284,7 +1282,7 @@ function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
 
 function requestTabListenerADF(tabId, changeInfo, tab){
 	if (changeInfo.status === "complete" && tabId === requestMessageTabIdADF) {
-		var foundTabRecord = friendRequestTabIdsADF.filter((list)=>{ return list.tabId == requestMessageTabIdADF}); 
+		var foundTabRecord = friendRequestTabIds.filter((list)=>{ return list.tabId == requestMessageTabIdADF}); 
 		chrome.tabs.sendMessage(requestMessageTabIdADF,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:foundTabRecord[0].ADF_welcome_message});
 		chrome.tabs.onUpdated.removeListener(requestTabListenerADF);		
 	}
