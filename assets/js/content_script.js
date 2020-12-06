@@ -1508,7 +1508,12 @@ function displaySelectedTagRightSide(){
 								'<div class="ssa-cols ssa-col-md-5 note-timing text-right" >'+eachNote.updatedDate+'</div></div>';*/
 								
 								notesList += '<div class="grid-item"><div class="grid-notes-sender">'+sender
-												+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div><div class="grid-notes-team">' + scope + '</div></div>';
+												+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div>';
+								if (scope != ''){
+									notesList+='<div class="grid-notes-team">' + scope + '</div></div>';
+								}
+								else 
+									notesList+='</div>';
 								notesList += '<div class="grid-item custom-scroll">'+eachNote.description+'</div>';
 						
 							});

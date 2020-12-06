@@ -878,9 +878,9 @@ $(document).ready(function(){
 		getTeamMessages();		
 	})
 
-	$(document).on('keyup','#search_contact', function() {
-		getSearchTagContact();
-	});	
+	// $(document).on('keyup','#search_contact', function() {
+	// 	getSearchTagContact();
+	// });	
 
 /*---------------export-------*/
 	
@@ -2045,7 +2045,7 @@ $(document).ready(function(){
 	});
 	
 	$(document).on('click','.remove-new-tag', function() {	
-		$(this).closest('.secondary-1').parent().remove();
+		$(this).closest('.secondary-1').parent().parent().remove();
 		if($('.tag_row').length > 0){
 			$('.search-img').hide();
 			$('#tag-container').show();
@@ -2079,7 +2079,7 @@ $(document).ready(function(){
 						return false;
 				} else if(response.status == 200 || response.result == 'success') {
 
-					$('.remove-tag[tag-id="'+tagId+'"]').parent().parent().parent().parent().parent().remove();
+					$('.remove-tag[tag-id="'+tagId+'"]').parent().parent().parent().parent().parent().parent().remove();
 					toastr["success"]("Tag removed successfully.");
 					chrome.storage.local.get(["tags"], function(result) {
 						var temp = [];			
@@ -2180,7 +2180,7 @@ $(document).ready(function(){
 							$('.new-tag-div').find('.form-control.addtag').val('').focus();
 						} else {
 							toastr["success"](response.msg);
-							container.parent().parent().parent().removeClass('new-tag-div');
+							container.parent().parent().parent().parent().removeClass('new-tag-div');
 							container.parent().parent().next().find('.remove-new-tag').addClass('remove-tag');
 							container.parent().parent().next().find('.remove-tag').removeClass('remove-new-tag');
 							var tagName = $.trim(response.data.text);
@@ -2229,7 +2229,7 @@ $(document).ready(function(){
 								return false;
 							} else if (response.status == 200  || response.result == 'success') {
 								toastr["success"](response.msg);
-							container.parent().parent().parent().removeClass('new-tag-div');
+							container.parent().parent().parent().parent().removeClass('new-tag-div');
 							container.parent().parent().next().find('.remove-new-tag').addClass('remove-tag');
 							container.parent().parent().next().find('.remove-tag').removeClass('remove-new-tag');
 							var tagName = $.trim(response.data.text);
@@ -5643,7 +5643,7 @@ function getSearchTagContact(){
 	    if(tabs[0].url.indexOf('/inbox') > -1){
 	      	fb_page_id = tabs[0].url.split('/inbox')[0].toString().split('/').pop();
 	    }
-	    if (userId != "") {
+	    if (userId != "" && tagId != "") {
 	    	$(".tag-user-list").html('');
 	    	chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
 	    		loggedInFBId = result.fb_id;
