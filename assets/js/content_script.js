@@ -1838,15 +1838,15 @@ function readFriendRequests(){
 			}
 
 			if (friendRequestHistory.length > 0) {
-					found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId  })
-						if(found.length == 0){
-							tempData.requestProfileId = requestProfileId;
-						newRequestids.push(tempData)
-					}
-				}else{
+				found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId  });
+				if(found.length == 0){
 					tempData.requestProfileId = requestProfileId;
-				newRequestids.push(tempData)
+					newRequestids.push(tempData)
 				}
+			}else{
+				tempData.requestProfileId = requestProfileId;
+				newRequestids.push(tempData)
+			}
 			//}	
 		}
 		chrome.runtime.sendMessage({confimFriendRequestsFromContent: "confimFriendRequestsFromContent", data: newRequestids});

@@ -697,8 +697,10 @@ function readFriendRequestsConfirmPageTabListener(tabId, changeInfo, tab){
 		chrome.tabs.onUpdated.removeListener(readFriendRequestsConfirmPageTabListener);		
 
 		// lastFocusedWindow
-		 chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) { //0309          
-            chrome.tabs.update(tabId, {active: true});
+		 chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) { //0309 
+			if(tabs.length >0){
+				chrome.tabs.update(tabs.id, {active: true});
+			}                     
         });
 	}
 }
@@ -914,28 +916,30 @@ function addFriendRequestHistory(currentRequestId) {
 }
 
 function sendPostMessage(friendRequests) {
-	var location='';
+	var mylocation='';
 	chrome.storage.local.get(["linkedFbAccount"], function(result) {
-		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
-			location= result.linkedFbAccount.location;
+		if (typeof result.linkedFbAccount != "undefined"){
+			mylocation= result.linkedFbAccount.location;
+			
+		}
+		if(friendRequests.length > 0){
+			friendRequests.forEach(function (item, index) {
+				setTimeout(()=>{
+					chrome.storage.local.get(["friendRequestFlow"], function(result) {
+						var toggle = result.friendRequestFlow;
+						if (typeof toggle != "undefined" && toggle != "" &&
+							toggle == 'on') {
+							sendRequestWelcomeMessage(item.requestProfileId, item.fullName, mylocation, 2);
+							if (index == friendRequests.length-1) {
+								isPreMessagingProcessing = true;
+							}
+						}
+					});
+				}, index * 60000);
+			});
 		}
 	});
-	if(friendRequests.length > 0){
-		friendRequests.forEach(function (item, index) {
-			setTimeout(()=>{
-				chrome.storage.local.get(["friendRequestFlow"], function(result) {
-					var toggle = result.friendRequestFlow;
-					if (typeof toggle != "undefined" && toggle != "" &&
-						toggle == 'on') {
-						sendRequestWelcomeMessage(item.requestProfileId, item.fullName, location, 2);
-						if (index == friendRequests.length-1) {
-							isPreMessagingProcessing = true;
-						}
-					}
-				});
-			}, index * 60000);
-		});
-	}
+	
 }
 
 
