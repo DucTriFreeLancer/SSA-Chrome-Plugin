@@ -736,9 +736,15 @@ function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
 				delay=delay+3000;
 			});		
 		} 
+		else{
+			let messId=setTimeout(()=>{
+				triggerBulkSendMessage(bulkMessageText);					
+			},delay);
+			bulkMessageTimeout.push(messId);
+		}
 		setTimeout(function(){			
 			clearTimeOutIntervals();			
-		},delay +3000);	
+		},delay);	
 	}
 	return currentIndex;
 }
