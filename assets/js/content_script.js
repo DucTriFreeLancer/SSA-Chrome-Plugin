@@ -724,8 +724,21 @@ function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
 		}
 	}
 
-	if (custom_data.sendBulkMessageEnable && !isMarket) {
-		triggerBulkSendMessage(bulkMessageText);
+	if (custom_data.sendBulkMessageEnable && !isMarket) {		
+		var delay=0;
+		if(bulkMessageText.includes("|")){
+			var res = bulkMessageText.split("|");		
+			res.forEach(function(text){			
+				let messId=setTimeout(()=>{
+					triggerBulkSendMessage(text);					
+				},delay);
+				bulkMessageTimeout.push(messId);
+				delay=delay+3000;
+			});		
+		} 
+		setTimeout(function(){			
+			clearTimeOutIntervals();			
+		},delay +3000);	
 	}
 	return currentIndex;
 }
@@ -740,27 +753,70 @@ function triggerBulkSendMessage(bulkMsgText) {
 		input.innerHTML = bulkMsgText;
 		input.dispatchEvent(evt);
 		$(selector).after('<span data-text="true">'+bulkMsgText+'</span>');
-		var loc = window.location.href;
-		loc = loc.split("/t/");
-		$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
-		setTimeout(function(){
-			var loc1 = window.location.href;
-			loc1 = loc1.split("/t/");
-			$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
-			setTimeout(function(){
-				$('div[aria-label="New message"]').find('a[role="button"]').mclick();
-				/*******************/
-				var loc = window.location.href;
-				loc = loc.split("/t/");
-				$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
-				setTimeout(function(){
-					var loc1 = window.location.href;
-					loc1 = loc1.split("/t/");
-					$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
-				},200);
-				/*******************/
-			},200);
-		},200);
+		// var loc = window.location.href;
+		// loc = loc.split("/t/");
+		// $(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
+		// setTimeout(function(){
+		// 	var loc1 = window.location.href;
+		// 	loc1 = loc1.split("/t/");
+		// 	$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
+		// 	setTimeout(function(){
+		// 		$('div[aria-label="New message"]').find('a[role="button"]').mclick();
+		// 		/*******************/
+		// 		var loc = window.location.href;
+		// 		loc = loc.split("/t/");
+		// 		$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
+		// 		setTimeout(function(){
+		// 			var loc1 = window.location.href;
+		// 			loc1 = loc1.split("/t/");
+		// 			$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
+		// 		},200);
+		// 		/*******************/
+		// 	},200);
+		// },200);
+		let loc = window.location.href;
+		loc = loc.split('/t/');
+		if (loc[1].indexOf('?') > 0) {
+			// eslint-disable-next-line prefer-destructuring
+			loc[1] = loc[1].split('?')[0];
+		}
+		// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+		// location.replace(loc[0]+'/t/'+loc[1]);	
+		const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
+		const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+		// console.log(':::::$next::::::', $next);
+		// console.log(':::::$prev::::::', $prev);
+		let flag = true;
+
+		if ($next.length > 0) {
+			$next.mclick();
+			flag = true;
+		} else if ($prev.length > 0) {
+			$prev.mclick();
+			flag = false;
+		}
+		setTimeout(() => {
+			let loc1 = window.location.href;
+			loc1 = loc1.split('/t/');
+			if (loc1[1].indexOf('?') > 0) {
+			// eslint-disable-next-line prefer-destructuring
+				loc1[1] = loc1[1].split('?')[0];
+			}
+			const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
+			const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+			if (flag) {
+				$prevUser.mclick();
+			} else {
+				$nextUser.mclick();
+			}					
+			findBTN = setInterval(function () {
+				if ($('a[aria-label="Send"]').length > 0 ) {
+					clearInterval(findBTN);
+					$('a[aria-label="Send"]').mclick();
+					// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
+				}
+			},200)						
+		}, 100);
 	} else {
 		$('div[aria-label="New message"] div[contenteditable="true"] span span').text(bulkMsgText);
 		$('div[aria-label="New message"]').find('a[role="button"]').mclick();

@@ -275,46 +275,40 @@ function changeProgressBar(ADF_total,ADF_sent_requests){
 	$('.slider__label').css("width", progressBarVal+"%");
 }
 
-function addTagAndSendWelcomeMessage(adfMemberId){
-	
+function addTagAndSendWelcomeMessage(adfMemberId){	
 
 	if (currentADF_groupSettingsObject.isTaggingOn && currentADF_groupSettingsObject.selectedAdfTagIds.length > 0) {
 		var clikedNumericFbId = 0;
 		var profilePic = ''
-		var fbName = '';
-		var location ='';
+		var fbName = '';		
 		var page  = 0;
 		var selectedAdfTagIdsTemp = currentADF_groupSettingsObject.selectedAdfTagIds;
-
 
 		chrome.storage.local.get(["taggedUsers"], function(result) {
 			
 			var temp = result.taggedUsers.filter(function (item) { return (item.fb_user_id == adfMemberId || item.numeric_fb_id == adfMemberId) });
 				
-				if( temp.length > 0 ){
-					var $tagIds = temp[0].tag_id.split(',');
-					$tagIds.forEach(function(tagid){
-						eachTagIdOne = tagid.replace(/\#/g,'');
+			if( temp.length > 0 ){
+				var $tagIds = temp[0].tag_id.split(',');
+				$tagIds.forEach(function(tagid){
+					eachTagIdOne = tagid.replace(/\#/g,'');
 
-						if (selectedAdfTagIdsTemp.indexOf(eachTagIdOne) == -1) {
-							console.log(eachTagIdOne);
-							selectedAdfTagIdsTemp.push(eachTagIdOne);
-						}
-					});	
-				}
+					if (selectedAdfTagIdsTemp.indexOf(eachTagIdOne) == -1) {
+						console.log(eachTagIdOne);
+						selectedAdfTagIdsTemp.push(eachTagIdOne);
+					}
+				});	
+			}
 
-
-				if($('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('svg circle').prev().length > 0){
-					profilePic = $('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('svg circle').prev().attr('xlink:href');
-				} 
+			if($('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('svg circle').prev().length > 0){
+				profilePic = $('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('svg circle').prev().attr('xlink:href');
+			} 
 			fbName = $('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('a:eq(1)').text();
 
-				updateFBUsertagViaADF(JSON.stringify(selectedAdfTagIdsTemp),adfMemberId,clikedNumericFbId,profilePic, fbName,page);
-
+			updateFBUsertagViaADF(JSON.stringify(selectedAdfTagIdsTemp),adfMemberId,clikedNumericFbId,profilePic, fbName,page);
 
 		});
 	}
-
 
 	if (typeof currentADF_groupSettingsObject.adf_message_texts != '' && currentADF_groupSettingsObject.adf_message_texts.length > 0) {
 		if (typeof currentLinkedFbAccountObject != "undefined" && typeof currentLinkedFbAccountObject.location != '' && currentLinkedFbAccountObject.location.length > 0) {
