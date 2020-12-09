@@ -22,8 +22,6 @@ var bulkMessageTabId = 0;
 var bulkMessageStatus = true;
 var uniqueHash = null;
 
-////////// ADF welcome messages /////////
-var friendRequestTabIdsADF = [];
 
 var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
 
@@ -160,7 +158,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     	   setTimeout(()=>{ 
 	   			chrome.tabs.sendMessage(sender.tab.id,{from: 'background', subject: 'triggerClickToSendChat'});
     	   }, 5000);
-    }else if (message.randomHashForBackgroundCTS == 'randomHashForBackgroundCTS') {
+	}else if(message.triggerChatImage == 'triggerChatImage'){
+		chrome.tabs.sendMessage(sender.tab.id,{from: 'background', subject: 'triggerClickToSendImage'});
+	}else if (message.randomHashForBackgroundCTS == 'randomHashForBackgroundCTS') {
             uniqueHash = message.uniqueHash;  
     }else if (message.saveTagFromContent == 'saveTagFromContent') {
             saveTagFromContent(message.data, sender.tab.id);  
@@ -196,15 +196,21 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 			currentFBLogin(sender.tab.id);		
 	}else if(message.action == 'content_script'){
         profile_pic=message.profilePic;
-        updateAccountImage(profile_pic);
+        // updateAccountImage(profile_pic);
 
     }else if(message.action == 'taggedUserfromGroupleads'){
     	getAllTagsFromGropuleads(message.taggedUserfromGroupleads);
     }else if (message.action == 'create_tab'){
         chrome.tabs.create({
         	'url': message.url
-        });
-    }else if(message.action == 'sendWelcomeMessageADF'){
+		});
+	}
+	// }else if (message.action == 'triggerShowPopup'){
+    //     chrome.tabs.create({
+    //     	'url': message.url
+    //     });
+    // }
+	else if(message.action == 'sendWelcomeMessageADF'){
     	
     	sendWelcomeMessageADF(message.adfMemberId, message.welcomeMessageTextAdf)
     } 
@@ -691,8 +697,10 @@ function readFriendRequestsConfirmPageTabListener(tabId, changeInfo, tab){
 		chrome.tabs.onUpdated.removeListener(readFriendRequestsConfirmPageTabListener);		
 
 		// lastFocusedWindow
-		 chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) { //0309          
-            chrome.tabs.update(tabId, {active: true});
+		 chrome.tabs.query({active: true, lastFocusedWindow: true}, function(tabs) { //0309 
+			if(tabs.length >0){
+				chrome.tabs.update(tabs.id, {active: true});
+			}                     
         });
 	}
 }
@@ -908,28 +916,30 @@ function addFriendRequestHistory(currentRequestId) {
 }
 
 function sendPostMessage(friendRequests) {
-	var location='';
+	var mylocation='';
 	chrome.storage.local.get(["linkedFbAccount"], function(result) {
-		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
-			location= result.linkedFbAccount.location;
+		if (typeof result.linkedFbAccount != "undefined"){
+			mylocation= result.linkedFbAccount.location;
+			
+		}
+		if(friendRequests.length > 0){
+			friendRequests.forEach(function (item, index) {
+				setTimeout(()=>{
+					chrome.storage.local.get(["friendRequestFlow"], function(result) {
+						var toggle = result.friendRequestFlow;
+						if (typeof toggle != "undefined" && toggle != "" &&
+							toggle == 'on') {
+							sendRequestWelcomeMessage(item.requestProfileId, item.fullName, mylocation, 2);
+							if (index == friendRequests.length-1) {
+								isPreMessagingProcessing = true;
+							}
+						}
+					});
+				}, index * 60000);
+			});
 		}
 	});
-	if(friendRequests.length > 0){
-		friendRequests.forEach(function (item, index) {
-			setTimeout(()=>{
-				chrome.storage.local.get(["friendRequestFlow"], function(result) {
-					var toggle = result.friendRequestFlow;
-					if (typeof toggle != "undefined" && toggle != "" &&
-						toggle == 'on') {
-						sendRequestWelcomeMessage(item.requestProfileId, item.fullName, location, 2);
-						if (index == friendRequests.length-1) {
-							isPreMessagingProcessing = true;
-						}
-					}
-				});
-			}, index * 60000);
-		});
-	}
+	
 }
 
 
@@ -996,7 +1006,11 @@ function getFriendRequestMessage(currentRequestId, fullName, myLocation ,isPre) 
 		}
 	}
 
-	if (welcomeMessageText.indexOf('[myLocation]') > -1) {		
+	if (welcomeMessageText.indexOf('[myLocation]') > -1) {	
+		if(myLocation.includes("|")){
+			var locations = myLocation.split("|");		
+			myLocation = locations[Math.floor(Math.random() * locations.length)];	
+		}		
 		welcomeMessageText = welcomeMessageText.replace(/\[myLocation]/g,myLocation);
 	}
 	return welcomeMessageText;
@@ -1264,7 +1278,7 @@ function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
 		
 			temp.tabId = requestMessageTabIdADF;
 			temp.ADF_welcome_message = ADF_welcome_message
-			friendRequestTabIdsADF.push(temp);
+			friendRequestTabIds.push(temp);
 		chrome.tabs.onUpdated.addListener(requestTabListenerADF);
 	});
 }
@@ -1272,7 +1286,7 @@ function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
 
 function requestTabListenerADF(tabId, changeInfo, tab){
 	if (changeInfo.status === "complete" && tabId === requestMessageTabIdADF) {
-		var foundTabRecord = friendRequestTabIdsADF.filter((list)=>{ return list.tabId == requestMessageTabIdADF}); 
+		var foundTabRecord = friendRequestTabIds.filter((list)=>{ return list.tabId == requestMessageTabIdADF}); 
 		chrome.tabs.sendMessage(requestMessageTabIdADF,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:foundTabRecord[0].ADF_welcome_message});
 		chrome.tabs.onUpdated.removeListener(requestTabListenerADF);		
 	}

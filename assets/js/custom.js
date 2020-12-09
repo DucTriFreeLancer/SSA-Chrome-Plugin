@@ -878,9 +878,9 @@ $(document).ready(function(){
 		getTeamMessages();		
 	})
 
-	$(document).on('keyup','#search_contact', function() {
-		getSearchTagContact();
-	});	
+	// $(document).on('keyup','#search_contact', function() {
+	// 	getSearchTagContact();
+	// });	
 
 /*---------------export-------*/
 	
@@ -1600,22 +1600,25 @@ $(document).ready(function(){
 									<textarea class="form-control edit-message-text" style="display: none;" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
 								</div>
 								<div class="col-2 my-auto">
-									<div class="row">
-										<div class="col-4 my-auto">
-											<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
-										</div>
-										<div class="col-4 my-auto">
-											<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
-										</div>		
-										<div class="col-4 my-auto">
-											<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
-										</div>				
-										<div class="col-4 my-auto">
-											<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
+									<div class="row">`
+								if (message.message.indexOf('--template--') <0) {	
+									messageList +=`<div class="col-4 my-auto">
+													<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
+												</div>`;												
+								}
+								messageList+=`<div class="col-4 my-auto">
+												<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
+											</div>		
+											<div class="col-4 my-auto">
+												<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
+											</div>				
+											<div class="col-4 my-auto">
+												<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
+											</div>
 										</div>
 									</div>
-								</div>
-							</div>`;
+								</div>`;
+										
 						});						
 					} else {
 						messageList = noMessagesUnderTemplate;
@@ -1789,23 +1792,24 @@ $(document).ready(function(){
 
     $(document).on('click','.send-message', function() {
 		var myLocation='';
+		let thisme= this;
 		chrome.storage.local.get(["linkedFbAccount"], function(result) {
 			if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != "") {
 				myLocation = result.linkedFbAccount.location;
 			}
-		});
-		var templateMessage = $(this).parent().parent().parent().prev().find('textarea').val();
+			var templateMessage = $(thisme).parent().parent().parent().prev().find('textarea').val();
 		
-		if (templateMessage == null || templateMessage.indexOf('--template--') >= 0) {
-			templateMessage = $(this).parent().parent().parent().prev().find('img').attr('src');
-			window.close();
-		}
-		chrome.tabs.query({
-			active: true,
-			currentWindow: true
-		}, function (tabs) {
-			chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'sendTemplateMessage', templateMessage: templateMessage, myLocation: myLocation});
-		});
+			if (templateMessage == null || templateMessage.indexOf('--template--') >= 0) {
+				templateMessage = $(thisme).parent().parent().parent().prev().find('img').attr('src');
+				window.close();
+			}
+			chrome.tabs.query({
+				active: true,
+				currentWindow: true
+			}, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'sendTemplateMessage', templateMessage: templateMessage, myLocation: myLocation});
+			});
+		});		
 	});
 
 	$(".add_message").on('click', function() {
@@ -1903,33 +1907,12 @@ $(document).ready(function(){
 								return false;
 							} else if(response.status == 200 || response.result == 'success') {
 								let imageTemplate= response.file_path;
-								imageTemplate='<img src="' + imageTemplate +'" width="70" height="70">';
+								imageTemplate='<img src="' + imageTemplate +'" width="400" height="auto">';
 								if(imageTemplate!==''){
 									let template_text = $('#template_text').val(); 
 									if(typeof template_text !="undefined"){ 
-										var length = imageTemplate.length;
-										chrome.storage.sync.get('emoji_template_focus', item => {
-										
-										if (template_text.length > 1 && item.emoji_template_focus!=0) {
-											var count = Array.from(template_text.split(/[\ufe00-\ufe0f]/).join("")).length;
-										
-											const usingSpread = [...template_text]; 
-										
-											var output = usingSpread.slice(0, item.emoji_template_focus).join('') +  imageTemplate + usingSpread.slice(item.emoji_template_focus, count).join('');
-												
-											$('#template_text').val(output);  
-
-										}
-										else if (template_text.length > 1 && item.emoji_template_focus==0) {
-							
-											$('#template_text').val(bulk_text + imageTemplate); 
-										}else{
-											$('#template_text').val(imageTemplate); 
-										} 
-										
-										chrome.storage.sync.set({emoji_template_focus: parseInt(item.emoji_template_focus) + length });
-									
-									});
+										$('#template_text').val(imageTemplate);
+										$(".save-new-message").mclick();
 									} 
 								}
 							}
@@ -1996,7 +1979,7 @@ $(document).ready(function(){
 								return false;
 							} else if(response.status == 200 || response.result == 'success') {
 								let imageBulk= response.file_path;
-								imageBulk='<img src="' + imageBulk +'" width="70" height="70">';
+								imageBulk='<img src="' + imageBulk +'" width="400" height="auto">';
 								if(imageBulk!==''){
 									let bulk_text = $('#bulk_text').val(); 
 									if(typeof bulk_text !="undefined"){ 
@@ -2062,7 +2045,7 @@ $(document).ready(function(){
 	});
 	
 	$(document).on('click','.remove-new-tag', function() {	
-		$(this).closest('.secondary-1').parent().remove();
+		$(this).closest('.secondary-1').parent().parent().remove();
 		if($('.tag_row').length > 0){
 			$('.search-img').hide();
 			$('#tag-container').show();
@@ -2096,7 +2079,7 @@ $(document).ready(function(){
 						return false;
 				} else if(response.status == 200 || response.result == 'success') {
 
-					$('.remove-tag[tag-id="'+tagId+'"]').parent().parent().parent().parent().parent().remove();
+					$('.remove-tag[tag-id="'+tagId+'"]').parent().parent().parent().parent().parent().parent().remove();
 					toastr["success"]("Tag removed successfully.");
 					chrome.storage.local.get(["tags"], function(result) {
 						var temp = [];			
@@ -2197,7 +2180,7 @@ $(document).ready(function(){
 							$('.new-tag-div').find('.form-control.addtag').val('').focus();
 						} else {
 							toastr["success"](response.msg);
-							container.parent().parent().parent().removeClass('new-tag-div');
+							container.parent().parent().parent().parent().removeClass('new-tag-div');
 							container.parent().parent().next().find('.remove-new-tag').addClass('remove-tag');
 							container.parent().parent().next().find('.remove-tag').removeClass('remove-new-tag');
 							var tagName = $.trim(response.data.text);
@@ -2246,7 +2229,7 @@ $(document).ready(function(){
 								return false;
 							} else if (response.status == 200  || response.result == 'success') {
 								toastr["success"](response.msg);
-							container.parent().parent().parent().removeClass('new-tag-div');
+							container.parent().parent().parent().parent().removeClass('new-tag-div');
 							container.parent().parent().next().find('.remove-new-tag').addClass('remove-tag');
 							container.parent().parent().next().find('.remove-tag').removeClass('remove-new-tag');
 							var tagName = $.trim(response.data.text);
@@ -5609,31 +5592,33 @@ function getTemplateMessages(isSearch = false){
 					response.data.forEach(function(message){
 						//console.log(message.id);
 						messageList += `<div message-id="`+message.id+`" class="row message_name w-100 show-message">
-							<div class="col-10 pl-2 pt-1 message-view-text">
-								<div class="card bg-light template-message-card view-message">
-									<div class="card-body">
-										<div class="card-text">`+message.message+`</div>
+								<div class="col-10 pl-2 pt-1 message-view-text">
+									<div class="card bg-light template-message-card view-message">
+										<div class="card-body">
+											<div class="card-text">`+message.message+`</div>
+										</div>
 									</div>
+									<textarea class="form-control edit-message-text" style="display: none;" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
 								</div>
-								<textarea class="form-control edit-message-text" id="template_edit_text" placeholder="write message... " style="display: none;">`+message.message+`</textarea>
-							</div>
-							<div class="col-2 my-auto">
-								<div class="row">
-									<div class="col-4 my-auto">
-										<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
-									</div>
-									<div class="col-4 my-auto">
+								<div class="col-2 my-auto">
+									<div class="row">`
+						if (message.message.indexOf('--template--') <0) {	
+							messageList +=`<div class="col-4 my-auto">
+											<i class="fa fa-pencil edit-message p-1 text-icon" title="Edit"></i>
+										</div>`;												
+						}
+						messageList+=`<div class="col-4 my-auto">
 										<i class="fa fa-send send-message p-1 text-icon" title="Share"></i>
-									</div>
+									</div>		
 									<div class="col-4 my-auto">
 										<i class="fa fa-save save-message p-1 text-icon" title="Save"></i>
-									</div>						
+									</div>				
 									<div class="col-4 my-auto">
 										<i class="fa fa-trash delete-message p-1 text-icon" title="Delete"></i>
 									</div>
 								</div>
 							</div>
-						</div>`;									
+						</div>`;								
 					});						
 				} else {
 					//console.log('message.id.no');
@@ -5658,7 +5643,7 @@ function getSearchTagContact(){
 	    if(tabs[0].url.indexOf('/inbox') > -1){
 	      	fb_page_id = tabs[0].url.split('/inbox')[0].toString().split('/').pop();
 	    }
-	    if (userId != "") {
+	    if (userId != "" && tagId != "") {
 	    	$(".tag-user-list").html('');
 	    	chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
 	    		loggedInFBId = result.fb_id;

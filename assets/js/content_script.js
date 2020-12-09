@@ -167,6 +167,7 @@ async function pasteImage(blob) {
 		console.log(error);
 	  });
 	document.execCommand('paste');
+	chrome.runtime.sendMessage({triggerChatImage: "triggerChatImage"});
   }
   function sendImage(canvasData) {
 	setTimeout(async () => {
@@ -189,7 +190,7 @@ async function pasteImage(blob) {
 		  pasteImage(blob);
 		}
 	  }, 'image/png', 1);
-	}, 200);
+	}, 50);
   }
   
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {	
@@ -219,7 +220,15 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 		findBTN = setInterval(function () {
 			if ($('a[aria-label="Send"]').length > 0 ) {
 				clearInterval(findBTN);
+				$('a[aria-label="Send"]').mclick();				
+			}
+		},200)
+	}else if(message.from === 'background' && message.subject === 'triggerClickToSendImage'){
+		findBTN = setInterval(function () {
+			if ($('a[aria-label="Send"]').length > 0 ) {
+				clearInterval(findBTN);
 				$('a[aria-label="Send"]').mclick();
+				// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
 			}
 		},200)
 	} else if(message.from === 'popup') {
@@ -253,7 +262,47 @@ async function sendMessage(message){
 						canvasElement.height = imgHeight;
 						const ctx = canvasElement.getContext('2d');
 						ctx.drawImage(imageToBeSend, 0, 0, imgWidth, imgHeight);
-						sendImage(canvasElement);				
+						$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
+						let loc = window.location.href;
+						loc = loc.split('/t/');
+						if (loc[1].indexOf('?') > 0) {
+							// eslint-disable-next-line prefer-destructuring
+							loc[1] = loc[1].split('?')[0];
+						}
+						// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+						// location.replace(loc[0]+'/t/'+loc[1]);	
+						const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
+						const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+						// console.log(':::::$next::::::', $next);
+						// console.log(':::::$prev::::::', $prev);
+						let flag = true;
+
+						if ($next.length > 0) {
+							$next.mclick();
+							flag = true;
+						} else if ($prev.length > 0) {
+							$prev.mclick();
+							flag = false;
+						} else {
+							location.reload();
+						}
+						setTimeout(() => {
+							let loc1 = window.location.href;
+							loc1 = loc1.split('/t/');
+							if (loc1[1].indexOf('?') > 0) {
+							// eslint-disable-next-line prefer-destructuring
+								loc1[1] = loc1[1].split('?')[0];
+							}
+							const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
+							const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+							if (flag) {
+								$prevUser.mclick();
+							} else {
+								$nextUser.mclick();
+							}					
+							sendImage(canvasElement);			
+						}, 100);	
+										
 					} catch (e) {
 						error(e, ":", name);
 					}					
@@ -262,7 +311,11 @@ async function sendMessage(message){
 		} else {
 			var fullName = $('._3tkv').find('a[target="_blank"]').text();
 			if($(selector).length > 0){
-				if (message.templateMessage.indexOf('[mylocation]') > -1) {					
+				if (message.templateMessage.indexOf('[mylocation]') > -1) {		
+					if(message.myLocation.includes("|")){
+						var locations = message.myLocation.split("|");		
+						message.myLocation = locations[Math.floor(Math.random() * locations.length)];	
+					}				
 					message.templateMessage = message.templateMessage.replace(/\[mylocation]/g,message.myLocation);
 				}
 				if (message.templateMessage.indexOf('[first_name]') > -1) {
@@ -317,26 +370,23 @@ async function sendMessage(message){
 					loc1 = loc1.split('/t/');
 					if (loc1[1].indexOf('?') > 0) {
 					// eslint-disable-next-line prefer-destructuring
-					loc1[1] = loc1[1].split('?')[0];
+						loc1[1] = loc1[1].split('?')[0];
 					}
 					const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
 					const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
 					if (flag) {
-					$prevUser.mclick();
+						$prevUser.mclick();
 					} else {
-					$nextUser.mclick();
-					}
-
-					setTimeout(() => {
+						$nextUser.mclick();
+					}					
 					chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
 					const k = $('._5jpt ._4rv3 ._2pen');
 					if (k.length === 1) {
 						location.reload();
-					}
-					}, 100);
+					}				
 				}, 100);			
-						}
-					}
+			}
+		}
 	}	
 }
 async function sendMessageFromPopup(message){
@@ -540,21 +590,19 @@ function sendBulkMessage(message) {
 }
 
 function readLastStateOfTaggedUserArray() {
-	bulkTaggedUserArray = [];
-	location='';
-	chrome.storage.local.get(["bulkTaggedUserArray"], function(result) {
-		
-		// location='';	
-		// if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
-		// 	location= result.linkedFbAccount.location;
-		// }
+	bulkTaggedUserArray = [];	
+	chrome.storage.local.get(["bulkTaggedUserArray","linkedFbAccount"], function(result) {		
 	
+		var mylocation='';
+		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
+			mylocation= result.linkedFbAccount.location;
+		}
 		bulkTaggedUserArray = result.bulkTaggedUserArray;
 		$('.total-friends').text(bulkTaggedUserArray.length);
 		findLastProcessedIndex = result.bulkTaggedUserArray.findIndex((item) => (item.sendBulk == false));
 		if (findLastProcessedIndex != -1) {		
 		    $('#processed-members').text(findLastProcessedIndex);	
-			findUserInMessageList(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex,location);
+			findUserInMessageList(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex,mylocation);
 		}else{
 			$('#ssa-msgs').text('Completed');
 			chrome.storage.local.set({'bulkTaggedUserArray':[]});
@@ -650,6 +698,10 @@ function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
 	}
 
 	if (bulkMessageText.indexOf('[mylocation]') > -1) {
+		if(myLocation.includes("|")){
+			var myLocations = myLocation.split("|");		
+			myLocation = myLocations[Math.floor(Math.random() * myLocations.length)];	
+		}
 		bulkMessageText = bulkMessageText.replace(/\[mylocation]/g,myLocation);
 	}
 
@@ -672,8 +724,27 @@ function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
 		}
 	}
 
-	if (custom_data.sendBulkMessageEnable && !isMarket) {
-		triggerBulkSendMessage(bulkMessageText);
+	if (custom_data.sendBulkMessageEnable && !isMarket) {		
+		var delay=0;
+		if(bulkMessageText.includes("|")){
+			var res = bulkMessageText.split("|");		
+			res.forEach(function(text){			
+				let messId=setTimeout(()=>{
+					triggerBulkSendMessage(text);					
+				},delay);
+				bulkMessageTimeout.push(messId);
+				delay=delay+3000;
+			});		
+		} 
+		else{
+			let messId=setTimeout(()=>{
+				triggerBulkSendMessage(bulkMessageText);					
+			},delay);
+			bulkMessageTimeout.push(messId);
+		}
+		setTimeout(function(){			
+			clearTimeOutIntervals();			
+		},delay);	
 	}
 	return currentIndex;
 }
@@ -688,27 +759,70 @@ function triggerBulkSendMessage(bulkMsgText) {
 		input.innerHTML = bulkMsgText;
 		input.dispatchEvent(evt);
 		$(selector).after('<span data-text="true">'+bulkMsgText+'</span>');
-		var loc = window.location.href;
-		loc = loc.split("/t/");
-		$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
-		setTimeout(function(){
-			var loc1 = window.location.href;
-			loc1 = loc1.split("/t/");
-			$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
-			setTimeout(function(){
-				$('div[aria-label="New message"]').find('a[role="button"]').mclick();
-				/*******************/
-				var loc = window.location.href;
-				loc = loc.split("/t/");
-				$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
-				setTimeout(function(){
-					var loc1 = window.location.href;
-					loc1 = loc1.split("/t/");
-					$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
-				},200);
-				/*******************/
-			},200);
-		},200);
+		// var loc = window.location.href;
+		// loc = loc.split("/t/");
+		// $(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
+		// setTimeout(function(){
+		// 	var loc1 = window.location.href;
+		// 	loc1 = loc1.split("/t/");
+		// 	$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
+		// 	setTimeout(function(){
+		// 		$('div[aria-label="New message"]').find('a[role="button"]').mclick();
+		// 		/*******************/
+		// 		var loc = window.location.href;
+		// 		loc = loc.split("/t/");
+		// 		$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
+		// 		setTimeout(function(){
+		// 			var loc1 = window.location.href;
+		// 			loc1 = loc1.split("/t/");
+		// 			$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
+		// 		},200);
+		// 		/*******************/
+		// 	},200);
+		// },200);
+		let loc = window.location.href;
+		loc = loc.split('/t/');
+		if (loc[1].indexOf('?') > 0) {
+			// eslint-disable-next-line prefer-destructuring
+			loc[1] = loc[1].split('?')[0];
+		}
+		// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+		// location.replace(loc[0]+'/t/'+loc[1]);	
+		const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
+		const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+		// console.log(':::::$next::::::', $next);
+		// console.log(':::::$prev::::::', $prev);
+		let flag = true;
+
+		if ($next.length > 0) {
+			$next.mclick();
+			flag = true;
+		} else if ($prev.length > 0) {
+			$prev.mclick();
+			flag = false;
+		}
+		setTimeout(() => {
+			let loc1 = window.location.href;
+			loc1 = loc1.split('/t/');
+			if (loc1[1].indexOf('?') > 0) {
+			// eslint-disable-next-line prefer-destructuring
+				loc1[1] = loc1[1].split('?')[0];
+			}
+			const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
+			const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+			if (flag) {
+				$prevUser.mclick();
+			} else {
+				$nextUser.mclick();
+			}					
+			findBTN = setInterval(function () {
+				if ($('a[aria-label="Send"]').length > 0 ) {
+					clearInterval(findBTN);
+					$('a[aria-label="Send"]').mclick();
+					// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
+				}
+			},200)						
+		}, 100);
 	} else {
 		$('div[aria-label="New message"] div[contenteditable="true"] span span').text(bulkMsgText);
 		$('div[aria-label="New message"]').find('a[role="button"]').mclick();
@@ -1429,7 +1543,11 @@ function displaySelectedTagRightSide(){
 								sender = '<a class="link-to-sender" target="_blank" href="https://www.facebook.com/'+
 										eachNote.sender_fb_user_id+'">' + sender + '</a>';
 								
-								if (eachNote.description.indexOf('[mylocation]') > -1) {									
+								if (eachNote.description.indexOf('[mylocation]') > -1) {	
+									if(location.includes("|")){
+										var locations = location.split("|");		
+										location = locations[Math.floor(Math.random() * locations.length)];	
+									}								
 									eachNote.description = eachNote.description.replace(/\[mylocation]/g,location);
 								}
 								if (eachNote.description.indexOf('[first_name]') > -1) {
@@ -1452,7 +1570,12 @@ function displaySelectedTagRightSide(){
 								'<div class="ssa-cols ssa-col-md-5 note-timing text-right" >'+eachNote.updatedDate+'</div></div>';*/
 								
 								notesList += '<div class="grid-item"><div class="grid-notes-sender">'+sender
-												+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div>' + scope + '</div>';
+												+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div>';
+								if (scope != ''){
+									notesList+='<div class="grid-notes-team">' + scope + '</div></div>';
+								}
+								else 
+									notesList+='</div>';
 								notesList += '<div class="grid-item custom-scroll">'+eachNote.description+'</div>';
 						
 							});
@@ -1755,10 +1878,10 @@ function readFriendRequests(){
 	
 			var friendRequest = requests[index].getElementsByTagName('a')[1];
 			fullName = friendRequest.text;
-			location='';
+			mylocation='';
 			chrome.storage.local.get(["linkedFbAccount"], function(result) {
 				if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
-					location= result.linkedFbAccount.location;
+					mylocation= result.linkedFbAccount.location;
 				}
 			});
 			
@@ -1766,7 +1889,7 @@ function readFriendRequests(){
 		
 			var tempData = {};
 			tempData.fullName = fullName;
-			tempData.location = location;
+			tempData.location = mylocation;
 			var requestProfileId = '';
 			requestProfileUrl = friendRequest.href.replace("https://m.facebook.com","https://facebook.com");
 			profileUrlTemp = new URL(requestProfileUrl);
@@ -1777,15 +1900,15 @@ function readFriendRequests(){
 			}
 
 			if (friendRequestHistory.length > 0) {
-					found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId  })
-						if(found.length == 0){
-							tempData.requestProfileId = requestProfileId;
-						newRequestids.push(tempData)
-					}
-				}else{
+				found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId  });
+				if(found.length == 0){
 					tempData.requestProfileId = requestProfileId;
-				newRequestids.push(tempData)
+					newRequestids.push(tempData)
 				}
+			}else{
+				tempData.requestProfileId = requestProfileId;
+				newRequestids.push(tempData)
+			}
 			//}	
 		}
 		chrome.runtime.sendMessage({confimFriendRequestsFromContent: "confimFriendRequestsFromContent", data: newRequestids});

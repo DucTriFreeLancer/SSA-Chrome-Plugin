@@ -445,9 +445,10 @@
 										<option>&#128518;</option> 
 									</select>									
 									<select class="personalizationTemplates">
-										<option>Personalization </option>
+										<option selected disabled>Short code</option>
 										<option>[first_name]</option>
-										<option>[last_name]</option>							
+										<option>[last_name]</option>
+										<option>[mylocation]</option>							
 									</select>	
 									<button type="button" class="float-right btn btn-primary add-button add_message">
 										<i class="fa fa-plus"></i>
@@ -553,16 +554,17 @@
 											<option>😆</option> 
 										</select>
 										
-										<select class="personalizationBulk">
-											<option>Personalization </option>
+										<select class="personalizationBulk">											
+											<option selected disabled>Short code</option>
 											<option>[first_name]</option>
-											<option>[last_name]</option>							
+											<option>[last_name]</option>
+											<option>[mylocation]</option>							
 										</select>					
                                     </div>
 								</div>
 								<div class="input-bulk-container">
-									<input id="upload-bulk-image" type="file" name="upload-image" class="hide-element" />
-									<i class="fa fa-upload icon-bulk-example"></i>
+									<!-- <input id="upload-bulk-image" type="file" name="upload-image" class="hide-element" />
+									<i class="fa fa-upload icon-bulk-example"></i> -->
 									<textarea id="bulk_text" class="message-textarea bulk-messge-text"
 								 placeholder="Enter message.." rows="3"></textarea><br /><br />
 								</div>
