@@ -34,13 +34,11 @@
    "permissions": [ "activeTab", 
       "*://*.facebook.com/*", "*://*.socialsalesaccelerator.app/*", 
       "*://*.messenger.com/*", "storage", "cookies", 
-      "alarms", "tabs",
-      "identity", "webRequest", "notifications", 
+      "tabs", "webRequest", "notifications", 
       "webRequestBlocking", 
       "*://www.googleapis.com/*", 
       "*://accounts.google.com/*",
-      "clipboard","clipboardRead","clipboardWrite",
-      "http://localhost:8080/*","http://localhost:80/*"
+      "clipboard","clipboardRead","clipboardWrite"      
    ],
    "short_name": "S$A",
    "update_url": "https://clients2.google.com/service/update2/crx",
