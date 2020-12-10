@@ -140,9 +140,33 @@ function AFD_processGroupMembersForNew(history = 0) {
 	$('#ssa-msgs').text("In progress");
 	$('#text h2').text("Total Members");
 	$('#overlay').show();
-	if(ADF_startat < $(ADF_memberListSelectorNew).length){
-		ADF_loadedMembers = $('div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]').length;
+	ADF_loadedMembers = $('div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]').length;
+	if(ADF_startat > $(ADF_memberListSelectorNew).length){
+		if(  ADF_loadedMembers > history){
+			$("html, body").animate({ scrollTop: $(document).height() }, 1000);
+			setTimeout(()=>{				
+				AFD_processGroupMembersForNew(ADF_loadedMembers);
+			}, 2000)
+		}
+		else  {
+								
+			ADF_limitExceeded = true;
+			ADF_underLimit = false;
+			ADF_add_friend_processingStatus = 'limitexceeded';
+			ADF_profileDelay = 0;
+			chrome.runtime.sendMessage({'action': 'adf-complete'});
 
+			tempTwo = {};
+			tempTwo.tabId = 0;
+			tempTwo.state = '';
+			chrome.storage.local.set({"ADF_State":tempTwo}); 
+			adfClearAutomaticIntervals();
+			$('#ssa-msgs').text('Limit exceeded..');
+			ADF_hide_loader();
+		}
+	}
+	else
+	{
 		if(  ADF_loadedMembers > history){
 		
 			var outerTimeOut = setTimeout(function(){		
@@ -193,6 +217,7 @@ function AFD_processGroupMembersForNew(history = 0) {
 								ADF_limitExceeded = true;
 								ADF_underLimit = false;
 								ADF_add_friend_processingStatus = 'limitexceeded';
+								ADF_profileDelay = 0;
 								chrome.runtime.sendMessage({'action': 'adf-complete'});
 
 								tempTwo = {};
@@ -226,8 +251,10 @@ function AFD_processGroupMembersForNew(history = 0) {
 				timeOutIdsArray.push(outerTimeOut)
 
 		}else {
-
-
+			ADF_limitExceeded = true;
+			ADF_underLimit = false;
+			ADF_add_friend_processingStatus = 'limitexceeded';
+			ADF_profileDelay = 0;
 			chrome.runtime.sendMessage({'action': 'adf-complete'});
 
 			tempTwo = {};
@@ -238,18 +265,7 @@ function AFD_processGroupMembersForNew(history = 0) {
 			ADF_add_friend_processingStatus = 'completed';
 			$('#ssa-msgs').text("Completed");
 			ADF_hide_loader()
-
-		}
-	}
-	else{
-		chrome.runtime.sendMessage({'action': 'adf-complete'});
-		tempTwo = {};
-		tempTwo.tabId = 0;
-		tempTwo.state = '';
-		chrome.storage.local.set({"ADF_State":tempTwo}); 
-		adfClearAutomaticIntervals();
-		$('#ssa-msgs').text('Limit exceeded..');		
-		ADF_hide_loader();
+		}	
 	}
 }
 
@@ -316,11 +332,12 @@ function addTagAndSendWelcomeMessage(adfMemberId){
 		}
 		fbName = $('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('a:eq(1)').text();
 		var adf_message_text = currentADF_groupSettingsObject.adf_message_texts[Math.floor(Math.random()*currentADF_groupSettingsObject.adf_message_texts.length)];
-		var welcomeMessageTextAdf = getADFWelcomeMessage(adf_message_text, fbName,mylocation); 
-		console.log('hseere')
+		if( adf_message_text != null && adf_message_text != ''){
 
-		chrome.runtime.sendMessage({'action': 'sendWelcomeMessageADF',adfMemberId:adfMemberId, welcomeMessageTextAdf:welcomeMessageTextAdf})
+			var welcomeMessageTextAdf = getADFWelcomeMessage(adf_message_text, fbName,mylocation);
+			chrome.runtime.sendMessage({'action': 'sendWelcomeMessageADF',adfMemberId:adfMemberId, welcomeMessageTextAdf:welcomeMessageTextAdf})
 
+		}		
 	}
 
 }

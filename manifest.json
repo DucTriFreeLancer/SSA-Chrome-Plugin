@@ -35,10 +35,10 @@
       "*://*.facebook.com/*", "*://*.socialsalesaccelerator.app/*", 
       "*://*.messenger.com/*", "storage", "cookies", 
       "tabs", "webRequest", "notifications", 
-      "webRequestBlocking", 
+      "webRequestBlocking", "identity",
       "*://www.googleapis.com/*", 
       "*://accounts.google.com/*",
-      "clipboard","clipboardRead","clipboardWrite"      
+      "clipboardRead","clipboardWrite"      
    ],
    "short_name": "S$A",
    "update_url": "https://clients2.google.com/service/update2/crx",
