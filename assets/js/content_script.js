@@ -742,9 +742,10 @@ function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
 			},delay);
 			bulkMessageTimeout.push(messId);
 		}
-		setTimeout(function(){			
+		var clearId=setTimeout(function(){			
 			clearTimeOutIntervals();			
-		},delay);	
+		},delay);
+		bulkMessageTimeout.push(clearId);	
 	}
 	return currentIndex;
 }
@@ -1721,7 +1722,7 @@ function displayNotes(notesArray) {
 function triggerRequestSendMessage(bulkMsgText) {
 	
 	let message_total_send =0;
-	var delay=500;
+	var delay=1000;
 	if(bulkMsgText.includes("|")){
 		var res = bulkMsgText.split("|");		
 		res.forEach(function(text){			
@@ -1735,7 +1736,7 @@ function triggerRequestSendMessage(bulkMsgText) {
 				message_total_send = message_total_send + 1;
 			},delay);
 			bulkMessageTimeout.push(messId);
-			delay=delay+500;
+			delay=delay+1000;
 		});		
 	} 
 	else{
@@ -1749,13 +1750,14 @@ function triggerRequestSendMessage(bulkMsgText) {
 			message_total_send = message_total_send + 1;
 		},delay);
 		bulkMessageTimeout.push(messId);
-		delay=delay+500;		
+		delay=delay+1000;		
 	}
-
-	setTimeout(function(){			
+	
+	var closeMessage= setTimeout(function(){			
 		clearTimeOutIntervals();
 		chrome.runtime.sendMessage({closeRequestMessageTab: "closeRequestMessageTab"});	
-	},delay +1500);	
+	},delay);	
+	bulkMessageTimeout.push(closeMessage);
 }
 
 

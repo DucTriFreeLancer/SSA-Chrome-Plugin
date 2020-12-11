@@ -1263,31 +1263,71 @@ function getUpdateTagsFromGropuleads(item){
 }
 var requestMessageTabIdADF = 0;
 function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
-	var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids='+ADFmemberId;
-	chrome.windows.create({ 
-		url: sendWelcomeMeesageUrl,
-		focused:false, 
-		type:"popup",
-		top:Math.floor(window.screen.availHeight/4*3),
-		left:Math.floor(window.screen.availWidth/4*3), 
-		height:Math.floor(window.screen.availHeight/4), 
-		width:Math.floor(window.screen.availWidth/4) 
-	},function (tabs) {
-		requestMessageTabIdADF = tabs.tabs[0].id;
+	ADFmemberId = ADFmemberId.replace('/','');
+	if (/[a-zA-Z]/.test(ADFmemberId)) {   /// having alphabets id
+			$.ajax({
+		    type: "GET",
+		    url: 'https://m.facebook.com/'+ADFmemberId,
+		    success: function(data, txtStatus, request) {
+		  			var str = $(data).text()
+		  			var mySubString = str.substring(
+					    str.lastIndexOf('&quot;profile_id&quot;:') + 1, 
+					    str.lastIndexOf('&quot;profile_id&quot;:') + 50
+					);
+		  			tmp = mySubString.split(',');
+					var tmpUserId = tmp[0].split(':')[1];
+					var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids='+tmpUserId;
+					chrome.windows.create({ 
+						url: sendWelcomeMeesageUrl,
+						focused:false, 
+						type:"popup",
+						top:Math.floor(window.screen.availHeight/4*3),
+						left:Math.floor(window.screen.availWidth/4*3), 
+						height:Math.floor(window.screen.availHeight/4), 
+						width:Math.floor(window.screen.availWidth/4) 
+					},function (tabs) {
+						requestMessageTabIdADF = tabs.tabs[0].id;
+						var temp = {};
+					
+						temp.tabId = requestMessageTabIdADF;
+						temp.ADF_welcome_message = ADF_welcome_message
+						friendRequestTabIds.push(temp);
+						chrome.tabs.onUpdated.addListener(requestTabListenerADF);
+					});	      		
+		   		 }
+			});		
+	}else{
+		var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids='+ADFmemberId;
+		chrome.windows.create({ 
+			url: sendWelcomeMeesageUrl,
+			focused:false, 
+			type:"popup",
+			top:Math.floor(window.screen.availHeight/4*3),
+			left:Math.floor(window.screen.availWidth/4*3), 
+			height:Math.floor(window.screen.availHeight/4), 
+			width:Math.floor(window.screen.availWidth/4) 
+		},function (tabs) {
+			requestMessageTabIdADF = tabs.tabs[0].id;
 			var temp = {};
 		
 			temp.tabId = requestMessageTabIdADF;
 			temp.ADF_welcome_message = ADF_welcome_message
 			friendRequestTabIds.push(temp);
-		chrome.tabs.onUpdated.addListener(requestTabListenerADF);
-	});
+			chrome.tabs.onUpdated.addListener(requestTabListenerADF);
+		});	
+	}	
 }
 
 
 function requestTabListenerADF(tabId, changeInfo, tab){
 	if (changeInfo.status === "complete" && tabId === requestMessageTabIdADF) {
 		var foundTabRecord = friendRequestTabIds.filter((list)=>{ return list.tabId == requestMessageTabIdADF}); 
-		chrome.tabs.sendMessage(requestMessageTabIdADF,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:foundTabRecord[0].ADF_welcome_message});
+		var welcomeMessageText = '';
+
+		if (foundTabRecord.length > 0) {
+				welcomeMessageText = foundTabRecord[0].ADF_welcome_message;
+		}
+		chrome.tabs.sendMessage(requestMessageTabIdADF,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:welcomeMessageText});
 		chrome.tabs.onUpdated.removeListener(requestTabListenerADF);		
 	}
 }

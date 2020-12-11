@@ -12,7 +12,7 @@
       "css": [ "/assets/css/content_script.css" ],
       "js": [ "/assets/js/jquery.min.js", "config.js", "/assets/js/content_script.js", 
          "/assets/js/page_content_script.js", "assets/js/cb_script.js" ],
-      "matches": [ "*://*.facebook.com/messages*", "*://*.facebook.com/*/inbox*", "*://*.messenger.com/*" ]
+      "matches": [ "*://*.facebook.com/messages/*", "*://*.facebook.com/*/inbox*", "*://*.messenger.com/*" ]
    },
    {
       "css": [ "/assets/css/content_script.css" ,"/assets/css/adf.css" ],
