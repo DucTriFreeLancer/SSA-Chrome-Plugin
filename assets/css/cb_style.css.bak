@@ -10,13 +10,6 @@ body,
 .nav .open > a:hover,
 .nav .open > a:focus {background-color: transparent;}
 
-.hidden{
-    display: none;
-}
-.show{
-    display: block;
-}
-
 /*-------------------------------*/
 /*           Wrappers            */
 /*-------------------------------*/
@@ -194,7 +187,7 @@ textarea{
     color: #333;
 	max-width:500px;
 }
-.saved_replys, .saved_reply_filters, .saved_dms{
+.saved_replys, .saved_reply_filters{
     background: #fff;
     padding: 15px 5px;
     box-shadow: 1px 1px 6px #ccc;

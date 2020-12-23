@@ -233,21 +233,18 @@ function startAction() {
         loadReplyForm(reply_btn).then((form) => {
             //reply_btns.shift();
             //console.log('Got Form', form);
-			let timeBetweenComments = 10000; //Seconds * 1000
-			setTimeout(function(){
-                let all_action_btns = $(comments_container_selector + '>' + comment_selector + '>._2b04>div[data-sigil="ufi-inline-comment-actions"]>a:not(.gone_through)'); // Like,Comment and More buttons of all comments
-                var logid = all_action_btns.parents("._2b04").parents("._2a_i").find("._2a_j").attr("data-sigil");
-                if(all_action_btns.parents("._2b04").find("._2a_m").html().search(logid) > -1) { 
-                    setTimeout(function () {
-                        let remembered_btn = reply_btns.shift();
-                        $(remembered_btn).addClass('gone_through');
-                        startAction(); //
+			let all_action_btns = $(comments_container_selector + '>' + comment_selector + '>._2b04>div[data-sigil="ufi-inline-comment-actions"]>a:not(.gone_through)'); // Like,Comment and More buttons of all comments
+			var logid = all_action_btns.parents("._2b04").parents("._2a_i").find("._2a_j").attr("data-sigil");
+			if(all_action_btns.parents("._2b04").find("._2a_m").html().search(logid) > -1) { 
+				setTimeout(function () {
+					let remembered_btn = reply_btns.shift();
+					$(remembered_btn).addClass('gone_through');
+					startAction(); //
 
-                    }, randomBetween(seconds - diff, seconds + diff));
-                } else{
-                    postReply(form);
-                }
-            },timeBetweenComments);
+				}, randomBetween(seconds - diff, seconds + diff));
+			} else{
+				postReply(form);
+			}
            
         })
   //  }
@@ -497,35 +494,6 @@ async function loadReplyForm(btn) {
 
 async function postReply(form) {
     //console.log('postReply called', form);
-    let urlpath = form.closest('._2a_i._2a_l').find('._2b05').find('a')[0].getAttribute('href');
-    console.log(urlpath);
-    let addFriend = false;
-    let messages = [];
-
-    chrome.storage.local.get('addPeopleToFriends',function(res1){
-        addFriend=res1.addPeopleToFriends;
-        chrome.storage.local.get('cb_custom_dms',function(res2){
-            messages = res2.cb_custom_dms;
-            if(addFriend || (messages!=null && messages!=undefined && messages.length>0)){
-                let url = new URL("https://m.facebook.com"+urlpath);
-                url.searchParams.set("lets_blast_user",1);
-                url.searchParams.set('addFriend',addFriend?1:0);
-                url.searchParams.set('sendMessages',(messages!=undefined && messages.length>0)?1:0);
-                url = url.href;
-                window.open(url,'currentUserBlaster',
-                `toolbar=no,
-                location=no,
-                status=no,
-                menubar=no,
-                scrollbars=yes,
-                resizable=yes,
-                width=500px,
-                height=500px`);
-            }
-
-
-        })
-    })
 
     let submit_btn = form.find('button[type="submit"]');
     let textarea = form.find('textarea.mentions-input');
@@ -543,13 +511,10 @@ async function postReply(form) {
 
     submit_btn.removeAttr('disabled'); // enable button
     //textarea.val(reply_content);
-    if(reply_content!=null){
-        input.val(reply_content);
+    input.val(reply_content);
 
-        submit_btn.click();
-        //submit_btn.css({'background': 'red'});
-    }
-    
+    submit_btn.click();
+    //submit_btn.css({'background': 'red'});
 
     //rememberComment
     rememberComment(comment);
@@ -633,10 +598,6 @@ async function postReply(form) {
 function makeReply(form, comment) {
     //console.log('makeReply called');
 	return new Promise(async (resolve, reject) =>{
-        if(replys==undefined || replys==null){
-            resolve(null);
-            return;
-        }
 		let reply = replys[Math.floor(Math.random() * replys.length)];
 		let name = getTagString(comment);
 		var regex = /<br\s*[\/]?>/gi;
@@ -656,19 +617,11 @@ function replaceVariable(reply,comment){
 		firstName = fullName.split(' ').slice(0, -1).join(' ');
 		lastName = fullName.split(' ').slice(-1).join(' ');
 	}
-    //return name + ' ' + reply + ' ' + offer_link; 
-    let today = new Date();
-    today = today.getDate()+"."+(today.getMonth()+1)+"."+today.getFullYear();
-
-    let month = new Date();
-    month = month.getMonth()+1;
-
+	//return name + ' ' + reply + ' ' + offer_link; 
 	var fullregex = /{full_name}/gi;
 	var firstregex = /{first_name}/gi;
-    var lastregex = /{last_name}/gi;
-    var thisdayregex = /{thisday}/gi;
-    var thismonth = /{thismonth}/gi;
-	reply = reply.replace(fullregex, fullName).replace(firstregex, firstName).replace(lastregex, lastName).replace(thisdayregex,today).replace(thismonth,month);
+	var lastregex = /{last_name}/gi;
+	reply = reply.replace(fullregex, fullName).replace(firstregex, firstName).replace(lastregex, lastName);
 	return reply;
 	
 }

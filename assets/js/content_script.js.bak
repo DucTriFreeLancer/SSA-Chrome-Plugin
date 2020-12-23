@@ -137,16 +137,6 @@ var fb_list_selectors = "ul[aria-label='"+conversionListText+"'] li:not([fb_user
 var rejectedProfiles = [];
 processRejectedProfiles();
 
-
-$(function () {
-		setInterval(()=>{
-			$('div[contenteditable="true"]').parent().prev().find('div').text('')
-		}, 1)
-		$('div[contenteditable="true"]').parent().prev().find('div').text('')
-});
-
-
-
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	if(request.cmd == "profileRejected") {
 		//add to the end of queue
@@ -228,16 +218,16 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 
 	}else if(message.from === 'background' && message.subject === 'triggerClickToSendChat'){
 		findBTN = setInterval(function () {
-			if ($('div[aria-label="Press Enter to send"').length > 0 ) {
+			if ($('a[aria-label="Send"]').length > 0 ) {
 				clearInterval(findBTN);
-				$('div[aria-label="Press Enter to send"').mclick();				
+				$('a[aria-label="Send"]').mclick();				
 			}
 		},200)
 	}else if(message.from === 'background' && message.subject === 'triggerClickToSendImage'){
 		findBTN = setInterval(function () {
-			if ($('div[aria-label="Press Enter to send"').length > 0 ) {
+			if ($('a[aria-label="Send"]').length > 0 ) {
 				clearInterval(findBTN);
-				$('div[aria-label="Press Enter to send"').mclick();
+				$('a[aria-label="Send"]').mclick();
 				// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
 			}
 		},200)
@@ -247,8 +237,8 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 });
 async function sendMessage(message){
 	var pathname = window.location.pathname.toString();
-	if (pathname.indexOf('/inbox') > -1) {		
-
+	if (pathname.indexOf('/inbox') > -1) {
+		
 		selector = '._1p7p._5id1._4dv_._58al.uiTextareaAutogrow';
 		fullName = $('div[data-pagelet]').find('a[aria-haspopup]').parent().prev().text();
 		if(fullName != ''){
@@ -260,7 +250,6 @@ async function sendMessage(message){
 			templateMessage = templateMessage.replace("[last_name]", lastName);
 			templateMessage = templateMessage.replace("[full_name]", fullName);
 		}
-
 		if($(selector).length > 0){
 			var evt = new Event('input', {
 						bubbles: true  
@@ -357,10 +346,9 @@ async function sendMessage(message){
 							bubbles: true  
 						});
 				var input = document.querySelector(selector);
-				input.innerHTML = message.templateMessage ;
+				input.innerHTML = message.templateMessage;
 				input.dispatchEvent(evt);
-				$(selector).after('<span data-text="true">'+message.templateMessage +'</span>');
-						
+				$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
 				// var loc = window.location.href;
 				// loc = loc.split("/t/");
 				// $(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
@@ -407,53 +395,6 @@ async function sendMessage(message){
 						location.reload();
 					}				
 				}, 100);			
-			}
-			else{
-				
-				selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
-				var fullName = '';
-
-				fullName =	$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
-				if (message.templateMessage.indexOf('[mylocation]') > -1) {		
-					if(message.myLocation.includes("|")){
-						var locations = message.myLocation.split("|");		
-						message.myLocation = locations[Math.floor(Math.random() * locations.length)];	
-					}				
-					message.templateMessage = message.templateMessage.replace(/\[mylocation]/g,message.myLocation);
-				}				
-
-				if(fullName != ''){
-					if (message.templateMessage.indexOf('[first_name]') > -1) {
-						first_name = fullName.split(' ')[0];
-						message.templateMessage = message.templateMessage.replace(/\[first_name]/g,first_name);
-					}
-	
-					if (message.templateMessage.indexOf('[last_name]') > -1) {
-						nameArray = fullName.split(' ');
-						if(nameArray.length > 1){
-							last_name = nameArray[nameArray.length-1];
-							message.templateMessage = message.templateMessage.replace(/\[last_name]/g,last_name);
-						}else{
-							message.templateMessage = message.templateMessage.replace(/\[last_name]/g,'');
-						}
-					}
-						
-				}
-			
-				
-				if($(selector).length > 0){
-					
-					var evt = new Event('input', {
-								bubbles: true  
-							});
-					var input = document.querySelector(selector);
-					input.innerHTML = message.templateMessage;
-					input.dispatchEvent(evt);
-			
-					$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
-					
-					chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
-				}
 			}
 		}
 	}	
@@ -603,7 +544,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 		//////////////////////////
 		var findULText = setInterval(function(){
-			// console.log('integrateSSAFeature');
+			console.log('integrateSSAFeature');
 			if($("div[aria-label='Conversations']").length > 0){
 				clearInterval(findULText);			
 				conversionListText = $("div[aria-label='Conversations']").find('ul').attr('aria-label');
@@ -611,17 +552,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				fb_ul_li_selector = "ul[aria-label='"+conversionListText+"'] li";
 				fb_list_selectors = "ul[aria-label='"+conversionListText+"'] li:not([fb_user_id]";
 				integrateSSAFeature();
-				var loc1 = window.location.href;
-				loc1 = loc1.split("/t/");				
-				var li_fb_user_id = loc1[1];
-				chrome.runtime.sendMessage({getUserNotes: "getUserNotes", fb_user_id: li_fb_user_id,integrateSSAFeature: true});
-			}
-		}, 1000);
-		var findULText = setInterval(function(){
-
-			if($("div[data-testid='mwthreadlist-item']").length > 0){
-				clearInterval(findULText);			
-				integrateSSAFeatureWM();
 				var loc1 = window.location.href;
 				loc1 = loc1.split("/t/");				
 				var li_fb_user_id = loc1[1];
@@ -987,14 +917,9 @@ $(function(){
 
 	//////// user notes////
 	$(document).on('click','.get-gl-notes', function() {
-		var cliked_Fb_Id =''
-		if($(this).closest('div[data-testid="mwthreadlist-item"]').length >0){
-			cliked_Fb_Id=$(this).closest('div[data-testid="mwthreadlist-item"]').attr('fb_user_id');
-			fbNameForNotes=$(this).closest('div[data-testid="mwthreadlist-item"]').find('a[role="link"]:eq(0)').find('span').first().text();
-		}else{
-			cliked_Fb_Id = $(this).closest('li[fb_user_id]').attr('fb_user_id');
-			fbNameForNotes = $(this).closest('li[fb_user_id]').find('._1ht6._7st9').text();
-		}
+		var cliked_Fb_Id = $(this).closest('li[fb_user_id]').attr('fb_user_id');
+		fbNameForNotes = $(this).closest('li[fb_user_id]').find('._1ht6._7st9').text();
+		
 		$('#ssa_model_two').addClass('notes-modal');
 		$('#overlay-two #ssa_model_content_two').text('loading notes for '+fbNameForNotes).show();
 		chrome.runtime.sendMessage({getUserNotes: "getUserNotes", fb_user_id: cliked_Fb_Id});
@@ -1119,45 +1044,21 @@ $(function(){
 	$(document).on('click','.ssa-tags-container span', function() {
 		var pathname = window.location.href.toString();	
 	 	if(pathname.indexOf("/messages") > -1 ||  pathname.indexOf("messenger") > -1 ){
-			
-			var clikedFBUserId = ''
-			var clickedNumericFbId=''
+			var clikedFBUserId = $(this).closest('li').attr('fb_user_id');
+			var clickedNumericFbId=$(this).closest('li').attr('numeric_fb_id');
 			var profilePic = '';
-			var fbName = '';
-
-			var newThreadMessenger = 0;
-			var newMThreadId  = 0;
-			
-			if ($(fb_ul_li_selector).length > 0) {
-
-				clikedFBUserId = $(this).closest('li').attr('fb_user_id');
-				clickedNumericFbId=$(this).closest('li').attr('numeric_fb_id');
-				profilePic = '';
-				page = 0;
-				if($('._3xb9').find('a').find('i').length>0){
-					page = 1;
-				}
-
-				if($(this).closest('li').find('img').length > 0){
-					profilePic = $(this).closest('li').find('img').attr('src');
-				} else {
-					profilePic = $(this).closest('li').find('div[data-tooltip-content] div').css('background-image').replace('url(','').replace(')','').replace(/\"/gi, "");
-				}
-				fbName = $(this).parent().prev().text();
-
-			}else{
-				newThreadMessenger = 1;
-				clikedFBUserId = $(this).closest('.gl-message-list-item').attr('fb_user_id');
-				clickedNumericFbId = $(this).closest('.gl-message-list-item').attr('numeric_fb_id');
-				newMThreadId  = $(this).closest('.gl-message-list-item').attr('thread_fb_id');
-				page = 0;
-
-				if($(this).closest('.gl-message-list-item').find('svg.pzggbiyp image').length > 0){
-					profilePic = $(this).closest('.gl-message-list-item').find('svg.pzggbiyp image').attr('xlink:href');
-				} 
-				fbName = $(this).closest('.gl-message-list-item').find('span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text();
-
+			page = 0;
+			if($('._3xb9').find('a').find('i').length>0){
+				page = 1;
 			}
+
+			if($(this).closest('li').find('img').length > 0){
+				profilePic = $(this).closest('li').find('img').attr('src');
+			} else {
+				profilePic = $(this).closest('li').find('div[data-tooltip-content] div').css('background-image').replace('url(','').replace(')','').replace(/\"/gi, "");
+			}
+			var fbName = $(this).parent().prev().text();
+			
 			chrome.storage.local.get(["tags", "taggedUsers", "teams", "teamMembers"], function(result) {
 
 				var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
@@ -1175,9 +1076,8 @@ $(function(){
 						}
 					}					
 				}
-				// options += '</ul><button style="display:none;" profilePic = "'+profilePic+'" fbName = "'+fbName+'" clikedFBUserId ="'+clikedFBUserId+'" page="'+page+'" clickedNumericFbId = "'+clickedNumericFbId+'" type="button" class="update-multi-tag">Update Tag</button></div></div>';
-				options += '</ul><button style="display:none;" profilePic = "'+profilePic+'" fbName = "'+fbName+'" clikedFBUserId ="'+clikedFBUserId+'" page="'+page+'" clickedNumericFbId = "'+clickedNumericFbId+'"  newThreadMessenger = "'+newThreadMessenger+'" newMThreadId = "'+newMThreadId+'" type="button" class="update-multi-tag">Update Tag</button></div>';
-		
+				options += '</ul><button style="display:none;" profilePic = "'+profilePic+'" fbName = "'+fbName+'" clikedFBUserId ="'+clikedFBUserId+'" page="'+page+'" clickedNumericFbId = "'+clickedNumericFbId+'" type="button" class="update-multi-tag">Update Tag</button></div></div>';
+
 				options += '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">Teams</div></div><div class="row custom-row"><div class="ssa-tags-container"><ul class="model-teams-list custom-scroll">';
 				if (typeof result.teams != "undefined" && result.teams != "") {
 					for(i=0;i<result.teams.length;i++) {
@@ -1188,15 +1088,11 @@ $(function(){
 						options += "<div>No teams created!</div></div>";
 					}
 				}
-				options += '</ul><button style="display:none;" profilePic = "'+profilePic+'" fbName = "'+fbName+'" clikedFBUserId ="'+clikedFBUserId+'" page="'+page+'" clickedNumericFbId = "'+clickedNumericFbId+'"  newThreadMessenger = "'+newThreadMessenger+'" newMThreadId = "'+newMThreadId+'" type="button" class="update-multi-team">Update Team</button></div>';
-				
+				options += '</ul><button style="display:none;" profilePic = "'+profilePic+'" fbName = "'+fbName+'" clikedFBUserId ="'+clikedFBUserId+'" page="'+page+'" clickedNumericFbId = "'+clickedNumericFbId+'" type="button" class="update-multi-team">Update Team</button></div>';
+
 				$('#ssa_model_content_two').html(options);
 				$('#overlay-two').show();
-				if (newThreadMessenger == 1 && clickedNumericFbId != '0') {
-					clikedFBUserId = clickedNumericFbId;
-					
 
-				}
 				var temp = result.taggedUsers.filter(function (item) { return (item.fb_user_id == clikedFBUserId  || item.numeric_fb_id == clikedFBUserId)});
 				
 				if( temp.length > 0 ){
@@ -1277,13 +1173,9 @@ $(function(){
 	});
     $(document).on('click','.ssa-tags-right',function(){	
 		var fb_user_id = $(this).attr('fb_user_id');
-		
 		if($(fb_ul_selector+" li[fb_user_id='"+fb_user_id+"']").length > 0){
 			$(fb_ul_selector+" li[fb_user_id='"+fb_user_id+"']").find('.ssa-tags-container span').mclick();
-		}else{
-			$(".gl-message-list-item[fb_user_id='"+fb_user_id+"']").find('.ssa-tags-container span').mclick();
-			
-		}		
+		}	
 	});
 	$(document).on('keyup','#search-tag-by-name', function() {
 		 var typpedTagName = $(this).val();
@@ -1316,13 +1208,11 @@ $(function(){
 			});
 			clikedFBUserId = $('.update-multi-tag').attr('clikedFBUserId');
 			clikedNumericFbId = $('.update-multi-tag').attr('clickednumericfbid');
-			newThreadMessenger = $('.update-multi-tag').attr('newThreadMessenger');
-			newMThreadId = $('.update-multi-tag').attr('newMThreadId');
-			page = $('.update-multi-tag').attr('page');
+			page=$('.update-multi-tag').attr('page');
 			profilePic = $('.update-multi-tag').attr('profilePic');
 			fbName = $('.update-multi-tag').attr('fbName');
 			fromPage='messanger';
-			updateFBUsertag(JSON.stringify($checkedTags),clikedFBUserId,clikedNumericFbId,profilePic, fbName,fromPage,page, newThreadMessenger, newMThreadId);
+			updateFBUsertag(JSON.stringify($checkedTags),clikedFBUserId,clikedNumericFbId,profilePic, fbName,fromPage,page);
 		}
 
 		if(pathname.indexOf("/inbox") > -1){	
@@ -1363,256 +1253,6 @@ $(function(){
 		}
 	});
 })
-function integrateSSAFeatureWM(){
-	
-	setInterval(function(){
-		
-		if($('div[data-testid="mwthreadlist-item"]').length > 0 &&  !processing ){			
-			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
-			
-				if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
-					processing = true;
-					var spanTagPerChat = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-				
-					spanTagPerChat += '<div class="get-gl-notes">Notes</div></div>';
-					
-				
-					/********** Create Tags Drop Down for each chat thread ********/
-					$('div[data-testid="mwthreadlist-item"]').each(function(index) {
-						$(this).addClass('gl-message-list-item')
-						var fbUser =  ''; 
-						currentWindowUrl = window.location.origin;
-						if (currentWindowUrl.indexOf('messenger') > -1) {
-							fbUser = $(this).find('a:eq(0)').attr('href').split('/t/')[1];
-
-							if (fbUser.indexOf('?') > -1) {
-								fbUser = fbUser.split('?')[0];
-							}
-						}
-
-						fbUser = fbUser.replace('/', '')
-
-											
-						
-						if($(this).find('div.tags-container').length > 0 ){
-							$(this).find('div.tags-container').remove();
-											
-							$(this).attr('fb_user_id',fbUser);
-							$(this).attr('numeric_fb_id','0');
-							$(this).attr('thread_fb_id',0); 
-							$(this).prepend(spanTagPerChat);
-						} else {
-							$(this).attr('numeric_fb_id','0');
-							$(this).attr('fb_user_id',fbUser);
-							$(this).attr('thread_fb_id',0); 
-							$(this).prepend(spanTagPerChat);
-						}
-
-						if (fbUser.length < 13) {
-							$(this).addClass('gl-message-thread-id-1'); 
-							$(this).attr('numeric_fb_id',fbUser); 
-							$(this).attr('thread_fb_id',fbUser); 
-							$(this).attr('fb_user_id',0);
-						}
-					
-					});
-															
-					if(result.isCurrentFBLinked){
-						$(".tags-container").show();
-					} else {
-						$(".tags-container").hide();
-					}
-
-					/********** Tag Users ********/
-					if (typeof result.taggedUsers != "undefined" && result.taggedUsers != "") { 
-						tagUsersWM(result.taggedUsers,result.tags);
-					}
-				}
-			});
-		}
-	},1000);
-}
-
-
-getBothIdsViaThreadId();
-
-function getBothIdsViaThreadId(){
-
-	setInterval(()=>{
-
-
-
-	},2000)
-
-}
-
-
-function tagUsersWM(taggedUsers,tags){
-	
-	$('div[data-testid="mwthreadlist-item"]').each(function() {
-
-		var li_fb_user_id = $(this).attr('fb_user_id');
-		if ($(this).hasClass('gl-message-thread-id-1')) {
-			li_fb_user_id = $(this).attr('numeric_fb_id');
-		}
-		
-		var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id)});
-		
-		if( temp.length > 0 ){
-			$liClass = '';
-			$colorCode = '';
-			var $tagIds = [];
-			if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
-				$tagIds = temp[0].tag_id.split(',');
-			} else {
-				if(temp[0].tag_id.length > 0) {
-					$tagIds = temp[0].tag_id;
-				}
-			}			
-			var title = '';
-			var spanText = '';
-			var numeric= temp[0].numeric_fb_id;
-			$tagIds.forEach(function(eachTagId){
-
-				eachTagIdOne = eachTagId.replace(/\#/g,'');
-				var foundTag = tags.filter(function (item) { return item.value == eachTagIdOne});
-				if (foundTag.length > 0) {
-					title += foundTag[0].text+', ';
-					$liClass = foundTag[0].class;
-					$colorCode = foundTag[0].color;
-					spanText = foundTag[0].text;
-				}
-			})
-
-			if (title != '') {
-				$(this).find('.tags-container span').text(spanText);
-				$(this).find('.tags-container span').prop('title',title.slice(0, -1));
-				$(this).find('.tags-container span').removeClass('bg-primary bg-danger bg-success bg-warning bg-dark bg-info');
-				if(numeric == null){
-					$(this).attr('numeric_fb_id','0');
-				}else{
-					$(this).attr('numeric_fb_id',numeric);
-				}
-
-				if ($colorCode == null) {
-					$(this).find('.tags-container span').addClass('bg-'+$liClass);
-				}else{
-					$(this).find('.tags-container span').removeClass('bg-muted');
-					$(this).find('.tags-container span').css('background',$colorCode);
-					$(this).find('.tags-container span').addClass('tag-text-color');
-				}
-				
-			}else{
-				var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-				options += '<div class="get-gl-notes">Add Notes</div>';
-				if($(this).find('div.tags-container').length > 0 ){
-					$(this).find('div.tags-container').remove();
-					$(this).prepend(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-				} else {
-					$(this).prepend(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-				}
-				// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag">+</span>';
-				// options += '<div class="get-gl-notes">Notes</div> </div>';
-				// if($(this).find('div.tags-container').length > 0 ){
-				// 	$(this).find('div.tags-container').remove();
-				// 	$(this).append(options);
-				// } else {
-				// 	$(this).append(options);
-				// }
-			}
-		}else{
-			// var options = '<div class="tags-container ssa-tags-container cts-messenger "><span class="bg-muted ssa-selected-tag">+</span>';
-			// 	options += '<div class="get-gl-notes">Notes</div> </div> ';
-
-			// 	if($(this).find('div.tags-container').length > 0 ){
-			// 		$(this).find('div.tags-container').remove();
-			// 		$(this).append(options);
-					
-			// 	} else {
-			// 		$(this).append(options);
-					
-			var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-			options += '<div class="get-gl-notes">Add Notes</div>';
-				if($(this).find('div.tags-container').length > 0 ){
-					$(this).find('div.tags-container').remove();
-					$(this).prepend(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);					
-				} else {
-					$(this).prepend(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-				}
-		}				
-	});
-
-	chrome.storage.local.get(["isCurrentFBLinked"], function(result) {
-			if(result.isCurrentFBLinked){
-				$(".tags-container").show();
-			} else {
-				$(".tags-container").hide();
-			}
-	})
-	processing = false;
-}
-
-function integrateSSAFeature(){
-	
-	setInterval(function(){
-		
-		if(conversionListText != '' && $(fb_list_selectors).length > 0 &&  !processing ){			
-			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
-				if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
-					processing = true;
-					var spanTagPerChat = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-				
-					spanTagPerChat += '<div class="get-gl-notes">Notes</div></div>';
-					
-					
-					/********** Create Tags Drop Down for each chat thread ********/
-					$(fb_list_selectors).each(function(index) {
-						var fbUser =  ''; 
-						currentWindowUrl = window.location.origin;
-						if (currentWindowUrl.indexOf('messenger') > -1) {
-							fbUser = $(this).find('a:eq(0)').attr('data-href').split('/t/')[1];
-
-							if (fbUser.indexOf('?') > -1) {
-								fbUser = fbUser.split('?')[0];
-							}
-						}else if (isFBNewLayout) {
-							 fbUser = $(this).find('a').attr('data-href').split('/messages/t/')[1].split('?')[0];
-						} else {
-							 fbUser = $(this).find('a').attr('data-href').split('/t/')[1];
-						}
-						if($(this).find('div.tags-container').length > 0 ){
-							$(this).find('div.tags-container').remove();
-											
-							$(this).attr('fb_user_id',fbUser);
-							$(this).attr('numeric_fb_id','0');
-							$(this).find('span._1ht6').after(spanTagPerChat);
-						} else {
-							$(this).attr('numeric_fb_id','0');
-							$(this).attr('fb_user_id',fbUser);
-							$(this).find('span._1ht6').after(spanTagPerChat);
-						}
-					});
-															
-					if(result.isCurrentFBLinked){
-						$(".tags-container").show();
-					} else {
-						$(".tags-container").hide();
-					}
-
-					/********** Tag Users ********/
-					if (typeof result.taggedUsers != "undefined" && result.taggedUsers != "") { 
-						tagUsers(result.taggedUsers,result.tags);
-					}
-				}
-			});
-		}
-	},1000);
-}
-
 
 function integrateSSAFeature(){
 	setInterval(function(){
@@ -1765,12 +1405,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 				 
 				var pathname = window.location.pathname.toString();	
 			 	if(pathname.indexOf("/messages") > -1 || window.location.origin.indexOf('messenger.com')>-1){	
-					//  tagUsers(changes.taggedUsers.newValue,result.tags);
-					if ($('.gl-message-list-item').length > 0) {			 		
-						tagUsersWM(changes.taggedUsers.newValue,result.tags);
-					} else {
-						tagUsers(changes.taggedUsers.newValue,result.tags);
-					}
+			 		tagUsers(changes.taggedUsers.newValue,result.tags);
 			 	}else if(pathname.indexOf("/inbox") > -1){
 			 		tagPageUsers(changes.taggedUsers.newValue,result.tags);
 			 	}else if(pathname.indexOf("/friends") > -1){
@@ -1793,11 +1428,11 @@ function verifyConversationList(){
 	},1000);
 }
 			
-function updateFBUsertag(tagId, fbUserId,numericFbId, profilePic, fbName='',fromPage,page, newThreadMessenger = 0 , newMThreadId = 0){
+function updateFBUsertag(tagId, fbUserId,numericFbId, profilePic, fbName='',fromPage,page){
 	
 	chrome.storage.local.get(["ssa_user"], function(result) {
 		if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "" && currentLoggedInFBId != '') {
-			port.postMessage({'type': 'updateFBUsertag','fromPage':fromPage,'data': {tagId:tagId, userId:result.ssa_user.id, loggedInFBId: currentLoggedInFBId, fbUserId: fbUserId, numericFbId:numericFbId,profilePic:profilePic, fbName: fbName,isPage:page,newThreadMessenger:newThreadMessenger, newMThreadId: newMThreadId}});		
+			port.postMessage({'type': 'updateFBUsertag','fromPage':fromPage,'data': {tagId:tagId, userId:result.ssa_user.id, loggedInFBId: currentLoggedInFBId, fbUserId: fbUserId, numericFbId:numericFbId,profilePic:profilePic, fbName: fbName,isPage:page}});		
 		}
 	});
 }
@@ -1851,9 +1486,10 @@ function displaySelectedTagRightSide(){
 
 					var taggedUsers = result.taggedUsers != null ? result.taggedUsers : [];
 					var li_fb_user_id = loc1[1];
-					// GetBothAphaAndNumericId(li_fb_user_id).then(function(fbIDsObject){
-					// 	li_fb_user_id = fbIDsObject.fb_user_id.replace('/', '');
-					// });		
+					if(typeof li_fb_user_id != "undefined" && li_fb_user_id.includes("?")) {
+						li_fb_user_id = li_fb_user_id.split("?")[0];
+					}
+
 					var $tagIds = [];
 					var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id) });
 					if( temp.length > 0 ){
@@ -1883,17 +1519,11 @@ function displaySelectedTagRightSide(){
 					
 					if (typeof result.notes != "undefined" && result.notes != "") { 
 
-						var tempNotes = result.notes.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id) });
+						var tempNotes = result.notes.filter(function (item) { return (item.fb_user_id == li_fb_user_id) });
 						if(tempNotes.length > 0) {
 							notesList = '<div class="notes-list-container"><div class="notes-list">';
 							notesList += '<div class="grid-container">';
-							var fullName=''
-							if ($('.gl-message-list-item').length > 0) {
-								fullName = $('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
-							}else
-							{
-								fullName = $('._3tkv').find('a[target="_blank"]').first().text();
-							}								
+							var fullName = $('._3tkv').find('a[target="_blank"]').first().text();								
 							tempNotes.forEach(function(eachNote){
 								var scope = description = '';
 								var sender = '?';
@@ -1999,34 +1629,23 @@ function displaySelectedTagRightSide(){
 					
 					if(window.location.origin.indexOf('messenger.com') > -1){
 						
-						// $('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);						
-						if ($('.gl-message-list-item').length > 0) {
-							$('.right-side-tag-list').remove();
-							$('.notes-list-container').remove();
-							 // _3tkv
-							if ($('div[role="main"]').find('.tags-container').length == 0) {
-								var options='<div class="temp_image_box" style="width: calc(100%);"></div>'
-								options += '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-								options += '<div class="get-gl-right-notes">Add Notes</div>';
-								$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').first().parent().parent().parent().parent().prepend(options); 					
-							}							
-							$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').parent().after(notesList);
-							$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').parent().after(totalTagLi); 
+						// _3tkv
+						if ($('._3tkv .tags-container').length == 0) {
+							var options='<div class="temp_image_box" style="width: calc(100%);"></div>'
+							options += '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+							options += '<div class="get-gl-right-notes">Add Notes</div>';
+							$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().prepend(options); 					
 						}
- 						else{
-							
-							if ($('._3tkv .right-side-tag-list').length > 0) {
-								$('._3tkv .right-side-tag-list').remove();
-							}
+						if ($('._3tkv .right-side-tag-list').length > 0) {
+							$('._3tkv .right-side-tag-list').remove();
+						}
 
-							if ($('._3tkv .notes-list-container').length > 0) {
-								$('._3tkv .notes-list-container').remove();
-							}
-							//$('._3tkv').find('a[target="_blank"]').first().after(totalTagLi);
-							$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);
-							$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().parent().after(notesList);
-							
+						if ($('._3tkv .notes-list-container').length > 0) {
+							$('._3tkv .notes-list-container').remove();
 						}
+						 //$('._3tkv').find('a[target="_blank"]').first().after(totalTagLi);
+						$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);
+ 						$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().parent().after(notesList);
 					}else{
 
 						if ($('._4_j5 .right-side-tag-list').length > 0) {
@@ -2034,7 +1653,7 @@ function displaySelectedTagRightSide(){
 						}
 
  						$('._4_j5').find('a[uid]').after(totalTagLi);
-						}					
+						}
 				}	
 
 			}
@@ -2319,149 +1938,4 @@ function readFriendRequests(){
 function getCookieValue(a) {
     var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
     return b ? b.pop() : '';
-}
-
-
-
-
-//Handling opened window
-handleCB_UserWindow();
-function handleCB_UserWindow(){
-	let cb_current_window = window.location.href;
-	let url = new URL(cb_current_window);
-	if(window.name.indexOf("close")!=-1){
-		// let windowName = window.name;
-		// windowName = windowName.split("close")[1];
-		// setTimeout(function(){
-		// 	window.close();
-		// },parseInt(windowName));
-	}
-	//Handling sending messages
-	if(window.name.indexOf("sendMessageToUser")!=-1){
-		chrome.storage.local.get('cb_custom_dms',function(res){
-			let messages = res.cb_custom_dms;
-			let count = 0;
-			let message = messages[Math.floor(Math.random()*messages.length)];
-
-			let input = $('textarea').get(0);
-			let btn = $('[name="send"]').get(0);
-
-			if(input && btn){
-				input.value=message;
-				btn.click();
-			}
-
-		})
-	}
-	console.log(url.searchParams.get('lets_blast_user'));
-	if(url.searchParams.get('lets_blast_user')!="1"){
-		return;
-	}
-
-	let addFriendButton = $("[aria-label='Add Friend']").get(0);
-	let sendMsgButton = $("[aria-label='Message']").get(0);
-
-	
-	if(url.searchParams.get('addFriend')=="1"){
-		let path = addFriendButton.getAttribute('href');
-		let addAsFriendURL = new URL("https://m.facebook.com"+path);
-		addAsFriendURL.searchParams.set('closeTime',2000);
-		window.open(addAsFriendURL.href,'close',
-		`toolbar=no,
-		location=no,
-		status=no,
-		menubar=no,
-		scrollbars=yes,
-		resizable=yes,
-		width=100px,
-		height=100px`);
-	}
-	
-				
-	if(url.searchParams.get('sendMessages')=="1"){
-		let path2 = sendMsgButton.getAttribute('href');
-		let sendMsgPath = new URL("https://m.facebook.com"+path2);
-		chrome.storage.local.get('cb_custom_dms',function(res){
-			let messagesCount = res.length;
-			let closeAfter = 30000;
-			window.open(sendMsgPath.href,'sendMessageToUser|close'+closeAfter,
-					`toolbar=no,
-					location=no,
-					status=no,
-					menubar=no,
-					scrollbars=yes,
-					resizable=yes,
-					width=100px,
-					height=100px`);
-		});
-	}
-	
-	if(window.name=="currentUserBlaster"){
-		window.close();
-	}
-
-
-}
-async function GetBothAphaAndNumericId(numericFBid) {
-
-	if (/[a-zA-Z]/.test(numericFBid)) {   /////// send alpha get numeric////
-			return new Promise(function(resolve, reject) {
-			$.ajax({
-			type: "GET",
-			url: 'https://m.facebook.com/'+numericFBid,
-			success: function(data, txtStatus, request) {
-						var str = $(data).text()
-						var mySubString = str.substring(
-					    str.lastIndexOf('&quot;profile_id&quot;:') + 1, 
-					    str.lastIndexOf('&quot;profile_id&quot;:') + 50
-					);
-					
-					tmp = mySubString.split(',');
-					var tmpUserId = tmp[0].split(':')[1];
-
-					var tempFBIDs = {};
-					tempFBIDs.fb_user_id = numericFBid;
-					tempFBIDs.numeric_fb_id = tmpUserId;
-					resolve(tempFBIDs);
-					
-				}
-			});
-		});
-	}else{
-		var url='';
-	return new Promise(function(resolve, reject) {
-		var xmlHttp = new XMLHttpRequest();
-	    xmlHttp.onreadystatechange = function() { 
-	        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-				var alphaNumericId = '';
-				var alphaNumeric=xmlHttp.responseURL;
-				if (alphaNumeric.indexOf('profile.php') > -1) {
-					 alphaNumericArray= alphaNumeric.split('profile.php?id=');
-					 alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
-					 if(alphaNumericId.indexOf('&')){
-					 	 alphaNumericId=alphaNumericId.split('&')[0];
-					 }
-				} else {
-
-					alphaNumericArray= alphaNumeric.split('/');
-					alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
-					if(alphaNumericId.indexOf('?')){
-						 alphaNumericId=alphaNumericId.split('?')[0];
-					}
-				}
-				if (alphaNumericId.length > 0) {
-					var tempFBIDs = {};
-					tempFBIDs.fb_user_id = alphaNumericId;
-					tempFBIDs.numeric_fb_id = numericFBid;
-					resolve(tempFBIDs);
-				} else {
-					reject(false);
-				}
-	        }
-	    }
-	    xmlHttp.open("GET","https://m.facebook.com/"+numericFBid, true); // true for asynchronous 
-	    xmlHttp.send(null);
-	});
-
-	}	
 }

@@ -403,7 +403,7 @@ $(function(){
 		//if ($(this).is(':checked')) {
 			
 			var pathname = window.location.href.toString();	
-			if(pathname.indexOf("/friends") > -1 || (pathname.indexOf('profile.php') > -1 && pathname.indexOf('sk=friends') > -1 ) ){
+			if((pathname.indexOf("/friends") > -1 || (pathname.indexOf('profile.php') > -1 && pathname.indexOf('sk=friends') > -1 ) )  && window.location.href.indexOf('/members/friends') == -1 ){
 				$checkedTags = [];
 			   $('.model-tag-list li').each(function(index){
 				   if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
@@ -417,6 +417,21 @@ $(function(){
 						$(".save-multi-tag-user").text('Save').attr('disabled',false);
 					},2000)
 			   }
+		   }else if(pathname.indexOf("/members") > -1 ){
+			   $checkedTags = [];
+			   $('.model-tag-list li').each(function(index){
+				   if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
+					   $checkedTags.push($(this).attr('tag-id'));
+				   }
+			   });
+
+			   if ($checkedTags.length > 0) {
+					updateFBUsertagForMultiUserOnGroupMember($checkedTags);
+					setTimeout(()=>{
+						$(".save-multi-tag-user").text('Save').attr('disabled',false);
+					},2000)
+			   }
+
 		   }
 	//	}	
 	});

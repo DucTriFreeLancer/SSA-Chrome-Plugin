@@ -2,14 +2,6 @@ console.log('script.js Lodaed');
 const url_expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
 const url_regex = new RegExp(url_expression);
 
-//** CLEAN PREVIOUS MESSAGES */
-chrome.storage.local.set({
-    cb_custom_dms : []
-},function(res){});
-
-chrome.storage.local.set({
-    addPeopleToFriends : false
-},function(res){});
 $(document).ready(function () {
     //login system
     var byte = '';
@@ -63,13 +55,7 @@ $(document).ready(function () {
 
         }
 
-    //Triggering checkbox events
-    $("#sendDirectMessage").on('change',function(){
-        $(".saved_dms").parent().toggleClass('hidden');
-    });
-    $("#new_dm").on('click',function(){
-        $("#dm_texts").modal(300);
-    });
+
     $('#new_reply').click(function () {
         $('#reply_texts').modal(300);
 
@@ -208,65 +194,8 @@ $(document).ready(function () {
             }
         });
     });
-
-    //Add to friends btn
-    //storage variable : addPeopleToFriends
-    $(document).on('click','#addPeopleToFriends',function (e){
-        let isChecked = document.getElementById('addPeopleToFriends').checked;
-        chrome.storage.local.set({addPeopleToFriends:isChecked},function(res){});
-    })
-
-    //Add new DM message
-    //Storage variable : cb_custom_dms
-    $(document).on('click','#submit_dm',function(e){
-        e.preventDefault();
-        chrome.storage.local.get('cb_custom_dms',function(res){
-           let list = res.cb_custom_dms;
-           if(!list){
-               list = [];
-           }
-            if($("#dm_text").val().length>1){
-                let dm = $("#dm_text").val().replace(/\r?\n/g, '<br />');
-                list.push(dm);
-                $(".saved_dms").prepend("<p class='btn-outline-rounded saved_tags'  data-dmIndex='"+list.indexOf(dm)+"'>"+
-                        dm +
-                        " <button class='btn btn-sm btn-default float-right remove_reply' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
-                "</p>");
-            }
-            chrome.storage.local.set({'cb_custom_dms':list},function(res){
-            });
-        });
-
-        
-        
-    })
-    //Remove all DMs
-    //Storage variable : cb_custom_dms
-    $(document).on('click','#remote_dms',function(e){
-        e.preventDefault();
-        let DMs = [];
-        chrome.storage.local.set({"cb_custom_dms":DMs});
-        $(".saved_dms").html(null);
-    });
-    //DM Personalization select
-    $(document).on('change','.dm_personalization',function(e){
-        let val = $(".dm_personalization").val();
-        let msg = $("#dm_text").val();
-        $("#dm_text").val(msg+" "+val);
-        $(".dm_personalization").val("");
-    });
-    //DM emoji select
-    $(document).on('change','.dm_emoji',function(e){
-        let val = $(".dm_emoji").val();
-        let msg = $("#dm_text").val();
-        $("#dm_text").val(msg+" "+val);
-        $(".dm_emoji").val("");
-    })
-
-
-
-
-
+	
+	
 	$(document).on('change', '.emoji', function (e) {
 			let emoji= $(this).val();
 			if(emoji!==''){
@@ -697,9 +626,9 @@ $(document).ready(function () {
         }
 
         if(post_url.indexOf('?') > -1) {
-            post_url = post_url+"&lets_blast=1";
+            post_url = post_url+"&cf_do_comments=1";
         }else{
-            post_url = post_url+"?lets_blast=1";
+            post_url = post_url+"?cf_do_comments=1";
         }
 
         //if (save_default){

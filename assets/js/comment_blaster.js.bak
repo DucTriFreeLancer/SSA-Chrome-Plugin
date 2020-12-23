@@ -15,9 +15,6 @@ $(document).ready(function () {
         }
     });
 
-    setInterval(function(){
-        postsAddSSAButton();
-    },1000);
 });
 
 function doInit() {
@@ -31,39 +28,10 @@ function doInit() {
     }
     if (posts_count > processed_posts_count) {
         //console.log('attaching events because got some posts ==>' + posts_count);
-        console.log("Attached click events");
         attachClickEvent();
         processed_posts_count = posts_count;
     }
 }
-
-//Adding "Use SSA" button to dropdown options of posts when post is opened.
-postsAddSSAButton = () =>{
-    let ancestorOfDropdownOptions = document.getElementsByClassName('j34wkznp qp9yad78 pmk7jnqg kr520xx4');
-    let post_url = window.location.href.split('facebook.com/')[1];
-    if(post_url==undefined || post_url==null || post_url.length<3){
-        return;
-    }
-    for (let dropdownAnc of ancestorOfDropdownOptions) {
-        let prependElementHTML = '<img class="_2yaw img" src="'+chrome.extension.getURL("assets/images/64.png")+'"/> Use Social Sales Accelator™ ';
-        let firstItem = dropdownAnc.querySelectorAll('[role="menuitem"]')[0];
-        if(firstItem!=undefined && firstItem!=null && firstItem.className!="custom-link"){
-            let newElement = document.createElement('div');
-            newElement.innerHTML = prependElementHTML;
-            
-            
-            newElement.post_url = "https://m.facebook.com/"+post_url;
-            newElement.className="custom-link";
-            newElement.setAttribute('role','menuitem');
-            newElement.onclick = function(){
-                window.open("chrome-extension://"+chrome.runtime.id+"/comment_blaster.html?post_id="+newElement.post_url,"_blank");
-            }
-            firstItem.parentNode.insertBefore(newElement,firstItem);
-        }
-    }
-
-}
-
 
 function attachClickEvent() {
     $('._6a.uiPopover._5pbi._cmw._b1e:not(.cb_event_attached)').click(function () {

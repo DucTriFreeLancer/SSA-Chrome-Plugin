@@ -1,5 +1,3 @@
-
-
 var baseUrl = custom_data.baseUrl;
 var uniqueHash = null;
 var remindersLimit = 3;

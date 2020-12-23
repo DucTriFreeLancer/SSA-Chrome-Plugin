@@ -452,7 +452,7 @@
 										<option>[last_name]</option>
 										<option>[mylocation]</option>
 										<option>[thisday]</option>
-										<option>[thismonth]</option>							
+										<option>[thismonth]</option>			
 									</select>	
 									<button type="button" class="float-right btn btn-primary add-button add_message">
 										<i class="fa fa-plus"></i>
@@ -564,7 +564,7 @@
 											<option>[last_name]</option>
 											<option>[mylocation]</option>
 											<option>[thisday]</option>
-											<option>[thismonth]</option>							
+											<option>[thismonth]</option>
 										</select>					
                                     </div>
 								</div>
@@ -1112,6 +1112,6 @@ I have accepted your friend request.</textarea>
 		<script src="background/authorize.js"></script>
 		<script src="assets/js/script.js"></script>
 		<script src="assets/js/cb_script.js"></script>
-		<!-- <script src="commentblaster/js/script.js"></script> -->
+		<script src="commentblaster/js/script.js"></script>
     </body>
 </html>

@@ -357,7 +357,7 @@ chrome.runtime.onConnect.addListener(function(port) {
         } 
 		if (message.type == 'updateFBUsertag') {
 			
-			var	fbUserId = message.data.fbUserId;
+			var	numericFBid = message.data.fbUserId;
 			var numericUserFbId = message.data.numericFbId;
 			isPage = message.data.isPage;
 			if ( typeof message.data.newThreadMessenger != 'undefined'  && message.data.newThreadMessenger == 1 && message.data.newMThreadId != '0') {
@@ -378,8 +378,8 @@ chrome.runtime.onConnect.addListener(function(port) {
 						}).done(function(response) {
 							
 							if(response.status == 401){
-								chrome.storage.local.set({'ssa_user':''});	
-							}else if (response.status == 200  || response.result == 'success') {
+					    		chrome.storage.local.set({'ssa_user':''});	
+							}else if (response.status == 200) {
 								chrome.storage.local.set({'taggedUsers':response.taggedUsers});
 							}
 						});
@@ -388,9 +388,9 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 			}else{
 
-				if (numericUserFbId == '0' || !(/[a-zA-Z]/.test(fbUserId))) {
+				if (numericUserFbId == '0') {
 				
-					GetBothAphaAndNumericId(fbUserId).then(function(fbIDsObject){
+					GetBothAphaAndNumericId(numericFBid).then(function(fbIDsObject){
 						message.data.numericFbId = fbIDsObject.numeric_fb_id;
 						message.data.fbUserId = fbIDsObject.fb_user_id;
 						$.ajax({
@@ -404,8 +404,8 @@ chrome.runtime.onConnect.addListener(function(port) {
 						}).done(function(response) {
 							
 							if(response.status == 401){
-								chrome.storage.local.set({'ssa_user':''});	
-							}else if (response.status == 200  || response.result == 'success') {
+					    		chrome.storage.local.set({'ssa_user':''});	
+							}else if (response.status == 200) {
 								chrome.storage.local.set({'taggedUsers':response.taggedUsers});
 							}
 						});
@@ -426,7 +426,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 						
 						if(response.status == 401){
 				    		chrome.storage.local.set({'ssa_user':''});	
-						}else if (response.status == 200 || response.result == 'success') {
+						}else if (response.status == 200) {
 							chrome.storage.local.set({'taggedUsers':response.taggedUsers});
 						}
 					});
@@ -535,23 +535,6 @@ chrome.runtime.onConnect.addListener(function(port) {
 					chrome.storage.local.set({'taggedUsers':response.taggedUsers});
 				}
 			});
-		}
-		if(message.type == 'updateFBUsertagForMultiUserOnGroupMember'){
-			var checkedUsersForGroup = message.data.checkedUsersForGroup;
-			checkedUsersForGroup.forEach(function (item, i) {
-				var fbUserId = item.fb_user_id;
-				GetBothAphaAndNumericId(fbUserId).then(function(fbIDsObject){
-					item.fb_user_id = fbIDsObject.fb_user_id;
-					item.numeric_fb_id = fbIDsObject.numeric_fb_id;
-				
-					if (i == checkedUsersForGroup.length-1) {
-						message.data.checkedUsersForGroup = checkedUsersForGroup;
-						setTimeout(()=>{
-							updateFBUsertagMultiUserForGroupMember(sender, message.data);
-						},3000);	
-					}
-				});
-			})	
 		}
 
 		if (message.type == 'updateFBPageUsertag') {
@@ -710,35 +693,32 @@ function getUserNotes(userThreadId, contentModelTabId) {
 	chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
 		if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
 			var endpoint = "/notes";
-			GetBothAphaAndNumericId(userThreadId).then(function(fbIDsObject){
-				userThreadId = fbIDsObject.fb_user_id.replace('/', '');
-				var params = {fb_user_id:userThreadId, user_id:result.ssa_user.id};
-				if(contentModelTabId == null) {
-					endpoint = "/notes/user_notes";
-					params = {account_fb_id:result.fb_id, user_id:result.ssa_user.id};
-				}			
-				$.ajax({
-					type: "POST",
-					url: apiBaseUrl + endpoint,
-					data: params,
-					dataType: 'json',
-					beforeSend: function (xhr) {
-					xhr.setRequestHeader('unique-hash', uniqueHash);
-					}
-				}).done(function(response) {
-					if(response.status == 401){
-						
-					}else if (response.status == 404) {
-						message_animation('alert-danger');
-						$('.msg').text(response.msg);
+			var params = {fb_user_id:userThreadId, user_id:result.ssa_user.id};
+			if(contentModelTabId == null) {
+				endpoint = "/notes/user_notes";
+				params = {account_fb_id:result.fb_id, user_id:result.ssa_user.id};
+			}			
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + endpoint,
+				data: params,
+				dataType: 'json',
+				beforeSend: function (xhr) {
+		      	  xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					
+				}else if (response.status == 404) {
+					message_animation('alert-danger');
+					$('.msg').text(response.msg);
+				} else {
+					if(contentModelTabId == null) {
+						chrome.storage.local.set({"notes":response.data});
 					} else {
-						if(contentModelTabId == null) {
-							chrome.storage.local.set({"notes":response.data});
-						} else {
-							chrome.tabs.sendMessage(contentModelTabId,{from: 'background', subject: 'displayNotes', notes:response.data});
-						}
+						chrome.tabs.sendMessage(contentModelTabId,{from: 'background', subject: 'displayNotes', notes:response.data});
 					}
-				});
+				}
 			});
 		}
 	})
@@ -782,17 +762,15 @@ function saveNoteFromContent(noteData, contentModelTabId) {
 					$.ajax({
 						type: "POST",
 						url: apiBaseUrl + "/notes/create",
-						data: {user_id:result.ssa_user.id, fb_user_id:temp_fb_user_id_to_add_note,numeric_fb_id:temp_fb_numeric_id_to_add_note,  description: description,
-							sender_fb_user_id:result.fb_id, team_id: noteData.teamId},
+						data: {user_id:result.ssa_user.id, fb_user_id:temp_fb_user_id_to_add_note, numeric_fb_id: temp_fb_numeric_id_to_add_note,   description: description},
 						dataType: 'json',
 						beforeSend: function (xhr) {
-							xhr.setRequestHeader('unique-hash', uniqueHash);
+				      	  xhr.setRequestHeader('unique-hash', uniqueHash);
 						}
 					}).done(function(response) {
 						
-						if(response.status == 200 || response.result == 'success') {											
+						if(response.status == 200) {
 							chrome.tabs.sendMessage(contentModelTabId,{from: 'background', subject: 'noteSaved', noteId:response.data.id});
-							getUserNotes(result.fb_id, null);
 						}
 					});
 				} 
