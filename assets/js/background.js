@@ -21,7 +21,27 @@ var friendRequestsInterval = true;
 var bulkMessageTabId = 0;
 var bulkMessageStatus = true;
 var uniqueHash = null;
+////////////Re bulk message///
+var bulkMessageStatus = true; 
 
+var bulkTaggedUserArray = []; 
+var bulkUserDelay = 0;
+var bulkMessageTextArray = [];
+var sendRandomMessage = false;
+
+var bulkSendMessageLimit = 0;
+var bulkIntervalIds = [];
+var bulkArrayCounter = 0;
+
+var RebulkMessageTabId = 0;
+
+var sendLimitOfBulkMessage = 0; 
+
+var bulkParentTabId = 0; 
+
+var totalBulkArrayContacts = 0;
+
+///////////end re bulk messages////////////
 
 var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
 
@@ -190,9 +210,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 	}else if (message.closeRequestMessageTab == 'closeRequestMessageTab') {
 		foundMessageSendTab = friendRequestTabIds.filter((list)=>{ return list.tabId == sender.tab.id});
 		if (foundMessageSendTab.length > 0) {
-			addFriendRequestHistory(foundMessageSendTab[0].currentRequestId);
-			chrome.tabs.remove(sender.tab.id);
+			addFriendRequestHistory(foundMessageSendTab[0].currentRequestId);			
 		}
+		setTimeout(()=>{
+			chrome.tabs.remove(sender.tab.id);
+		},3000)
 	}else if (message.confimFriendRequestsFromContent == 'confimFriendRequestsFromContent') {
 		saveSendFriendRequests(message.data);
 		chrome.tabs.remove(sender.tab.id);
@@ -709,14 +731,9 @@ function saveTagFromContent(newTagData, contentModelTabId) {
 function getUserNotes(userThreadId, contentModelTabId) {
 	chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
 		if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
-			var endpoint = "/notes";
-			GetBothAphaAndNumericId(userThreadId).then(function(fbIDsObject){
-				userThreadId = fbIDsObject.fb_user_id.replace('/', '');
-				var params = {fb_user_id:userThreadId, user_id:result.ssa_user.id};
-				if(contentModelTabId == null) {
-					endpoint = "/notes/user_notes";
-					params = {account_fb_id:result.fb_id, user_id:result.ssa_user.id};
-				}			
+			if(contentModelTabId == null) {
+				let endpoint = "/notes/user_notes";
+				let params = {account_fb_id:result.fb_id, user_id:result.ssa_user.id};
 				$.ajax({
 					type: "POST",
 					url: apiBaseUrl + endpoint,
@@ -739,7 +756,37 @@ function getUserNotes(userThreadId, contentModelTabId) {
 						}
 					}
 				});
-			});
+			}
+			else{
+				let endpoint = "/notes";
+				GetBothAphaAndNumericId(userThreadId).then(function(fbIDsObject){
+					userThreadId = fbIDsObject.fb_user_id.replace('/', '');
+					let params = {fb_user_id:userThreadId, user_id:result.ssa_user.id};
+								
+					$.ajax({
+						type: "POST",
+						url: apiBaseUrl + endpoint,
+						data: params,
+						dataType: 'json',
+						beforeSend: function (xhr) {
+						xhr.setRequestHeader('unique-hash', uniqueHash);
+						}
+					}).done(function(response) {
+						if(response.status == 401){
+							
+						}else if (response.status == 404) {
+							message_animation('alert-danger');
+							$('.msg').text(response.msg);
+						} else {
+							if(contentModelTabId == null) {
+								chrome.storage.local.set({"notes":response.data});
+							} else {
+								chrome.tabs.sendMessage(contentModelTabId,{from: 'background', subject: 'displayNotes', notes:response.data});
+							}
+						}
+					});
+				});
+			}		
 		}
 	})
 }
@@ -1543,3 +1590,288 @@ function requestTabListenerADF(tabId, changeInfo, tab){
 		chrome.tabs.onUpdated.removeListener(requestTabListenerADF);		
 	}
 }
+///////////////// Revamp of sending bulk messages////////////////////////
+var collectionOfTabIds = [];
+var bulkRandomDelayArray = [10000,15000,20000,25000,30000,35000,40000,45000];
+
+
+function prepareDataForBulkMessage(bulkMessageSettings) {
+	
+	bulkTaggedUserArray = [];
+	bulkParentTabId = bulkMessageSettings.bulkMessageTabId;
+
+
+	chrome.storage.local.get(["taggedUsers", "bulkMessageSettings"], function(result) {
+		// chrome.cookies.set({ url: cookiesBaseUrl, name: "cts_bulkMessageSettings", value:  JSON.stringify(result.bulkMessageSettings), expirationDate: (new Date().getTime()/1000) + (3600 * 1000*87660)  });
+
+		result.taggedUsers.forEach(function (item,index) {
+			if (!bulkMessageSettings.sendAll) {
+				foundTaggedUser = bulkMessageSettings.selectedBulkTagIds.filter((list) => ( (item.tag_id.indexOf(list.tagid) > -1) && item.fb_user_id != null) )
+			} 
+
+			if( (bulkMessageSettings.sendAll || foundTaggedUser.length > 0 ) && item.fb_user_id != null ){
+				item.sendBulk = false;	
+				bulkTaggedUserArray.push(item);
+			}			
+		});
+
+		totalBulkArrayContacts = bulkTaggedUserArray.length;
+		bulkArrayCounter = 0; 
+		// chrome.runtime.sendMessage({action: "bulkMessageCounter", counter: bulkArrayCounter, totalContacts:totalBulkArrayContacts});        
+		// chrome.runtime.sendMessage({'action':'pup-counter', uniqueCon: totalBulkArrayContacts, bulkCounter: bulkArrayCounter});
+
+
+
+		chrome.storage.local.set({
+            'bulkTaggedUserArray': bulkTaggedUserArray
+        }, function() {
+            readLastStateOfTaggedUserArray();
+        });
+
+
+		//startBulkMessage();
+	})
+}
+function readLastStateOfTaggedUserArray() {
+
+    chrome.storage.local.get(["bulkTaggedUserArray", "bulkMessageSettings","linkedFbAccount"], function(result) {
+		var mylocation='';
+		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
+			mylocation= result.linkedFbAccount.location;
+		}
+    	bulkMessageSettings = result.bulkMessageSettings; 
+
+		bulkTaggedUserArray = [];
+		bulkUserDelay = parseInt(bulkMessageSettings.bulkDelay);
+
+		sendLimitOfBulkMessage = parseInt(bulkMessageSettings.sendLimit);
+
+		if(bulkMessageSettings.useRandomDelay){
+			bulkUserDelay =  parseInt(bulkRandomDelayArray[Math.floor(Math.random()*bulkRandomDelayArray.length)]);	
+		}
+
+		bulkMessageTextArray = bulkMessageSettings.messageTextArray;
+		sendRandomMessage = bulkMessageSettings.sendRandomMessage;
+		
+		selectedBulkTagIds = bulkMessageSettings.selectedBulkTagIds;
+		bulkSendMessageLimit = parseInt(bulkMessageSettings.sendLimit);
+		
+		bulkTaggedUserArray = result.bulkTaggedUserArray;
+		totalBulkArrayContacts = bulkTaggedUserArray.length; 
+
+
+        findLastProcessedIndex = bulkTaggedUserArray.findIndex((item) => (item.sendBulk == false));
+    
+        currentBulkProcessedIndex = findLastProcessedIndex;
+        if (findLastProcessedIndex != -1) {
+			// $('#processed-members').text(findLastProcessedIndex);	
+            startBulkFromIndex(bulkTaggedUserArray, findLastProcessedIndex,mylocation);
+        } else {
+			bulkMessageStatus = 'complete';
+            chrome.runtime.sendMessage({
+                type: 'bulkMessageStatus',
+                bulkMessageStatus: bulkMessageStatus
+            })
+
+            setBlankCookies();
+        }
+    });
+}
+function startBulkFromIndex(bulkTaggedUserArray, startIndex,mylocation) {
+	
+
+    var tempDelay = 0;
+    var sentMessagesInCurrentProcess = 0;
+
+    bulkTaggedUserArray.forEach(function(oneBulkMember, currentIndex) {
+        if (currentIndex >= startIndex) {
+            outIds = setTimeout(() => {
+            
+                if (sentMessagesInCurrentProcess < bulkSendMessageLimit) {
+                
+                    sentMessagesInCurrentProcess = sentMessagesInCurrentProcess + 1;
+                    bulkMessageStatus = 'running';
+                  
+                    if (currentIndex == bulkTaggedUserArray.length - 1) {
+						// $('#ssa-msgs').text('Completed');
+						// chrome.storage.local.set({'bulkTaggedUserArray':[]});
+						// chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'completed'});
+						// hide_loader();
+						// $('#limit').text(bulkTaggedUserArray.length);                      
+
+						bulkMessageStatus = 'complete';
+                        chrome.runtime.sendMessage({
+                            action: 'bulkMessageComplete',
+                            bulkMessageStatus: bulkMessageStatus
+                        })
+
+                        setBlankCookies();
+                    }
+
+                    sendBulkMessage(oneBulkMember)
+
+                    bulkTaggedUserArray[currentIndex].sendBulk = true;
+                    currentBulkProcessedIndex = currentBulkProcessedIndex + 1;
+					
+                    chrome.tabs.sendMessage(bulkParentTabId,{from: 'background', subject: 'bulkCounter', current: currentBulkProcessedIndex, totalBulkMessages:bulkTaggedUserArray.length});
+					chrome.runtime.sendMessage({'action':'bulk-popup-counter', uniqueCon: totalBulkArrayContacts, bulkCounter: currentBulkProcessedIndex});
+                
+                    chrome.storage.local.set({
+                        'bulkTaggedUserArray': bulkTaggedUserArray
+                    }, function() {
+                        // chrome.runtime.sendMessage({
+                        //     type: 'bulkMessageStatus',
+                        //     bulkMessageStatus: bulkMessageStatus
+						// })
+						$('#ssa-msgs').text('Running');
+						chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
+                    });
+                } else {
+					$('#ssa-msgs').text('Limit exceeded');
+					chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
+                    // bulkMessageStatus = 'limit_excedeed';
+                    // chrome.tabs.sendMessage(bulkParentTabId, {
+                    // 	from: 'background',
+                    //     subject: bulkMessageStatus
+                    // })
+                    clearBulkIntervals();
+                }
+            }, tempDelay);
+
+            bulkIntervalIds.push(outIds)
+
+            tempDelay = parseInt(tempDelay) + parseInt(bulkUserDelay);
+           // console.log(tempDelay)
+        }
+	})
+	
+}
+
+function clearBulkIntervals() {
+	//console.log('clearBulkIntervals')
+	bulkIntervalIds.forEach(function (item) {
+		clearInterval(item);
+	});
+	bulkIntervalIds = [];
+}
+
+
+function sendBulkMessage(oneSC){
+
+	threadId = oneSC.numeric_fb_id;
+
+	if (threadId == null || threadId == 0)  {
+		threadId = oneSC.fb_user_id;
+	}
+
+	fullName = oneSC.fb_name
+
+	if (/[a-zA-Z]/.test(threadId)) {   /// having alphabets id
+		$.ajax({
+	    type: "GET",
+	    url: 'https://m.facebook.com/'+threadId,
+	    success: function(data, txtStatus, request) {
+	  			var str = $(data).text()
+	  			var mySubString = str.substring(
+				    str.lastIndexOf('&quot;profile_id&quot;:') + 1, 
+				    str.lastIndexOf('&quot;profile_id&quot;:') + 50
+				);
+	  			tmp = mySubString.split(',');
+				var tmpUserId = tmp[0].split(':')[1];
+				var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids='+tmpUserId;
+				chrome.windows.create({ 
+					url: sendWelcomeMeesageUrl,
+					focused:false, 
+					type:"popup",
+					top:Math.floor(window.screen.availHeight/4*3),
+					left:Math.floor(window.screen.availWidth/4*3), 
+					height:Math.floor(window.screen.availHeight/4), 
+					width:Math.floor(window.screen.availWidth/4) 
+				},function (tabs) {
+					RebulkMessageTabId = tabs.tabs[0].id;
+					var temp = {};
+					temp.fullName = fullName;
+					temp.tabId = RebulkMessageTabId;
+					collectionOfTabIds.push(temp);
+					chrome.tabs.onUpdated.addListener(bulkTabListener);
+				});	      		
+	   		 }
+		});		
+	}else{
+		var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids='+threadId;
+		chrome.windows.create({ 
+			url: sendWelcomeMeesageUrl,
+			focused:false, 
+			type:"popup",
+			top:Math.floor(window.screen.availHeight/4*3),
+			left:Math.floor(window.screen.availWidth/4*3), 
+			height:Math.floor(window.screen.availHeight/4), 
+			width:Math.floor(window.screen.availWidth/4) 
+		},function (tabs) {
+			RebulkMessageTabId = tabs.tabs[0].id;
+			var temp = {};
+			temp.fullName = fullName;
+			temp.tabId = RebulkMessageTabId;
+			collectionOfTabIds.push(temp);
+			chrome.tabs.onUpdated.addListener(bulkTabListener);
+		});	
+	}
+}
+function bulkTabListener(tabId, changeInfo, tab){
+	
+	if (changeInfo.status === "complete" && tabId === RebulkMessageTabId) {
+
+		var foundTabRecord = collectionOfTabIds.filter((list)=>{ return list.tabId == RebulkMessageTabId}); 
+		var welcomeMessageText = '';
+
+		if (foundTabRecord.length > 0) {
+				welcomeMessageText = getBulkMessage(foundTabRecord[0].fullName);
+		} 
+		setTimeout(()=>{
+			chrome.tabs.sendMessage(RebulkMessageTabId,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:welcomeMessageText});
+			
+		}, 2000)
+		chrome.tabs.onUpdated.removeListener(bulkTabListener);
+	}
+}
+
+function getBulkMessage(fullName) {
+
+	var welcomeMessageText ='';
+
+	if(sendRandomMessage){
+		welcomeMessageText = bulkMessageTextArray[Math.floor(Math.random() * bulkMessageTextArray.length)];
+	}else{
+		welcomeMessageText = bulkMessageTextArray[0];
+	}
+
+	if (welcomeMessageText.indexOf('[full_name]') > -1) {
+		welcomeMessageText = welcomeMessageText.replace(/\[full_name]/g,fullName);
+	}
+
+	if (welcomeMessageText.indexOf('[first_name]') > -1) {
+		first_name = fullName.split(' ')[0];
+		welcomeMessageText = welcomeMessageText.replace(/\[first_name]/g,first_name);
+	}
+
+	if (welcomeMessageText.indexOf('[last_name]') > -1) {
+		nameArray = fullName.split(' ');
+		if(nameArray.length > 1){
+			last_name = nameArray[nameArray.length-1];
+			welcomeMessageText = welcomeMessageText.replace(/\[last_name]/g,last_name);
+		}else{
+			welcomeMessageText = welcomeMessageText.replace(/\[last_name]/g,'');
+		}
+	}
+	return welcomeMessageText;
+}
+
+function setBlankCookies() {
+
+	chrome.storage.local.set({'bulkMessageSettings':""});  
+	chrome.storage.local.set({'bulkMessageSettings': ""});
+// 	chrome.cookies.set({ url: cookiesBaseUrl, name: "bulkMessageSettings", value:  "", expirationDate: (new Date().getTime()/1000) + (3600 * 1000*87660)  });          
+//    // chrome.cookies.set({ url: custom_data.baseUrl, name: "fe_bulkStatus", value: "", expirationDate: (new Date().getTime()/1000) + (3600 * 1000*87660)  });
+// 	chrome.cookies.set({ url: cookiesBaseUrl, name: "bulkMessageSettings", value:  "", expirationDate: (new Date().getTime()/1000) + (3600 * 1000*87660)  });
+  
+  }

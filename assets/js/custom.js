@@ -5387,7 +5387,8 @@ function sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, send
 					temp.useSendLimit = useSendLimit;
 				
 					chrome.storage.local.set({"bulkMessageSettings":temp});
-					chrome.tabs.sendMessage(tab.id,{from: 'popup', subject: 'openChatThreadBulkMessage',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay});
+					chrome.runtime.sendMessage({action: 'startBulkFromBackground',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay});
+					// chrome.tabs.sendMessage(tab.id,{from: 'popup', subject: 'openChatThreadBulkMessage',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay});
 				}
 			});
 		}else{
@@ -5485,10 +5486,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
    	if (request.action == "refresh_reminders") {
 		$('#reminders-screen').click();
 	}else if(request.action == 'bulkmsgstate'){
-		if (request.bulkMessageTabId > 0) {
+		if (request.bulkMessageStatus != true && (request.bulkParentTabId > 0 || request.bulkMessageStatus == 'paused')) {
 			isBulkRunning = true;
 			chrome.tabs.query({active: true,currentWindow: true}, function (tabs) {
-				if (request.bulkMessageTabId == tabs[0].id) {
+				// if (request.bulkMessageTabId == tabs[0].id) {
 					if (request.bulkMessageStatus == 'running') {
 						displayBulkMessgesSettings();	
 						$('.tab').hide();
@@ -5496,7 +5497,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 						$('.bulk-process-status').hide();
 						$('#pausebulk').showInlineBlock();
 						$('#stopbulk').showInlineBlock();
-					}else if(request.bulkMessageStatus == 'paused'){
+					}else if(request.bulkMessageStatus == 'paused' || request.bulkMessageStatus == 'limit_excedeed'){
 						displayBulkMessgesSettings();
 						
 						$('.tab').hide();
@@ -5505,15 +5506,24 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 						$('#resumebulk').showInlineBlock();
 						$('#stopbulk').showInlineBlock();
 						return false;
+					}else if(request.bulkMessageStatus == 'complete'){
+						isBulkRunning = false;
+						$('.bulk-process-status').hide();
+						$('#startbulk').showInlineBlock();
+						$('#bulk-back-btn').show();
+						$('#randomize-toggle').prop('disabled',false);
+						$('#randomize-toggle-delay').prop('disabled',false);
+						$('#send-to-all-tagged-user').prop('disabled',false);
+
 					}
 					
-				} else {
-					displayBulkMessgesSettings();
-					//toastr["info"]('Bulk Message is running in other tab');
-					$('.tab').hide();
-					$('#bulk_message').show();
-					$('.bulk-process-status').hide();
-				}	
+				// } else {
+				// 	displayBulkMessgesSettings();
+				// 	//toastr["info"]('Bulk Message is running in other tab');
+				// 	$('.tab').hide();
+				// 	$('#bulk_message').show();
+				// 	$('.bulk-process-status').hide();
+				// }	
 			});
 			$('#randomize-toggle').prop('disabled',true);
 			$('#send-to-all-tagged-user').prop('disabled',true);

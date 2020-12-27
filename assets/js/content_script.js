@@ -19,6 +19,7 @@ var bulkMessageTimeout = [];
 var selectedBulkTagIds
 var bulkUserDelay = 0;
 var	bulkSendMessageLimit = null;
+var RebulkMessageTabId = 0;
 
 var bulkMessageTextArray = null;
 var sendRandomMessage = null;
@@ -283,46 +284,103 @@ async function sendMessage(message){
 						canvasElement.height = imgHeight;
 						const ctx = canvasElement.getContext('2d');
 						ctx.drawImage(imageToBeSend, 0, 0, imgWidth, imgHeight);
-						$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
-						let loc = window.location.href;
-						loc = loc.split('/t/');
-						if (loc[1].indexOf('?') > 0) {
-							// eslint-disable-next-line prefer-destructuring
-							loc[1] = loc[1].split('?')[0];
-						}
-						// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
-						// location.replace(loc[0]+'/t/'+loc[1]);	
-						const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
-						const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
-						// console.log(':::::$next::::::', $next);
-						// console.log(':::::$prev::::::', $prev);
-						let flag = true;
-
-						if ($next.length > 0) {
-							$next.mclick();
-							flag = true;
-						} else if ($prev.length > 0) {
-							$prev.mclick();
-							flag = false;
-						} else {
-							location.reload();
-						}
-						setTimeout(() => {
-							let loc1 = window.location.href;
-							loc1 = loc1.split('/t/');
-							if (loc1[1].indexOf('?') > 0) {
-							// eslint-disable-next-line prefer-destructuring
-								loc1[1] = loc1[1].split('?')[0];
+						if($(selector).length > 0){
+							$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
+							let loc = window.location.href;
+							loc = loc.split('/t/');
+							if (loc[1].indexOf('?') > 0) {
+								// eslint-disable-next-line prefer-destructuring
+								loc[1] = loc[1].split('?')[0];
 							}
-							const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
-							const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
-							if (flag) {
-								$prevUser.mclick();
+							// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+							// location.replace(loc[0]+'/t/'+loc[1]);	
+							const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
+							const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+							// console.log(':::::$next::::::', $next);
+							// console.log(':::::$prev::::::', $prev);
+							let flag = true;
+
+							if ($next.length > 0) {
+								$next.mclick();
+								flag = true;
+							} else if ($prev.length > 0) {
+								$prev.mclick();
+								flag = false;
 							} else {
-								$nextUser.mclick();
-							}					
-							sendImage(canvasElement);			
-						}, 100);	
+								location.reload();
+							}
+							setTimeout(() => {
+								let loc1 = window.location.href;
+								loc1 = loc1.split('/t/');
+								if (loc1[1].indexOf('?') > 0) {
+								// eslint-disable-next-line prefer-destructuring
+									loc1[1] = loc1[1].split('?')[0];
+								}
+								const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
+								const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+								if (flag) {
+									$prevUser.mclick();
+								} else {
+									$nextUser.mclick();
+								}					
+								sendImage(canvasElement);			
+							}, 100);
+						}	
+						else{
+							// $(`div[data-testid='mwthreadlist-item']`).first().find('a').mclick();
+							let loc = window.location.href;
+							loc = loc.split('/t/');
+							if (loc[1].indexOf('?') > 0) {
+								// eslint-disable-next-line prefer-destructuring
+								loc[1] = loc[1].split('?')[0];
+							}
+							// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+							// location.replace(loc[0]+'/t/'+loc[1]);	
+							const $next = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc[1]}']`).next('div').find('a');
+							const $prev = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc[1]}']`).prev('div').find('a');
+							// console.log(':::::$next::::::', $next);
+							// console.log(':::::$prev::::::', $prev);
+							let flag = true;
+
+							if ($next.length > 0) {
+								$next.mclick();
+								flag = true;
+							} else if ($prev.length > 0) {
+								$prev.mclick();
+								flag = false;
+							} else {
+								location.reload();
+							}
+							setTimeout(() => {
+								let loc1 = window.location.href;
+								loc1 = loc1.split('/t/');
+								if (loc1[1].indexOf('?') > 0) {
+								// eslint-disable-next-line prefer-destructuring
+									loc1[1] = loc1[1].split('?')[0];
+								}
+								const $nextUser = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc1[1]}']`).next('div').find('a');
+								const $prevUser = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc1[1]}']`).prev('div').find('a');
+													
+								if (flag) {
+									$prevUser.mclick();
+								} else {
+									$nextUser.mclick();
+								}					
+								sendImage(canvasElement);			
+							}, 100);
+							// setTimeout(() => {
+							// 	let loc1 = window.location.href;
+							// 	loc1 = loc1.split('/t/');
+							// 	if (loc1[1].indexOf('?') > 0) {
+							// 	// eslint-disable-next-line prefer-destructuring
+							// 		loc1[1] = loc1[1].split('?')[0];
+							// 	}
+							// 	// $('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').mclick();
+							// 	$(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc1[1]}']`).find('a').mclick();
+								
+							// 	sendImage(canvasElement);
+							// },100);							
+						}
 										
 					} catch (e) {
 						error(e, ":", name);
@@ -330,8 +388,9 @@ async function sendMessage(message){
 			  	};
 			
 		} else {
-			fullName = $('div[aria-labelledby]').find('span').find('h2').find('span').text();					
+			var fullName = '';							
 			if($(selector).length > 0){
+				fullName = $('div[aria-labelledby]').find('span').find('h2').find('span').text();	
 				if (message.templateMessage.indexOf('[mylocation]') > -1) {		
 					if(message.myLocation.includes("|")){
 						var locations = message.myLocation.split("|");		
@@ -411,8 +470,7 @@ async function sendMessage(message){
 			else{
 				
 				selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
-				var fullName = '';
-
+			
 				fullName =	$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
 				if (message.templateMessage.indexOf('[mylocation]') > -1) {		
 					if(message.myLocation.includes("|")){
@@ -473,70 +531,7 @@ async function sendMessageFromPopup(message){
 	
 }
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
- 	if(request.from === 'popup' && request.subject === 'openChatThreadBulkMessage') {
-		
-		$('#overlay').show();
-		if (window.location.href.indexOf('filter=') > -1) {
-			$('a[aria-label="Settings, help and more"]').mclick();
-			setTimeout(()=>{
-				$('div.uiContextualLayer li span:contains(All Chats)').mclick();
-			},300);
-
-			setTimeout(()=>{
-				bulkProcessing = true;
-				bulkDelay = 0;
-				totalSend = 0;
-				totalSendLimit = 0;
-				addUserBulkSendLimit = true;
-				$('#ssa-msgs').text('Running');
-				chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
-				sendBulkMessage(request);
-			},500)
-
-		}else{
-			bulkProcessing = true;
-			bulkDelay = 0;
-			totalSend = 0;
-			totalSendLimit = 0;
-			addUserBulkSendLimit = true;
-			$('#ssa-msgs').text('Running');
-			chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
-			sendBulkMessage(request);
-		}
-		
-	}else if(request.from === 'popup' && request.subject === 'pause'){
-		$('#overlay').show();
-		bulkProcessing = false;
-		addUserBulkSendLimit = false;
-		$('#ssa-msgs').text('Paused');
-		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
-	}else if(request.from === 'popup' && request.subject === 'resume'){
-		$('#overlay').show();
-		bulkProcessing = true;
-		$('#ssa-msgs').text('Running');
-		chrome.storage.local.get(["bulkTaggedUserArray","bulkMessageSettings"], function(result) {
-			bulkUserDelay = result.bulkMessageSettings.bulkDelay;
-			bulkMessageTextArray = result.bulkMessageSettings.messageTextArray;
-			sendRandomMessage = result.bulkMessageSettings.sendRandomMessage;
-			useRandomDelay = result.bulkMessageSettings.useRandomDelay; //true|false
-			selectedBulkTagIds = result.bulkMessageSettings.selectedBulkTagIds;
-			
-			if (result.bulkMessageSettings.useSendLimit && addUserBulkSendLimit) {
-				bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit) + findLastProcessedIndex;
-			}else{
-				bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit);
-			}
-		});
-		readLastStateOfTaggedUserArray();
-		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
-	} else if(request.from === 'popup' && request.subject === 'stop'){
-		$('#overlay').show();
-		bulkProcessing = false;
-		$('#ssa-msgs').text('Stopped');
-		chrome.storage.local.set({'bulkTaggedUserArray':[]});
-		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'stop'});
-		hide_loader();
-	} else if(request.from === 'background' && request.subject === 'tagadded'){
+ 	if(request.from === 'background' && request.subject === 'tagadded'){
 		var newTagLi = '<li class="bg-info tag-text-color bg-'+request.newTagData.class+'" color-code="0" li-class="info" tag-id="'+request.newTagData.value+'"><input class="multi-tag-checkbox" type="checkbox"> '+request.newTagData.text+'</li>';
 		$('ul.model-tag-list').prepend(newTagLi);
 		$('#tag-name-from-content').val('');
@@ -632,7 +627,87 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		
 		profilePic=$('._94wq').find('._87v3').attr('src');
 		chrome.runtime.sendMessage({action: "content_script", profilePic: profilePic});
+	}else if(request.from === 'background' && request.subject === 'bulkCounter'){ //Re
+		//console.log(request)
+		bulkProcessing = true;
+		$('#overlay').show();
+		$('#processed-members').text(request.current);
+		$('.total-friends').text(request.totalBulkMessages);		
+		$('#ssa-msgs').text('Running');
+		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
+		if (request.current >= request.totalBulkMessages) {
+			bulkProcessing = false;
+			chrome.runtime.sendMessage({action:'bulk-complete'})
+			$('#processed-members').text(request.totalBulkMessages);
+			$('#ssa-msgs').text('Completed');
+			hide_loader();
+		}
+	}//else if(request.from === 'popup' && request.subject === 'openChatThreadBulkMessage') {
+		
+	// 	$('#overlay').show();
+	// 	if (window.location.href.indexOf('filter=') > -1) {
+	// 		$('a[aria-label="Settings, help and more"]').mclick();
+	// 		setTimeout(()=>{
+	// 			$('div.uiContextualLayer li span:contains(All Chats)').mclick();
+	// 		},300);
+
+	// 		setTimeout(()=>{
+	// 			bulkProcessing = true;
+	// 			bulkDelay = 0;
+	// 			totalSend = 0;
+	// 			totalSendLimit = 0;
+	// 			addUserBulkSendLimit = true;
+	// 			$('#ssa-msgs').text('Running');
+	// 			chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
+	// 			sendBulkMessage(request);
+	// 		},500)
+
+	// 	}else{
+	// 		bulkProcessing = true;
+	// 		bulkDelay = 0;
+	// 		totalSend = 0;
+	// 		totalSendLimit = 0;
+	// 		addUserBulkSendLimit = true;
+	// 		$('#ssa-msgs').text('Running');
+	// 		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
+	// 		sendBulkMessage(request);
+	// 	}
+		
+	// }
+	else if(request.from === 'popup' && request.subject === 'pause'){
+		$('#overlay').show();
+		bulkProcessing = false;
+		addUserBulkSendLimit = false;
+		$('#ssa-msgs').text('Paused');
+		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
+	}else if(request.from === 'popup' && request.subject === 'resume'){
+		$('#overlay').show();
+		bulkProcessing = true;
+		$('#ssa-msgs').text('Running');
+		chrome.storage.local.get(["bulkTaggedUserArray","bulkMessageSettings"], function(result) {
+			bulkUserDelay = result.bulkMessageSettings.bulkDelay;
+			bulkMessageTextArray = result.bulkMessageSettings.messageTextArray;
+			sendRandomMessage = result.bulkMessageSettings.sendRandomMessage;
+			useRandomDelay = result.bulkMessageSettings.useRandomDelay; //true|false
+			selectedBulkTagIds = result.bulkMessageSettings.selectedBulkTagIds;
+			
+			if (result.bulkMessageSettings.useSendLimit && addUserBulkSendLimit) {
+				bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit) + findLastProcessedIndex;
+			}else{
+				bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit);
+			}
+		});
+		readLastStateOfTaggedUserArray();
+		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
+	} else if(request.from === 'popup' && request.subject === 'stop'){
+		$('#overlay').show();
+		bulkProcessing = false;
+		$('#ssa-msgs').text('Stopped');
+		chrome.storage.local.set({'bulkTaggedUserArray':[]});
+		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'stop'});
+		hide_loader();
 	}
+
 });
 
 
@@ -682,7 +757,7 @@ function readLastStateOfTaggedUserArray() {
 		findLastProcessedIndex = result.bulkTaggedUserArray.findIndex((item) => (item.sendBulk == false));
 		if (findLastProcessedIndex != -1) {		
 		    $('#processed-members').text(findLastProcessedIndex);	
-			findUserInMessageList(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex,mylocation);
+			startBulkFromIndex(result.bulkTaggedUserArray[findLastProcessedIndex],findLastProcessedIndex,mylocation);
 		}else{
 			$('#ssa-msgs').text('Completed');
 			chrome.storage.local.set({'bulkTaggedUserArray':[]});
@@ -693,232 +768,234 @@ function readLastStateOfTaggedUserArray() {
 	});
 }
 
-var bulkRandomDelayArray = [10000,15000,20000,25000,30000,35000,40000,45000];
-var sendRandomMessageDealy = 0;
-var loadedMessageListLi = $(fb_ul_selector+" li[fb_user_id]").length;
-var historyIteration = 0;
-function findUserInMessageList(receiver,currentIndex,myLocation) {
-	if (bulkProcessing){
-		if((currentIndex+1) <= bulkSendMessageLimit ) {
-			var loadedThreadsHistory = loadedMessageListLi;
-			if($(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").length > 0){
-				$(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").find('a').mclick();
-				if(parseBulkTaggedUserArray(receiver,currentIndex,myLocation) > -1){
-					$('#processed-members').text(currentIndex+1);
-					chrome.runtime.sendMessage({action: "bulkMessageCounter", counter: currentIndex+1, totalContacts:bulkTaggedUserArray.length});
-					if(useRandomDelay){
-						sendRandomMessageDealy =  bulkRandomDelayArray[Math.floor(Math.random()*bulkRandomDelayArray.length)];
-						bulkUserDelay = 0;
-					} else {
-						sendRandomMessageDealy = 0;
-					}					
+// var bulkRandomDelayArray = [10000,15000,20000,25000,30000,35000,40000,45000];
+// var sendRandomMessageDealy = 0;
+// var loadedMessageListLi = $(fb_ul_selector+" li[fb_user_id]").length;
+// var historyIteration = 0;
+// function findUserInMessageList(receiver,currentIndex,myLocation) {
+// 	if (bulkProcessing){
+// 		if((currentIndex+1) <= bulkSendMessageLimit ) {
+// 			var loadedThreadsHistory = loadedMessageListLi;
+// 			if($(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").length > 0){
+// 				$(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").find('a').mclick();
+// 				if(parseBulkTaggedUserArray(receiver,currentIndex,myLocation) > -1){
+// 					$('#processed-members').text(currentIndex+1);
+// 					chrome.runtime.sendMessage({action: "bulkMessageCounter", counter: currentIndex+1, totalContacts:bulkTaggedUserArray.length});
+// 					if(useRandomDelay){
+// 						sendRandomMessageDealy =  bulkRandomDelayArray[Math.floor(Math.random()*bulkRandomDelayArray.length)];
+// 						bulkUserDelay = 0;
+// 					} else {
+// 						sendRandomMessageDealy = 0;
+// 					}					
 					
-					/******* Iterate Next Thread *******/
-					if((currentIndex+1) < bulkSendMessageLimit ) {						
-						setTimeout(()=>{	
-							readLastStateOfTaggedUserArray();	
-						},parseInt(bulkUserDelay) + sendRandomMessageDealy);
-					} else {
-						bulkProcessing = false;
-						if ((currentIndex+1) == bulkTaggedUserArray.length) {
-							$('#ssa-msgs').text('Completed');
-							hide_loader();
-						 	chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'completed'});
-						}else{
-							$('#ssa-msgs').text('Limit exceeded');
-							chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
-						}
-					}
-				}
-			} else {
-				$('._2xhi .uiScrollableAreaWrap.scrollable').addClass('ssa-scroll').animate({ scrollTop: $('._2xhi .uiScrollableAreaWrap.scrollable').prop("scrollHeight")}, 1000);
-				setTimeout(()=>{
-					loadedMessageListLi = $(fb_ul_selector+" li[fb_user_id]").length;//40
-					if (loadedThreadsHistory == loadedMessageListLi) {
-						if(historyIteration < 2){
-							historyIteration++;
-							findUserInMessageList(receiver,currentIndex,myLocation);
-						} else {
-							historyIteration = 0;
-							bulkTaggedUserArray[currentIndex].sendBulk = true;
-							chrome.storage.local.set({'bulkTaggedUserArray':bulkTaggedUserArray});
-							readLastStateOfTaggedUserArray();
-						}
-					}else{				
-						findUserInMessageList(receiver,currentIndex,myLocation);
-					}	
-				},3000)
-			}
-		}else{
-			bulkProcessing = false;
-			$('#ssa-msgs').text('Limit exceeded');
-			chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
-		}
-	}
-}
+// 					/******* Iterate Next Thread *******/
+// 					if((currentIndex+1) < bulkSendMessageLimit ) {						
+// 						setTimeout(()=>{	
+// 							readLastStateOfTaggedUserArray();	
+// 						},parseInt(bulkUserDelay) + sendRandomMessageDealy);
+// 					} else {
+// 						bulkProcessing = false;
+// 						if ((currentIndex+1) == bulkTaggedUserArray.length) {
+// 							$('#ssa-msgs').text('Completed');
+// 							hide_loader();
+// 						 	chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'completed'});
+// 						}else{
+// 							$('#ssa-msgs').text('Limit exceeded');
+// 							chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
+// 						}
+// 					}
+// 				}
+// 			} else {
+// 				$('._2xhi .uiScrollableAreaWrap.scrollable').addClass('ssa-scroll').animate({ scrollTop: $('._2xhi .uiScrollableAreaWrap.scrollable').prop("scrollHeight")}, 1000);
+// 				setTimeout(()=>{
+// 					loadedMessageListLi = $(fb_ul_selector+" li[fb_user_id]").length;//40
+// 					if (loadedThreadsHistory == loadedMessageListLi) {
+// 						if(historyIteration < 2){
+// 							historyIteration++;
+// 							findUserInMessageList(receiver,currentIndex,myLocation);
+// 						} else {
+// 							historyIteration = 0;
+// 							bulkTaggedUserArray[currentIndex].sendBulk = true;
+// 							chrome.storage.local.set({'bulkTaggedUserArray':bulkTaggedUserArray});
+// 							readLastStateOfTaggedUserArray();
+// 						}
+// 					}else{				
+// 						findUserInMessageList(receiver,currentIndex,myLocation);
+// 					}	
+// 				},3000)
+// 			}
+// 		}else{
+// 			bulkProcessing = false;
+// 			$('#ssa-msgs').text('Limit exceeded');
+// 			chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
+// 		}
+// 	}
+// }
 
-function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
-	$(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").find('a').mclick();
-	bulkTaggedUserArray[currentIndex].sendBulk = true;
-	chrome.storage.local.set({'bulkTaggedUserArray':bulkTaggedUserArray});
-	var bulkMessageText = '';
+// function parseBulkTaggedUserArray(receiver,currentIndex,myLocation) {
+// 	$(fb_ul_selector+" li[fb_user_id='"+receiver.fb_user_id+"']").find('a').mclick();
+// 	bulkTaggedUserArray[currentIndex].sendBulk = true;
+// 	chrome.storage.local.set({'bulkTaggedUserArray':bulkTaggedUserArray});
+// 	var bulkMessageText = '';
 	
-	if(sendRandomMessage){
-		bulkMessageText = bulkMessageTextArray[Math.floor(Math.random()*bulkMessageTextArray.length)];
-	}else{
-		bulkMessageText = bulkMessageTextArray[0];
-	}
+// 	if(sendRandomMessage){
+// 		bulkMessageText = bulkMessageTextArray[Math.floor(Math.random()*bulkMessageTextArray.length)];
+// 	}else{
+// 		bulkMessageText = bulkMessageTextArray[0];
+// 	}
 	
-	full_Name = $('#js_5 span').text();
+// 	full_Name = $('#js_5 span').text();
 
-	var isMarket = false;
+// 	var isMarket = false;
 
-	if(full_Name.indexOf(' · ') > -1){
-		isMarket = true;
-	}
+// 	if(full_Name.indexOf(' · ') > -1){
+// 		isMarket = true;
+// 	}
 
-	if (bulkMessageText.indexOf('[mylocation]') > -1) {
-		if(myLocation.includes("|")){
-			var myLocations = myLocation.split("|");		
-			myLocation = myLocations[Math.floor(Math.random() * myLocations.length)];	
-		}
-		bulkMessageText = bulkMessageText.replace(/\[mylocation]/g,myLocation);
-	}
+// 	if (bulkMessageText.indexOf('[mylocation]') > -1) {
+// 		if(myLocation.includes("|")){
+// 			var myLocations = myLocation.split("|");		
+// 			myLocation = myLocations[Math.floor(Math.random() * myLocations.length)];	
+// 		}
+// 		bulkMessageText = bulkMessageText.replace(/\[mylocation]/g,myLocation);
+// 	}
 
-	if (bulkMessageText.indexOf('[full_name]') > -1) {
-		bulkMessageText = bulkMessageText.replace(/\[full_name]/g,full_Name);
-	}
+// 	if (bulkMessageText.indexOf('[full_name]') > -1) {
+// 		bulkMessageText = bulkMessageText.replace(/\[full_name]/g,full_Name);
+// 	}
 
-	if (bulkMessageText.indexOf('[first_name]') > -1) {
-		first_name = full_Name.split(' ')[0];
-		bulkMessageText = bulkMessageText.replace(/\[first_name]/g,first_name);
-	}
+// 	if (bulkMessageText.indexOf('[first_name]') > -1) {
+// 		first_name = full_Name.split(' ')[0];
+// 		bulkMessageText = bulkMessageText.replace(/\[first_name]/g,first_name);
+// 	}
 
-	if (bulkMessageText.indexOf('[last_name]') > -1) {
-		nameArray = full_Name.split(' ');
-		if(nameArray.length > 1){
-			last_name = nameArray[nameArray.length-1];
-			bulkMessageText = bulkMessageText.replace(/\[last_name]/g,last_name);
-		}else{
-			bulkMessageText = bulkMessageText.replace(/\[last_name]/g,'');
-		}
-	}
+// 	if (bulkMessageText.indexOf('[last_name]') > -1) {
+// 		nameArray = full_Name.split(' ');
+// 		if(nameArray.length > 1){
+// 			last_name = nameArray[nameArray.length-1];
+// 			bulkMessageText = bulkMessageText.replace(/\[last_name]/g,last_name);
+// 		}else{
+// 			bulkMessageText = bulkMessageText.replace(/\[last_name]/g,'');
+// 		}
+// 	}
 
-	if (custom_data.sendBulkMessageEnable && !isMarket) {		
-		var delay=0;
-		if(bulkMessageText.includes("|")){
-			var res = bulkMessageText.split("|");		
-			res.forEach(function(text){			
-				let messId=setTimeout(()=>{
-					triggerBulkSendMessage(text);					
-				},delay);
-				bulkMessageTimeout.push(messId);
-				delay=delay+3000;
-			});		
-		} 
-		else{
-			let messId=setTimeout(()=>{
-				triggerBulkSendMessage(bulkMessageText);					
-			},delay);
-			bulkMessageTimeout.push(messId);
-		}
-		var clearId=setTimeout(function(){			
-			clearTimeOutIntervals();			
-		},delay);
-		bulkMessageTimeout.push(clearId);	
-	}
-	return currentIndex;
-}
+// 	if (custom_data.sendBulkMessageEnable && !isMarket) {		
+// 		var delay=0;
+// 		if(bulkMessageText.includes("|")){
+// 			var res = bulkMessageText.split("|");		
+// 			res.forEach(function(text){			
+// 				let messId=setTimeout(()=>{
+// 					triggerBulkSendMessage(text);					
+// 				},delay);
+// 				bulkMessageTimeout.push(messId);
+// 				delay=delay+3000;
+// 			});		
+// 		} 
+// 		else{
+// 			let messId=setTimeout(()=>{
+// 				triggerBulkSendMessage(bulkMessageText);					
+// 			},delay);
+// 			bulkMessageTimeout.push(messId);
+// 		}
+// 		var clearId=setTimeout(function(){			
+// 			clearTimeOutIntervals();			
+// 		},delay);
+// 		bulkMessageTimeout.push(clearId);	
+// 	}
+// 	return currentIndex;
+// }
 
-function triggerBulkSendMessage(bulkMsgText) {
-	selector = 'div[aria-label="New message"] div[contenteditable="true"] span br';
-	if($(selector).length > 0){
-		var evt = new Event('input', {
-					bubbles: true  
-				});
-		var input = document.querySelector(selector);
-		input.innerHTML = bulkMsgText;
-		input.dispatchEvent(evt);
-		$(selector).after('<span data-text="true">'+bulkMsgText+'</span>');
-		// var loc = window.location.href;
-		// loc = loc.split("/t/");
-		// $(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
-		// setTimeout(function(){
-		// 	var loc1 = window.location.href;
-		// 	loc1 = loc1.split("/t/");
-		// 	$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
-		// 	setTimeout(function(){
-		// 		$('div[aria-label="New message"]').find('a[role="button"]').mclick();
-		// 		/*******************/
-		// 		var loc = window.location.href;
-		// 		loc = loc.split("/t/");
-		// 		$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
-		// 		setTimeout(function(){
-		// 			var loc1 = window.location.href;
-		// 			loc1 = loc1.split("/t/");
-		// 			$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
-		// 		},200);
-		// 		/*******************/
-		// 	},200);
-		// },200);
-		let loc = window.location.href;
-		loc = loc.split('/t/');
-		if (loc[1].indexOf('?') > 0) {
-			// eslint-disable-next-line prefer-destructuring
-			loc[1] = loc[1].split('?')[0];
-		}
-		// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
-		// location.replace(loc[0]+'/t/'+loc[1]);	
-		const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
-		const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
-		// console.log(':::::$next::::::', $next);
-		// console.log(':::::$prev::::::', $prev);
-		let flag = true;
+// function triggerBulkSendMessage(bulkMsgText) {
+// 	selector = 'div[aria-label="New message"] div[contenteditable="true"] span br';
+// 	if($(selector).length > 0){
+// 		var evt = new Event('input', {
+// 					bubbles: true  
+// 				});
+// 		var input = document.querySelector(selector);
+// 		input.innerHTML = bulkMsgText;
+// 		input.dispatchEvent(evt);
+// 		$(selector).after('<span data-text="true">'+bulkMsgText+'</span>');
+// 		// var loc = window.location.href;
+// 		// loc = loc.split("/t/");
+// 		// $(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
+// 		// setTimeout(function(){
+// 		// 	var loc1 = window.location.href;
+// 		// 	loc1 = loc1.split("/t/");
+// 		// 	$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
+// 		// 	setTimeout(function(){
+// 		// 		$('div[aria-label="New message"]').find('a[role="button"]').mclick();
+// 		// 		/*******************/
+// 		// 		var loc = window.location.href;
+// 		// 		loc = loc.split("/t/");
+// 		// 		$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
+// 		// 		setTimeout(function(){
+// 		// 			var loc1 = window.location.href;
+// 		// 			loc1 = loc1.split("/t/");
+// 		// 			$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
+// 		// 		},200);
+// 		// 		/*******************/
+// 		// 	},200);
+// 		// },200);
+// 		let loc = window.location.href;
+// 		loc = loc.split('/t/');
+// 		if (loc[1].indexOf('?') > 0) {
+// 			// eslint-disable-next-line prefer-destructuring
+// 			loc[1] = loc[1].split('?')[0];
+// 		}
+// 		// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+// 		// location.replace(loc[0]+'/t/'+loc[1]);	
+// 		const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
+// 		const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+// 		// console.log(':::::$next::::::', $next);
+// 		// console.log(':::::$prev::::::', $prev);
+// 		let flag = true;
 
-		if ($next.length > 0) {
-			$next.mclick();
-			flag = true;
-		} else if ($prev.length > 0) {
-			$prev.mclick();
-			flag = false;
-		}
-		setTimeout(() => {
-			let loc1 = window.location.href;
-			loc1 = loc1.split('/t/');
-			if (loc1[1].indexOf('?') > 0) {
-			// eslint-disable-next-line prefer-destructuring
-				loc1[1] = loc1[1].split('?')[0];
-			}
-			const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
-			const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
-			if (flag) {
-				$prevUser.mclick();
-			} else {
-				$nextUser.mclick();
-			}					
-			findBTN = setInterval(function () {
-				if ($('a[aria-label="Send"]').length > 0 ) {
-					clearInterval(findBTN);
-					$('a[aria-label="Send"]').mclick();
-					// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
-				}
-			},200)						
-		}, 100);
-	} else {
-		$('div[aria-label="New message"] div[contenteditable="true"] span span').text(bulkMsgText);
-		$('div[aria-label="New message"]').find('a[role="button"]').mclick();
-		/*******************/
-		var loc = window.location.href;
-		loc = loc.split("/t/");
-		$(fb_ul_selector+" li[fb_user_id='"+loc[1]+"']").next('li').find('a').mclick();
-		setTimeout(function(){
-			var loc1 = window.location.href;
-			loc1 = loc1.split("/t/");
-			$(fb_ul_selector+" li[fb_user_id='"+loc1[1]+"']").prev('li').find('a').mclick();
-		},200);
-		/*******************/
-	}
-}
+// 		if ($next.length > 0) {
+// 			$next.mclick();
+// 			flag = true;
+// 		} else if ($prev.length > 0) {
+// 			$prev.mclick();
+// 			flag = false;
+// 		}
+// 		setTimeout(() => {
+// 			let loc1 = window.location.href;
+// 			loc1 = loc1.split('/t/');
+// 			if (loc1[1].indexOf('?') > 0) {
+// 			// eslint-disable-next-line prefer-destructuring
+// 				loc1[1] = loc1[1].split('?')[0];
+// 			}
+// 			const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
+// 			const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+// 			if (flag) {
+// 				$prevUser.mclick();
+// 			} else {
+// 				$nextUser.mclick();
+// 			}					
+// 			findBTN = setInterval(function () {
+// 				if ($('a[aria-label="Send"]').length > 0 ) {
+// 					clearInterval(findBTN);
+// 					$('a[aria-label="Send"]').mclick();
+// 					// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
+// 				}
+// 			},200)						
+// 		}, 100);
+// 	} else {
+// 		selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
+// 		if($(selector).length > 0){
+					
+// 			var evt = new Event('input', {
+// 						bubbles: true  
+// 					});
+// 			var input = document.querySelector(selector);
+// 			input.innerHTML = message.templateMessage;
+// 			input.dispatchEvent(evt);
+	
+// 			$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
+			
+// 			chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+// 		}
+// 	}
+// }
 
 $(function(){
 
@@ -1400,12 +1477,12 @@ function integrateSSAFeatureWM(){
 							$(this).attr('fb_user_id',fbUser);
 							$(this).attr('numeric_fb_id','0');
 							$(this).attr('thread_fb_id',0); 
-							$(this).prepend(spanTagPerChat);
+							$(this).append(spanTagPerChat);
 						} else {
 							$(this).attr('numeric_fb_id','0');
 							$(this).attr('fb_user_id',fbUser);
 							$(this).attr('thread_fb_id',0); 
-							$(this).prepend(spanTagPerChat);
+							$(this).append(spanTagPerChat);
 						}
 
 						if (fbUser.length < 13) {
@@ -1507,10 +1584,10 @@ function tagUsersWM(taggedUsers,tags){
 				options += '<div class="get-gl-notes">Add Notes</div>';
 				if($(this).find('div.tags-container').length > 0 ){
 					$(this).find('div.tags-container').remove();
-					$(this).prepend(options);
+					$(this).append(options);
 					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
 				} else {
-					$(this).prepend(options);
+					$(this).append(options);
 					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
 				}
 				// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag">+</span>';
@@ -1523,26 +1600,26 @@ function tagUsersWM(taggedUsers,tags){
 				// }
 			}
 		}else{
-			// var options = '<div class="tags-container ssa-tags-container cts-messenger "><span class="bg-muted ssa-selected-tag">+</span>';
-			// 	options += '<div class="get-gl-notes">Notes</div> </div> ';
+			var options = '<div class="tags-container ssa-tags-container cts-messenger "><span class="bg-muted ssa-selected-tag">+</span>';
+			options += '<div class="get-gl-notes">Add Notes</div> </div> ';
 
-			// 	if($(this).find('div.tags-container').length > 0 ){
-			// 		$(this).find('div.tags-container').remove();
-			// 		$(this).append(options);
-					
-			// 	} else {
-			// 		$(this).append(options);
-					
-			var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-			options += '<div class="get-gl-notes">Add Notes</div>';
-				if($(this).find('div.tags-container').length > 0 ){
-					$(this).find('div.tags-container').remove();
-					$(this).prepend(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);					
-				} else {
-					$(this).prepend(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-				}
+			if($(this).find('div.tags-container').length > 0 ){
+				$(this).find('div.tags-container').remove();
+				$(this).append(options);
+				
+			} else {
+				$(this).append(options);
+			}		
+			// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+			// options += '<div class="get-gl-notes">Notes</div>';
+			// if($(this).find('div.tags-container').length > 0 ){
+			// 	$(this).find('div.tags-container').remove();
+			// 	$(this).prepend(options);
+			// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);					
+			// } else {
+			// 	$(this).prepend(options);
+			// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+			// }
 		}				
 	});
 
@@ -2160,7 +2237,12 @@ function triggerRequestSendMessage(bulkMsgText) {
 function  checkFriendRequestForPostMessageNew(){
 	 $('div.kd0sc8dh.sl8jk4me.ie5zihkj.i09qtzwb.rm3jng1j.hzruof5a.pmk7jnqg.kr520xx4.c0wkt4kp').prev().animate({ scrollTop:  5000 }, 1000);
 	setTimeout(function(){
-		if (/[0-9]/.test($('div[aria-label="List of activity log items"] .kvgmc6g5 h2').text())) { 
+		var logSelector = 'div[aria-label="List of activity log items"]';
+		if($(logSelector).length == 0){
+			logSelector = 'div[aria-label="List of Activity Log Items"]';
+		}
+
+		if (/[0-9]/.test($(logSelector).find('.kvgmc6g5 h2').text())) { 
 				 sendLoadedRequestNew();
 			}else{
 				checkFriendRequestForPostMessageNew();
@@ -2171,45 +2253,57 @@ function  checkFriendRequestForPostMessageNew(){
 
 function sendLoadedRequestNew() {
 	var newRequestids = [];
-	$todaysDivElement = $('div[aria-label="List of activity log items"] .kvgmc6g5 h2:contains(Today)').closest('div.kvgmc6g5');
+	var activeLogSelector = 'div[aria-label="List of activity log items"]';
+	if($(activeLogSelector).length == 0){
+		activeLogSelector = 'div[aria-label="List of Activity Log Items"]';
+	}
+	$todaysDivElement = $(activeLogSelector).find('.kvgmc6g5 h2:contains(Today)').closest('div.kvgmc6g5');
 	$todaysDivElement.find('.l9j0dhe7').each(function (index) {
 		$(this).find('div:contains(became friends with)').closest('.l9j0dhe7').find('a:eq(0)').addClass('cts-open');
 	});
 
 	dealyToLoad = 0;
 	totalTodaysFriend = 0;
-	$('.cts-open').each(function (index) {
-		setTimeout(()=>{
-			$(this).mclick();
-
+	if($('.cts-open').length > 0){
+		$('.cts-open').each(function (index) {
 			setTimeout(()=>{
-				profileUrlTemp = $('div[aria-label="Activity log item"]').find('.qzhwtbm6.knvmm38d h3 a:eq(1)').attr('href');
-			
-				var tempFriendData = {};
-				profileUrlTemp = new URL(profileUrlTemp);
-				var requestProfileId = profileUrlTemp.pathname.replace('/','');
-			 	tempFriendData.requestProfileId = requestProfileId;
-			 	tempFriendData.fullName = $('div[aria-label="Activity log item"]').find('.qzhwtbm6.knvmm38d h3 a:eq(1)').text();
-	
-			 	if (friendRequestHistory.length > 0) {
-			 		found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId })
-			 			if(found.length == 0){
-						
-						}else{
-							if (found[0].is_message_send == 1) {
-								newRequestids.push(tempFriendData)
-							}
-						}
-			 	}
-			 	
-				if($('.cts-open').length == 0){
-					chrome.runtime.sendMessage({friendRequestsFromContent: "friendRequestsFromContent", data: newRequestids});
-				}
+				$(this).mclick();
 
-			},7000)
-		}, dealyToLoad);
-		dealyToLoad = dealyToLoad + 10000;
-	});
+				setTimeout(()=>{
+					var LogSelector = 'div[aria-label="Activity log item"]';
+
+					if($(LogSelector).length == 0 ){
+						LogSelector = 'div[aria-label="Activity Log Item"]'
+					}
+					profileUrlTemp = $(LogSelector).find('.qzhwtbm6.knvmm38d h3 a:eq(1)').attr('href');	
+					var tempFriendData = {};
+					profileUrlTemp = new URL(profileUrlTemp);
+					var requestProfileId = profileUrlTemp.pathname.replace('/','');
+					tempFriendData.requestProfileId = requestProfileId;
+					tempFriendData.fullName = $(LogSelector).find('.qzhwtbm6.knvmm38d h3 a:eq(1)').text();
+		
+					if (friendRequestHistory.length > 0) {
+						found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId })
+							if(found.length == 0){
+							
+							}else{
+								if (found[0].is_message_send == 1) {
+									newRequestids.push(tempFriendData)
+								}
+							}
+					}
+					
+					if($('.cts-open').length == 0){
+						chrome.runtime.sendMessage({friendRequestsFromContent: "friendRequestsFromContent", data: newRequestids});
+					}
+
+				},7000)
+			}, dealyToLoad);
+			dealyToLoad = dealyToLoad + 10000;
+		});
+	}else{		
+		chrome.runtime.sendMessage({friendRequestsFromContentClose: "friendRequestsFromContentClose"});
+	}	
 }
 
 function  checkFriendRequestForPostMessage(){
