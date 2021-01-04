@@ -212,9 +212,9 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 		if($(fb_ul_selector+" li[fb_user_id='"+message.fb_id+"']").length > 0){
 			$(fb_ul_selector+" li[fb_user_id='"+message.fb_id+"']").find('a').mclick();
 		} else {
-			var loc = window.location.href;
-			loc = loc.split("/t/");
-			window.location.replace(loc[0]+'/t/'+message.fb_id);
+			var loc = getFbIdFromLocation();
+			
+			window.location.replace(loc+'/t/'+message.fb_id);
 		}
 		
 	} else if(message.from === 'popup' && message.subject === 'refresh'){
@@ -231,7 +231,8 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 		findBTN = setInterval(function () {
 			if ($('div[aria-label="Press Enter to send"').length > 0 ) {
 				clearInterval(findBTN);
-				$('div[aria-label="Press Enter to send"').mclick();				
+				$('div[aria-label="Press Enter to send"').mclick();		
+				location.reload();		
 			}
 		},200)
 	}else if(message.from === 'background' && message.subject === 'triggerClickToSendImage'){
@@ -274,6 +275,9 @@ async function sendMessage(message){
 	} else {
 		selector = 'div[aria-label="New message"] div[contenteditable="true"] span br';
 		if (message.templateMessage.indexOf('--template--') >= 0) {			
+			 if(typeof imageToBeSend == "undefined"){
+				 return;
+			 }
 				imageToBeSend.onload = function() {					
 					try {
 						const canvasElement = document.createElement('canvas');
@@ -286,16 +290,11 @@ async function sendMessage(message){
 						ctx.drawImage(imageToBeSend, 0, 0, imgWidth, imgHeight);
 						if($(selector).length > 0){
 							$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
-							let loc = window.location.href;
-							loc = loc.split('/t/');
-							if (loc[1].indexOf('?') > 0) {
-								// eslint-disable-next-line prefer-destructuring
-								loc[1] = loc[1].split('?')[0];
-							}
+							let loc = getFbIdFromLocation();
 							// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
 							// location.replace(loc[0]+'/t/'+loc[1]);	
-							const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
-							const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+							const $next = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).next('li').find('a');
+							const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).prev('li').find('a');
 							// console.log(':::::$next::::::', $next);
 							// console.log(':::::$prev::::::', $prev);
 							let flag = true;
@@ -310,14 +309,9 @@ async function sendMessage(message){
 								location.reload();
 							}
 							setTimeout(() => {
-								let loc1 = window.location.href;
-								loc1 = loc1.split('/t/');
-								if (loc1[1].indexOf('?') > 0) {
-								// eslint-disable-next-line prefer-destructuring
-									loc1[1] = loc1[1].split('?')[0];
-								}
-								const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
-								const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+								let loc1 = getFbIdFromLocation();
+								const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).next('li').find('a');
+								const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).prev('li').find('a');
 								if (flag) {
 									$prevUser.mclick();
 								} else {
@@ -328,44 +322,34 @@ async function sendMessage(message){
 						}	
 						else{
 							// $(`div[data-testid='mwthreadlist-item']`).first().find('a').mclick();
-							let loc = window.location.href;
-							loc = loc.split('/t/');
-							if (loc[1].indexOf('?') > 0) {
-								// eslint-disable-next-line prefer-destructuring
-								loc[1] = loc[1].split('?')[0];
-							}
-							// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
-							// location.replace(loc[0]+'/t/'+loc[1]);	
-							const $next = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc[1]}']`).next('div').find('a');
-							const $prev = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc[1]}']`).prev('div').find('a');
-							// console.log(':::::$next::::::', $next);
-							// console.log(':::::$prev::::::', $prev);
-							let flag = true;
+							// let loc =getFbIdFromLocation();
+							// // chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+							// // location.replace(loc[0]+'/t/'+loc[1]);	
+							// const $next = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc}']`).next('div').find('a');
+							// const $prev = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc}']`).prev('div').find('a');
+							// // console.log(':::::$next::::::', $next);
+							// // console.log(':::::$prev::::::', $prev);
+							// let flag = true;
 
-							if ($next.length > 0) {
-								$next.mclick();
-								flag = true;
-							} else if ($prev.length > 0) {
-								$prev.mclick();
-								flag = false;
-							} else {
-								location.reload();
-							}
+							// if ($next.length > 0) {
+							// 	$next.mclick();
+							// 	flag = true;
+							// } else if ($prev.length > 0) {
+							// 	$prev.mclick();
+							// 	flag = false;
+							// } else {
+							// 	location.reload();
+							// }
 							setTimeout(() => {
-								let loc1 = window.location.href;
-								loc1 = loc1.split('/t/');
-								if (loc1[1].indexOf('?') > 0) {
-								// eslint-disable-next-line prefer-destructuring
-									loc1[1] = loc1[1].split('?')[0];
-								}
-								const $nextUser = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc1[1]}']`).next('div').find('a');
-								const $prevUser = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc1[1]}']`).prev('div').find('a');
+								// let loc1 = getFbIdFromLocation();
+								// const $nextUser = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc1}']`).next('div').find('a');
+								// const $prevUser = $(`div[data-testid='mwthreadlist-item'][fb_user_id='${loc1}']`).prev('div').find('a');
 													
-								if (flag) {
-									$prevUser.mclick();
-								} else {
-									$nextUser.mclick();
-								}					
+								// if (flag) {
+								// 	$prevUser.mclick();
+								// } else {
+								// 	$nextUser.mclick();
+								// }					
 								sendImage(canvasElement);			
 							}, 100);
 							// setTimeout(() => {
@@ -391,27 +375,8 @@ async function sendMessage(message){
 			var fullName = '';							
 			if($(selector).length > 0){
 				fullName = $('div[aria-labelledby]').find('span').find('h2').find('span').text();	
-				if (message.templateMessage.indexOf('[mylocation]') > -1) {		
-					if(message.myLocation.includes("|")){
-						var locations = message.myLocation.split("|");		
-						message.myLocation = locations[Math.floor(Math.random() * locations.length)];	
-					}				
-					message.templateMessage = message.templateMessage.replace(/\[mylocation]/g,message.myLocation);
-				}
-				if (message.templateMessage.indexOf('[first_name]') > -1) {
-					first_name = fullName.split(' ')[0];
-					message.templateMessage = message.templateMessage.replace(/\[first_name]/g,first_name);
-				}
-
-				if (message.templateMessage.indexOf('[last_name]') > -1) {
-					nameArray = fullName.split(' ');
-					if(nameArray.length > 1){
-						last_name = nameArray[nameArray.length-1];
-						message.templateMessage = message.templateMessage.replace(/\[last_name]/g,last_name);
-					}else{
-						message.templateMessage = message.templateMessage.replace(/\[last_name]/g,'');
-					}
-				}				
+				
+				message.templateMessage= getTemplateMessage(message, fullName);			
 				var evt = new Event('input', {
 							bubbles: true  
 						});
@@ -423,16 +388,11 @@ async function sendMessage(message){
 				// var loc = window.location.href;
 				// loc = loc.split("/t/");
 				// $(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
-				let loc = window.location.href;
-				loc = loc.split('/t/');
-				if (loc[1].indexOf('?') > 0) {
-					// eslint-disable-next-line prefer-destructuring
-					loc[1] = loc[1].split('?')[0];
-				}
+				let loc = getFbIdFromLocation();
 				// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
 				// location.replace(loc[0]+'/t/'+loc[1]);	
-				const $next = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).next('li').find('a');
-     			const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc[1]}']`).prev('li').find('a');
+				const $next = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).next('li').find('a');
+     			const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).prev('li').find('a');
       			// console.log(':::::$next::::::', $next);
       			// console.log(':::::$prev::::::', $prev);
 				let flag = true;
@@ -447,14 +407,9 @@ async function sendMessage(message){
 					location.reload();
 				}
 				setTimeout(() => {
-					let loc1 = window.location.href;
-					loc1 = loc1.split('/t/');
-					if (loc1[1].indexOf('?') > 0) {
-					// eslint-disable-next-line prefer-destructuring
-						loc1[1] = loc1[1].split('?')[0];
-					}
-					const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).next('li').find('a');
-					const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1[1]}']`).prev('li').find('a');
+					let loc1 = getFbIdFromLocation();
+					const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).next('li').find('a');
+					const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).prev('li').find('a');
 					if (flag) {
 						$prevUser.mclick();
 					} else {
@@ -472,32 +427,33 @@ async function sendMessage(message){
 				selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
 			
 				fullName =	$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
-				if (message.templateMessage.indexOf('[mylocation]') > -1) {		
-					if(message.myLocation.includes("|")){
-						var locations = message.myLocation.split("|");		
-						message.myLocation = locations[Math.floor(Math.random() * locations.length)];	
-					}				
-					message.templateMessage = message.templateMessage.replace(/\[mylocation]/g,message.myLocation);
-				}				
+				// if (message.templateMessage.indexOf('[mylocation]') > -1) {		
+				// 	if(message.myLocation.includes("|")){
+				// 		var locations = message.myLocation.split("|");		
+				// 		message.myLocation = locations[Math.floor(Math.random() * locations.length)];	
+				// 	}				
+				// 	message.templateMessage = message.templateMessage.replace(/\[mylocation]/g,message.myLocation);
+				// }				
 
-				if(fullName != ''){
-					if (message.templateMessage.indexOf('[first_name]') > -1) {
-						first_name = fullName.split(' ')[0];
-						message.templateMessage = message.templateMessage.replace(/\[first_name]/g,first_name);
-					}
+				// if(fullName != ''){
+				// 	if (message.templateMessage.indexOf('[first_name]') > -1) {
+				// 		first_name = fullName.split(' ')[0];
+				// 		message.templateMessage = message.templateMessage.replace(/\[first_name]/g,first_name);
+				// 	}
 	
-					if (message.templateMessage.indexOf('[last_name]') > -1) {
-						nameArray = fullName.split(' ');
-						if(nameArray.length > 1){
-							last_name = nameArray[nameArray.length-1];
-							message.templateMessage = message.templateMessage.replace(/\[last_name]/g,last_name);
-						}else{
-							message.templateMessage = message.templateMessage.replace(/\[last_name]/g,'');
-						}
-					}
+				// 	if (message.templateMessage.indexOf('[last_name]') > -1) {
+				// 		nameArray = fullName.split(' ');
+				// 		if(nameArray.length > 1){
+				// 			last_name = nameArray[nameArray.length-1];
+				// 			message.templateMessage = message.templateMessage.replace(/\[last_name]/g,last_name);
+				// 		}else{
+				// 			message.templateMessage = message.templateMessage.replace(/\[last_name]/g,'');
+				// 		}
+				// 	}
 						
-				}
-			
+				// }
+				
+				message.templateMessage = getTemplateMessage(message, fullName);	
 				
 				if($(selector).length > 0){
 					
@@ -506,11 +462,14 @@ async function sendMessage(message){
 							});
 					var input = document.querySelector(selector);
 					input.innerHTML = message.templateMessage;
-					input.dispatchEvent(evt);
+					if(!input.dispatchEvent(evt)){
+						console.log("dispatchEvent");
+					};
 			
 					$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
 					
 					chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+					
 				}
 			}
 		}
@@ -605,10 +564,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				fb_ul_selector = "ul[aria-label='"+conversionListText+"']";
 				fb_ul_li_selector = "ul[aria-label='"+conversionListText+"'] li";
 				fb_list_selectors = "ul[aria-label='"+conversionListText+"'] li:not([fb_user_id]";
-				integrateSSAFeature();
-				var loc1 = window.location.href;
-				loc1 = loc1.split("/t/");				
-				var li_fb_user_id = loc1[1];
+				integrateSSAFeature();					
+				var li_fb_user_id = getFbIdFromLocation();
 				chrome.runtime.sendMessage({getUserNotes: "getUserNotes", fb_user_id: li_fb_user_id,integrateSSAFeature: true});
 			}
 		}, 1000);
@@ -616,10 +573,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 			if($("div[data-testid='mwthreadlist-item']").length > 0){
 				clearInterval(findULText);			
-				integrateSSAFeatureWM();
-				var loc1 = window.location.href;
-				loc1 = loc1.split("/t/");				
-				var li_fb_user_id = loc1[1];
+				integrateSSAFeatureWM();							
+				var li_fb_user_id = getFbIdFromLocation();
 				chrome.runtime.sendMessage({getUserNotes: "getUserNotes", fb_user_id: li_fb_user_id,integrateSSAFeature: true});
 			}
 		}, 1000);
@@ -674,39 +629,50 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	// 	}
 		
 	// }
-	else if(request.from === 'popup' && request.subject === 'pause'){
-		$('#overlay').show();
-		bulkProcessing = false;
-		addUserBulkSendLimit = false;
-		$('#ssa-msgs').text('Paused');
-		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
-	}else if(request.from === 'popup' && request.subject === 'resume'){
-		$('#overlay').show();
-		bulkProcessing = true;
-		$('#ssa-msgs').text('Running');
-		chrome.storage.local.get(["bulkTaggedUserArray","bulkMessageSettings"], function(result) {
-			bulkUserDelay = result.bulkMessageSettings.bulkDelay;
-			bulkMessageTextArray = result.bulkMessageSettings.messageTextArray;
-			sendRandomMessage = result.bulkMessageSettings.sendRandomMessage;
-			useRandomDelay = result.bulkMessageSettings.useRandomDelay; //true|false
-			selectedBulkTagIds = result.bulkMessageSettings.selectedBulkTagIds;
+	// else if(request.from === 'popup' && request.subject === 'pause'){
+	// 	$('#overlay').show();
+	// 	bulkProcessing = false;
+	// 	addUserBulkSendLimit = false;
+	// 	$('#ssa-msgs').text('Paused');
+	// 	chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'paused'});
+	// }else if(request.from === 'popup' && request.subject === 'resume'){
+	// 	$('#overlay').show();
+	// 	bulkProcessing = true;
+	// 	$('#ssa-msgs').text('Running');
+	// 	chrome.storage.local.get(["bulkTaggedUserArray","bulkMessageSettings"], function(result) {
+	// 		bulkUserDelay = result.bulkMessageSettings.bulkDelay;
+	// 		bulkMessageTextArray = result.bulkMessageSettings.messageTextArray;
+	// 		sendRandomMessage = result.bulkMessageSettings.sendRandomMessage;
+	// 		useRandomDelay = result.bulkMessageSettings.useRandomDelay; //true|false
+	// 		selectedBulkTagIds = result.bulkMessageSettings.selectedBulkTagIds;
 			
-			if (result.bulkMessageSettings.useSendLimit && addUserBulkSendLimit) {
-				bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit) + findLastProcessedIndex;
-			}else{
-				bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit);
-			}
-		});
-		readLastStateOfTaggedUserArray();
-		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
-	} else if(request.from === 'popup' && request.subject === 'stop'){
-		$('#overlay').show();
-		bulkProcessing = false;
-		$('#ssa-msgs').text('Stopped');
-		chrome.storage.local.set({'bulkTaggedUserArray':[]});
-		chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'stop'});
-		hide_loader();
+	// 		if (result.bulkMessageSettings.useSendLimit && addUserBulkSendLimit) {
+	// 			bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit) + findLastProcessedIndex;
+	// 		}else{
+	// 			bulkSendMessageLimit = parseInt(result.bulkMessageSettings.sendLimit);
+	// 		}
+	// 	});
+	// 	readLastStateOfTaggedUserArray();
+	// 	chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'running'});
+	// } else if(request.from === 'popup' && request.subject === 'stop'){
+	// 	$('#overlay').show();
+	// 	bulkProcessing = false;
+	// 	$('#ssa-msgs').text('Stopped');
+	// 	chrome.storage.local.set({'bulkTaggedUserArray':[]});
+	// 	chrome.runtime.sendMessage({saveBlukMessageState: "saveBlukMessageState", status: 'stop'});
+	// 	hide_loader();
+	// }
+	else if(request.from === 'background' && request.subject === 'bulkStateMsg'){ //Re
+		$('#ssa-msgs').text(request.msg);
+		if (request.msg == 'Stopped') {
+			hide_loader();
+		}
+	}else if(request.from === 'background' && request.subject === 'limit_excedeed'){ //Re
+		$('#ssa-msgs').text('Limit exceeded');
+		chrome.runtime.sendMessage({'action':'bulkMessageLimitExceed'})
+		
 	}
+
 
 });
 
@@ -1952,9 +1918,9 @@ function displaySelectedTagRightSide(){
 							teamMembersInfo[item.fb_user_id] = item.fb_name;
 						});
 					}
-					var location='';
-					if( typeof result.linkedFbAccount != "undefined" && result.linkedFbAccount != "" ){
-						location= result.linkedFbAccount.location;
+					var mylocation='';
+					if( typeof result.linkedFbAccount != "undefined" && result.linkedFbAccount != "" && result.linkedFbAccount != null  && result.linkedFbAccount.location != null ){
+						mylocation= result.linkedFbAccount.location;
 					}
 					var notesList = '';
 					
@@ -2007,11 +1973,11 @@ function displaySelectedTagRightSide(){
 										eachNote.sender_fb_user_id+'">' + sender + '</a>';
 								
 								if (eachNote.description.indexOf('[mylocation]') > -1) {	
-									if(location.includes("|")){
-										var locations = location.split("|");		
-										location = locations[Math.floor(Math.random() * locations.length)];	
+									if(mylocation.includes("|")){
+										var locations = mylocation.split("|");		
+										mylocation = locations[Math.floor(Math.random() * locations.length)];	
 									}								
-									eachNote.description = eachNote.description.replace(/\[mylocation]/g,location);
+									eachNote.description = eachNote.description.replace(/\[mylocation]/g,mylocation);
 								}
 								if (eachNote.description.indexOf('[first_name]') > -1) {
 									first_name = fullName.split(' ')[0];

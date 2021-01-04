@@ -387,7 +387,7 @@ $(document).ready(function(){
 
 	chrome.storage.local.set({currentSelTag: undefined});
 	chrome.storage.local.get(["friendRequestFlow"], function(result) {
-		var setToggle = 'on';
+		var setToggle = 'off';
 		if (typeof result.friendRequestFlow != "undefined" &&
 			result.friendRequestFlow != "") {
 			setToggle = result.friendRequestFlow;
@@ -1264,22 +1264,23 @@ $(document).ready(function(){
 		}				
 	});
 
-	$(document).on('click',"#pausebulk", function(){		
+	$(document).on('click',"#pausebulk", function(){
 		$('.bulk-process-status').hide();
 		$('#resumebulk').showInlineBlock();
 		$('#stopbulk').showInlineBlock();
-		chrome.tabs.getSelected(null, function (tab) {
-			chrome.tabs.sendMessage(tab.id, {from: 'popup', subject: 'pause'});
-		});
+	
+		chrome.runtime.sendMessage({action: 'pause-bulk'});		
+		
     });
 
     $(document).on('click',"#resumebulk", function(){		
+		
 		$('.bulk-process-status').hide();
 		$('#pausebulk').showInlineBlock();
 		$('#stopbulk').showInlineBlock();
-		chrome.tabs.getSelected(null, function (tab) {
-			chrome.tabs.sendMessage(tab.id, {from: 'popup', subject: 'resume'});
-		});
+		var sendLimitOnResume = $('#bulk-send-limit').val();
+
+		chrome.runtime.sendMessage({action: 'resume-bulk', 'sendLimitOnResume':sendLimitOnResume});
     });
 
     $(document).on('click',"#stopbulk", function(){		
@@ -1303,10 +1304,10 @@ $(document).ready(function(){
 		$('#send-to-all-tagged-user').prop('disabled',false);
 
 		isBulkRunning = false;
-		
-		chrome.tabs.getSelected(null, function (tab) {
-			chrome.tabs.sendMessage(tab.id, {from: 'popup', subject: 'stop'});
-		});
+		chrome.storage.local.set({"bulkMessageSettings":""});		
+		chrome.storage.local.set({"bulkTaggedUserArray":[]});	
+		chrome.runtime.sendMessage({action: 'stop-bulk'});
+		$('.arrow_icon').show()
     });
 
 	$(document).on('click','.send-bulk-message', function() {
@@ -5387,6 +5388,7 @@ function sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, send
 					temp.useSendLimit = useSendLimit;
 				
 					chrome.storage.local.set({"bulkMessageSettings":temp});
+					$('.arrow_icon').hide(); 
 					chrome.runtime.sendMessage({action: 'startBulkFromBackground',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay});
 					// chrome.tabs.sendMessage(tab.id,{from: 'popup', subject: 'openChatThreadBulkMessage',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay});
 				}
@@ -5533,8 +5535,34 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			isBulkRunning = false;
 			$('#randomize-toggle').prop('disabled',false);
 			$('#send-to-all-tagged-user').prop('disabled',false);
+			$('.bulk-process-status').hide();
+			$('#startbulk').showInlineBlock();
+			$('#bulk-back-btn').show();
+			$('#randomize-toggle').prop('disabled',false);
+			$('#randomize-toggle-delay').prop('disabled',false);
+			$('#send-to-all-tagged-user').prop('disabled',false);
+			$('.arrow_icon').show();
 		}
-	}else if(request.action == 'bulkMessageComplete'){
+	}else if(request.action == 'bulkMessageLimitExceed'){
+		//displayBulkMessgesSettings();
+					
+		$('.tab').hide();
+		$('#bulk_message').show();
+		$('.bulk-process-status').hide();
+		$('#resumebulk').showInlineBlock();
+		$('#stopbulk').showInlineBlock();
+		return false;
+	}	else if(request.action == 'finalComplete'){
+		isBulkRunning = false;
+		$('.bulk-process-status').hide();
+		$('#startbulk').showInlineBlock();
+		$('#bulk-back-btn').show();
+		$('#randomize-toggle').prop('disabled',false);
+		$('#randomize-toggle-delay').prop('disabled',false);
+		$('#send-to-all-tagged-user').prop('disabled',false);
+		$('.arrow_icon').show();
+	}
+	else if(request.action == 'bulkMessageComplete'){
 		isBulkRunning = false;
 		$('.bulk-process-status').hide();
 		$('#startbulk').showInlineBlock();

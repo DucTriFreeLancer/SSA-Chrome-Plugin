@@ -287,7 +287,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 		prepareDataForBulkMessage(message);    	
     }
 
-    if (message.action == 'pause-bulk') {
+    else if (message.action == 'pause-bulk') {
     
     	bulkMessageStatus = 'paused';
 		clearBulkIntervals();
@@ -1246,32 +1246,7 @@ function getFriendRequestMessage(currentRequestId, fullName, myLocation ,isPre) 
 		}
 	}
 
-	if (welcomeMessageText.indexOf('[full_name]') > -1) {
-		welcomeMessageText = welcomeMessageText.replace(/\[full_name]/g,fullName);
-	}
-
-	if (welcomeMessageText.indexOf('[first_name]') > -1) {
-		first_name = fullName.split(' ')[0];
-		welcomeMessageText = welcomeMessageText.replace(/\[first_name]/g,first_name);
-	}
-
-	if (welcomeMessageText.indexOf('[last_name]') > -1) {
-		nameArray = fullName.split(' ');
-		if(nameArray.length > 1){
-			last_name = nameArray[nameArray.length-1];
-			welcomeMessageText = welcomeMessageText.replace(/\[last_name]/g,last_name);
-		}else{
-			welcomeMessageText = welcomeMessageText.replace(/\[last_name]/g,'');
-		}
-	}
-
-	if (welcomeMessageText.indexOf('[myLocation]') > -1) {	
-		if(myLocation.includes("|")){
-			var locations = myLocation.split("|");		
-			myLocation = locations[Math.floor(Math.random() * locations.length)];	
-		}		
-		welcomeMessageText = welcomeMessageText.replace(/\[myLocation]/g,myLocation);
-	}
+	welcomeMessageText= getWelcomeMessage(welcomeMessageText,fullName,myLocation);
 	return welcomeMessageText;
 }
 
@@ -1636,14 +1611,14 @@ function readLastStateOfTaggedUserArray() {
 
     chrome.storage.local.get(["bulkTaggedUserArray", "bulkMessageSettings","linkedFbAccount"], function(result) {
 		var mylocation='';
-		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != ""){
-			mylocation= result.linkedFbAccount.location;
+		if (typeof result.linkedFbAccount.location != "undefined" && result.linkedFbAccount.location != "" && result.linkedFbAccount.location != null){
+			mylocation = result.linkedFbAccount.location;
 		}
     	bulkMessageSettings = result.bulkMessageSettings; 
 
 		bulkTaggedUserArray = [];
 		bulkUserDelay = parseInt(bulkMessageSettings.bulkDelay);
-
+		
 		sendLimitOfBulkMessage = parseInt(bulkMessageSettings.sendLimit);
 
 		if(bulkMessageSettings.useRandomDelay){
@@ -1685,7 +1660,7 @@ function startBulkFromIndex(bulkTaggedUserArray, startIndex,mylocation) {
 
     bulkTaggedUserArray.forEach(function(oneBulkMember, currentIndex) {
         if (currentIndex >= startIndex) {
-            outIds = setTimeout(() => {
+            let outIds = setTimeout(() => {
             
                 if (sentMessagesInCurrentProcess < bulkSendMessageLimit) {
                 
@@ -1708,7 +1683,7 @@ function startBulkFromIndex(bulkTaggedUserArray, startIndex,mylocation) {
                         setBlankCookies();
                     }
 
-                    sendBulkMessage(oneBulkMember)
+                    sendBulkMessage(oneBulkMember,mylocation)
 
                     bulkTaggedUserArray[currentIndex].sendBulk = true;
                     currentBulkProcessedIndex = currentBulkProcessedIndex + 1;
@@ -1756,7 +1731,7 @@ function clearBulkIntervals() {
 }
 
 
-function sendBulkMessage(oneSC){
+function sendBulkMessage(oneSC,mylocation){
 
 	threadId = oneSC.numeric_fb_id;
 
@@ -1792,6 +1767,7 @@ function sendBulkMessage(oneSC){
 					var temp = {};
 					temp.fullName = fullName;
 					temp.tabId = RebulkMessageTabId;
+					temp.mylocation= mylocation;
 					collectionOfTabIds.push(temp);
 					chrome.tabs.onUpdated.addListener(bulkTabListener);
 				});	      		
@@ -1812,6 +1788,7 @@ function sendBulkMessage(oneSC){
 			var temp = {};
 			temp.fullName = fullName;
 			temp.tabId = RebulkMessageTabId;
+			temp.mylocation= mylocation;
 			collectionOfTabIds.push(temp);
 			chrome.tabs.onUpdated.addListener(bulkTabListener);
 		});	
@@ -1825,7 +1802,7 @@ function bulkTabListener(tabId, changeInfo, tab){
 		var welcomeMessageText = '';
 
 		if (foundTabRecord.length > 0) {
-				welcomeMessageText = getBulkMessage(foundTabRecord[0].fullName);
+				welcomeMessageText = getBulkMessage(foundTabRecord[0].fullName,foundTabRecord[0].mylocation);
 		} 
 		setTimeout(()=>{
 			chrome.tabs.sendMessage(RebulkMessageTabId,{from: 'background', subject: 'triggerRequestMessage', welcomeMessageText:welcomeMessageText});
@@ -1835,7 +1812,7 @@ function bulkTabListener(tabId, changeInfo, tab){
 	}
 }
 
-function getBulkMessage(fullName) {
+function getBulkMessage(fullName,myLocation) {
 
 	var welcomeMessageText ='';
 
@@ -1845,24 +1822,7 @@ function getBulkMessage(fullName) {
 		welcomeMessageText = bulkMessageTextArray[0];
 	}
 
-	if (welcomeMessageText.indexOf('[full_name]') > -1) {
-		welcomeMessageText = welcomeMessageText.replace(/\[full_name]/g,fullName);
-	}
-
-	if (welcomeMessageText.indexOf('[first_name]') > -1) {
-		first_name = fullName.split(' ')[0];
-		welcomeMessageText = welcomeMessageText.replace(/\[first_name]/g,first_name);
-	}
-
-	if (welcomeMessageText.indexOf('[last_name]') > -1) {
-		nameArray = fullName.split(' ');
-		if(nameArray.length > 1){
-			last_name = nameArray[nameArray.length-1];
-			welcomeMessageText = welcomeMessageText.replace(/\[last_name]/g,last_name);
-		}else{
-			welcomeMessageText = welcomeMessageText.replace(/\[last_name]/g,'');
-		}
-	}
+	welcomeMessageText= getWelcomeMessage(welcomeMessageText,fullName,myLocation);
 	return welcomeMessageText;
 }
 

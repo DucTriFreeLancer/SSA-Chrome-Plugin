@@ -305,7 +305,15 @@ function addTagAndSendWelcomeMessage(adfMemberId){
 			var temp = result.taggedUsers.filter(function (item) { return (item.fb_user_id == adfMemberId || item.numeric_fb_id == adfMemberId) });
 				
 			if( temp.length > 0 ){
-				var $tagIds = temp[0].tag_id.split(',');
+				var $tagIds=[];
+				if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+					$tagIds = temp[0].tag_id.split(',');
+				} else {
+					if(temp[0].tag_id.length > 0) {
+						$tagIds = temp[0].tag_id;
+					}
+				}	
+				
 				$tagIds.forEach(function(tagid){
 					eachTagIdOne = tagid.replace(/\#/g,'');
 
@@ -325,9 +333,9 @@ function addTagAndSendWelcomeMessage(adfMemberId){
 
 		});
 	}
-
+	var mylocation ='';
 	if (typeof currentADF_groupSettingsObject.adf_message_texts != '' && currentADF_groupSettingsObject.adf_message_texts.length > 0) {
-		if (typeof currentLinkedFbAccountObject != "undefined" && typeof currentLinkedFbAccountObject.location != '' && currentLinkedFbAccountObject.location.length > 0) {
+		if (typeof currentLinkedFbAccountObject != "undefined" && typeof currentLinkedFbAccountObject.location != '' && currentLinkedFbAccountObject.location != null) {
 			mylocation= currentLinkedFbAccountObject.location;
 		}
 		fbName = $('.adf-processed[data-adf-numeric-fb-id="'+adfMemberId+'"]').find('a:eq(1)').text();
@@ -351,31 +359,31 @@ function updateFBUsertagViaADF(tagId, fbUserId, numericFbId, profilePic, fbName=
 }
 
 
-function getADFWelcomeMessage(welcomeMessageTextAdf, fullName,mylocation) {
-	if (welcomeMessageTextAdf.indexOf('[full_name]') > -1) {
-		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[full_name]/g,fullName);
-	}
+// function getADFWelcomeMessage(welcomeMessageTextAdf, fullName,mylocation) {
+// 	if (welcomeMessageTextAdf.indexOf('[full_name]') > -1) {
+// 		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[full_name]/g,fullName);
+// 	}
 
-	if (welcomeMessageTextAdf.indexOf('[first_name]') > -1) {
-		first_name = fullName.split(' ')[0];
-		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[first_name]/g,first_name);
-	}
+// 	if (welcomeMessageTextAdf.indexOf('[first_name]') > -1) {
+// 		first_name = fullName.split(' ')[0];
+// 		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[first_name]/g,first_name);
+// 	}
 
-	if (welcomeMessageTextAdf.indexOf('[last_name]') > -1) {
-		nameArray = fullName.split(' ');
-		if(nameArray.length > 1){
-			last_name = nameArray[nameArray.length-1];
-			welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[last_name]/g,last_name);
-		}else{
-			welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[last_name]/g,'');
-		}
-	}
-	if (welcomeMessageTextAdf.indexOf('[mylocation]') > -1) {
-		if(myLocation.includes("|")){
-			var locations = myLocation.split("|");		
-			myLocation = locations[Math.floor(Math.random() * locations.length)];	
-		}	
-		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[mylocation]/g,mylocation);
-	}
-	return welcomeMessageTextAdf;
-}
+// 	if (welcomeMessageTextAdf.indexOf('[last_name]') > -1) {
+// 		nameArray = fullName.split(' ');
+// 		if(nameArray.length > 1){
+// 			last_name = nameArray[nameArray.length-1];
+// 			welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[last_name]/g,last_name);
+// 		}else{
+// 			welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[last_name]/g,'');
+// 		}
+// 	}
+// 	if (welcomeMessageTextAdf.indexOf('[mylocation]') > -1) {
+// 		if(myLocation.includes("|")){
+// 			var locations = myLocation.split("|");		
+// 			myLocation = locations[Math.floor(Math.random() * locations.length)];	
+// 		}	
+// 		welcomeMessageTextAdf = welcomeMessageTextAdf.replace(/\[mylocation]/g,mylocation);
+// 	}
+// 	return welcomeMessageTextAdf;
+// }
