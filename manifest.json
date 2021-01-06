@@ -21,7 +21,7 @@
          "/assets/js/afd_content_script.js","/assets/js/friends_list_script.js","/assets/js/common.js"],
       "matches": [ "*://*.facebook.com/*" ]
    } ],
-   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+   "content_security_policy": "script-src 'self' https://apis.google.com https://db.onlinewebfonts.com 'unsafe-eval'; object-src 'self'",
    "description": "Create and manage tags",
    "icons": {
       "128": "128.png",

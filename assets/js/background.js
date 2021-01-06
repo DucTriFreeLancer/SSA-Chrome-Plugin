@@ -1565,6 +1565,24 @@ function requestTabListenerADF(tabId, changeInfo, tab){
 		chrome.tabs.onUpdated.removeListener(requestTabListenerADF);		
 	}
 }
+function updateFBUsertagMultiUserForGroupMember(sender, multiTagdata){
+	$.ajax({
+		type: "POST",
+		url: apiBaseUrl + "?action=updateFBUsertagMultiUserForGroupMember_v2",
+		data: multiTagdata,
+		dataType: 'json',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('unique-hash', uniqueHash);
+        }
+	}).done(function(response) {
+		if(response.status == 401){
+    		chrome.storage.local.set({'ssa_user':''});	
+		}else if (response.status == 200) {
+			chrome.tabs.sendMessage(sender.tab.id,{from: 'background', subject: 'unSelectCheckBox'});
+			chrome.storage.local.set({'taggedUsers':response.taggedUsers});
+		}
+	});
+}
 ///////////////// Revamp of sending bulk messages////////////////////////
 var collectionOfTabIds = [];
 var bulkRandomDelayArray = [10000,15000,20000,25000,30000,35000,40000,45000];

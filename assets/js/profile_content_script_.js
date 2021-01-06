@@ -12,6 +12,9 @@ spanTagPerChat += '</div>';
 var spanTagCurrentProfile = '<div class="validlogin current-user-profile-parent tags-container ssa-tags-container"><span class="bg-muted current-user-profile ssa-selected-tag">+</span>';
 spanTagCurrentProfile += '</div>';
 
+var spanNoteCurrentProfile = '<div class="get-profile-notes">Notes</div>';
+var spanContactInfoCurrentProfile = '<div class="get-profile-contact-info">Contact Info</div>';
+
 var saveBtnHtml = '<div class="row custom-row text-center"> <button disabled="true" class="save-multi-tag-user" type="button" value="1">Save</button> </div> ';
 
 
@@ -22,6 +25,7 @@ var fb_group_member_selectors = "div.fbProfileBrowserList ul.uiList";
 ////////////// for new page layout///////////
 
 var fb_list_friends_selectors_new = "div.i1fnvgqd.lhclo0ds.btwxx1t3.j83agx80"
+var fbNameForNotes = '';
 $(function(){
 
 	integrateMultiTagsForGroupMembers();
@@ -46,7 +50,25 @@ $(function(){
 			});
 		}
 	},1000);
+	setInterval(()=>{
+		if (($('div[role="tablist"] span:contains("About")').length > 0)||($('div[role="tablist"] span:contains("Posts")').length > 0)) {
+			var pathname = window.location.href.toString();
 
+			var visitingProfileId = false;
+			if (pathname.indexOf('profile.php') > -1) {
+				 visitingProfileId =(new URL(document.location)).searchParams.get('id');
+
+			}else if(window.location.pathname.indexOf('/friends') == -1){
+				 visitingProfileId = window.location.pathname.split('/')[1];
+			}
+
+			chrome.storage.local.get(["fb_id"], function(result) {
+				if (typeof result.fb_id != 'undefined' && result.fb_id != '' && visitingProfileId && visitingProfileId != result.fb_id ) {
+				 		findTagListNew(visitingProfileId);
+				}
+			});
+		}
+	},1000);
 	setInterval(()=>{
 
 		var spanElement = $('div[role="tablist"] span:contains("Timeline")');
@@ -118,10 +140,10 @@ $(function(){
 						if (result.tags[i].color !== null ) {
 							style = 'style = "background:'+result.tags[i].color+' !important"';
 							options += "<li "+style+" color-code= '"+result.tags[i].color+"' class='tag-text-color'  tag-id='"+result.tags[i].value+"'";
-							options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result.  tags[i].text+"</li>";
+							options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result.tags[i].text+"</li>";
 						}else{
 							options += "<li class='bg-"+result.tags[i].class+" tag-text-color' color-code= '0' li-class='"+result.tags[i].class+"' tag-id='"+result.tags[i].value+"'";
-							options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result. tags[i].text+"</li>";
+							options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result.tags[i].text+"</li>";
 						}
 					}					
 				}
@@ -403,7 +425,7 @@ $(function(){
 		//if ($(this).is(':checked')) {
 			
 			var pathname = window.location.href.toString();	
-			if((pathname.indexOf("/friends") > -1 || (pathname.indexOf('profile.php') > -1 && pathname.indexOf('sk=friends') > -1 ) )  && window.location.href.indexOf('/members/friends') == -1 ){
+			if(pathname.indexOf("/friends") > -1 || (pathname.indexOf('profile.php') > -1 && pathname.indexOf('sk=friends') > -1 ) ){
 				$checkedTags = [];
 			   $('.model-tag-list li').each(function(index){
 				   if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
@@ -418,21 +440,21 @@ $(function(){
 					},2000)
 			   }
 		   }else if(pathname.indexOf("/members") > -1 ){
-			   $checkedTags = [];
-			   $('.model-tag-list li').each(function(index){
-				   if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
-					   $checkedTags.push($(this).attr('tag-id'));
-				   }
-			   });
+				$checkedTags = [];
+				$('.model-tag-list li').each(function(index){
+					if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
+						$checkedTags.push($(this).attr('tag-id'));
+					}
+				});
 
-			   if ($checkedTags.length > 0) {
+				if ($checkedTags.length > 0) {
 					updateFBUsertagForMultiUserOnGroupMember($checkedTags);
 					setTimeout(()=>{
 						$(".save-multi-tag-user").text('Save').attr('disabled',false);
 					},2000)
-			   }
+			}
 
-		   }
+		}
 	//	}	
 	});
 	/*contact-info-profile-page*/
@@ -589,10 +611,10 @@ $(function(){
 			var info = JSON.stringify(contactsInfo);
 		}
 
-		chrome.storage.local.get(["chatsilo_user"], function(result) {
+		chrome.storage.local.get(["ssa_user"], function(result) {
 
-			if (typeof result.chatsilo_user != "undefined" && result.chatsilo_user.id != "") {
-				var userId = result.chatsilo_user.id;
+			if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+				var userId = result.ssa_user.id;
 				chrome.runtime.sendMessage({saveContactInfoFromContent: "saveContactInfoFromContent", data: {fbUserId:userFbId,userId:userId,loggedInFBId:currentLoggedInFBId,contactsInfo:info}});
 			}
 		});	
@@ -613,6 +635,14 @@ function updateFBUsertagForMultiUser($checkedTags) {
 			port.postMessage({'type': 'updateFBUsertagForMultiUser','data': {userId:result.ssa_user.id,loggedInFBId: result.fb_id, tagsArray:$checkedTags, checkedUsers: $checkedUsers}});		
 		}
 	});
+}
+function updateFBUsertagForMultiUserOnGroupMember($checkedTags){
+	chrome.storage.local.get(["ssa_user"], function(result) {
+		if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+			port.postMessage({'type': 'updateFBUsertagForMultiUserOnGroupMember','data': {userId:result.ssa_user.id,loggedInFBId: currentLoggedInFBId, tagsArray:$checkedTags, checkedUsersForGroup: $checkedUsersForGroup}});		
+		}
+	});
+
 }
 
 function showMultiTagList() {
@@ -682,6 +712,7 @@ function integrateMultiTagsForGroupMembers() {
 							
 							});
 						}else { /// iframe for new layout 
+							
 							$("div.obtkqiv7 div[data-visualcompletion='ignore-dynamic']:not('.cts-processed')").each(function(index) {
 								
 								var profileUrl = $(this).find('a:eq(0)').attr('href');
@@ -702,6 +733,10 @@ function integrateMultiTagsForGroupMembers() {
 									$(this).attr('fb_user_id',memberId);
 								}
 								$(this).attr('numeric_fb_id','0');
+								checkBoxHtml = '<span class="validlogin checkbox-container new-fb-group-member-page"><input type="checkbox" class="add-mult-tag-user-group-member" ><span>';
+								if($(this).find('div:eq(0)').find('span:contains(Like)').length == 0){
+									$(this).find('div:eq(0)').after(checkBoxHtml);
+								}
 								$(this).append(spanTagPerChat);
 								$(this).find('.validlogin.tags-container.ssa-tags-container').addClass('cts-group-member-page-li');
 								$(this).addClass('cts-processed');
@@ -721,7 +756,16 @@ function integrateMultiTagsForGroupMembers() {
 						if (typeof result.taggedUsers != "undefined" && result.taggedUsers != "") { 
 							tagUsersForGroupMembers(result.taggedUsers,result.tags);
 						}
+						if ($('.assign-tag-btn-select-all-group').length == 0) {
+							
+							selectAllTagShow();
+					
+						}
 						
+					}
+					else{
+					
+						$('.assign-tag-btn-group').remove();
 					}
 				}else{
 					$('.validlogin').hide();
@@ -1238,11 +1282,28 @@ function findTagListNew(profileId) {
 						if ($('.right-side-tag-list').length > 0) {
 							$('.right-side-tag-list').remove();
 						}
- 						$('h1[dir="auto"]').parent().parent().parent().parent().parent().parent().after(totalTagLi);
+ 						// $('h1[dir="auto"]').parent().parent().parent().parent().parent().parent().after(totalTagLi);
 
-						$('.current-user-profile-parent').remove();
-					
-						$('div[role="tablist"]').after(spanTagCurrentProfile);
+						// $('.current-user-profile-parent').remove();
+						if(($('div[aria-label="Page Header and Tools Navigation"]').length == 0) &&( $('div[aria-label="Page header and tools navigation"]').length == 0)){
+							$('h1[dir="auto"]:not(:contains("Notifications"))').parent().parent().parent().parent().parent().parent().after(totalTagLi);
+
+							if($('.get-profile-notes').length == 0){
+							   $('h1[dir="auto"]').parent().parent().parent().parent().parent().parent().parent().parent().parent().parent().before(spanNoteCurrentProfile);
+							   /*$('h1[dir="auto"]').parent().parent().parent().parent().parent().parent().parent().after(spanContactInfoCurrentProfile);*/
+							   
+						   }
+
+						   if($('.get-profile-contact-info').length == 0){
+							   $('h1[dir="auto"]').parent().parent().parent().parent().parent().parent().parent().parent().parent().parent().before(spanContactInfoCurrentProfile);
+						   }
+
+
+						   $('div[role="tablist"] .current-user-profile-parent').remove();
+					   
+						   $('div[role="tablist"] div[aria-haspopup="menu"]').after(spanTagCurrentProfile);
+						}
+						// $('div[role="tablist"]').after(spanTagCurrentProfile);
  						if (title != '') {
 
 							$('div[role="tablist"]').find('.tags-container span').text(spanText);
@@ -1258,10 +1319,18 @@ function findTagListNew(profileId) {
 						}
 					}else{
 						$('.current-user-profile-parent').remove();
-						$('div[role="tablist"]').after(spanTagCurrentProfile);
+						$('.get-profile-contact-info').remove();
+						$('.get-profile-notes').remove();
+						if(window.location.href.indexOf('/groups/') == -1 && $('div[aria-label="Page Header and Tools Navigation"]').length == 0 && $('div[aria-label="Page header and tools navigation"]').length == 0 ){
+							$('div[role="tablist"] div[aria-haspopup="menu"]').after(spanTagCurrentProfile);
+							if($('.get-profile-notes').length == 0){
+								$('h1[dir="auto"]').parent().parent().parent().parent().parent().parent().parent().parent().parent().parent().before(spanNoteCurrentProfile);
+							}
+						}
 					}
 				}else{
-
+					$('.get-profile-notes').remove();
+					$('.get-profile-contact-info').remove();
 					$('.current-user-profile-parent').remove();
 				}	
 
@@ -1296,4 +1365,21 @@ function extractProfileId(profileUrl=''){
 	    temp = tempArray[tempArray.length-1];
 	}
 	return temp;
+}
+
+function selectAllTagShow(){
+	setInterval(()=>{
+
+		if( window.location.pathname.indexOf('/members') >-1){
+			var showTagBtnGroupPage = '<span class="assign-tag-btn-select-all-group validlogin"><input class="select-all-friends-group" type="checkbox"><span class="checkmark"></span><span class="total-selected-group-member"></span></span><span class="assign-tag-btn-group validlogin">Tag All</span>';
+
+			if(!$('.assign-tag-btn-select-all-group').length)
+			$("body").append(showTagBtnGroupPage);
+			$('.assign-tag-btn-group').addClass('assign-tag-btn-new-layout-group');
+
+		}else{
+			$('.assign-tag-btn-select-all-group, .total-selected-group-member').remove();
+		}
+
+	},2000);
 }

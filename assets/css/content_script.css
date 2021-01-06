@@ -841,6 +841,183 @@ span.assign-tag-btn-select-all.validlogin {
 .new-fb-friends-page{
   z-index: 9999;
 }
+.model-close{
+  cursor: pointer;
+  margin-top: 13px
+}
+
+#sfr-popup{
+  background: #572f5b;
+  margin-top: 0 !important;
+  border-radius: 7px; 
+}
+/*mass taging*/
+span.assign-tag-btn-group.validlogin.assign-tag-btn-new-layout-group {
+  background: #A44D91;
+  width: 44px;
+}
+.assign-tag-btn-group{
+float: left;
+background: #A44D91;
+color: white;
+padding: 4px 8px;
+border-radius: 7px;
+font-size: 14px;
+cursor: pointer;
+border-radius:0;
+}
+.assign-tag-btn-select-all-group{
+ background: rgb(0, 98, 204) !important;
+ color: white;
+ cursor: pointer;
+ width: 94px;
+ margin-bottom: 6px;    
+}
+
+.new-fb-group-member-page{
+float: right;
+margin-right: -20px !important;
+}
+input.add-mult-tag-user-group-member.add-mult-tag-old-layout{
+ float: left!important;
+ position: absolute!important;
+ margin-left: -20px!important;
+}
+span.assign-tag-btn-select-all-group.select-all-old-layout.validlogin{
+position: fixed;
+ bottom: 0;
+ float: left;
+ left: 23px;
+ padding: 6px;
+ border-radius: 5px;
+ margin-bottom: 39px;
+
+}
+
+span.assign-tag-btn-group.assign-tag-btn-old-layout-group.validlogin{
+top: 14px;
+position: absolute;
+left: 187px;
+}
+
+span.assign-tag-btn-select-all-group.validlogin {
+position: fixed;
+bottom: 0;
+left: 13px;
+border-radius: 5px;
+padding: 6px;
+left: auto;
+right: 83px !important;
+margin-bottom: 39px;
+}
+
+span.assign-tag-btn-group.validlogin.assign-tag-btn-new-layout-group {
+ position: absolute;
+ float: right;
+ left: 392px;
+ border-radius: 4px;
+ padding: 3px 20px;
+}
+
+input.add-mult-tag-user-group-member{
+position: absolute;
+left: 332px;
+top: 6px;
+}
+
+.contact-info-modal{
+width: 616px !important;
+margin-left: -89px !important;
+}
+.contact_label{
+width: 40%;
+margin-top: 10px;
+float: left
+}
+
+.contact_value{
+width:40%;
+margin-top: 10px;
+float: left;
+}
+.contact-btn-model{
+width: 20%;
+float: left;
+margin-top: 15px;
+text-align: center;
+}
+.form-group.row.contact-info-model-row {
+ padding-bottom: 22px;
+}
+
+#contact-info-modal{
+height: 200px;
+}
+
+.content-user-contact-container{
+width: unset;
+margin: 0px auto;
+padding: 28px;
+}
+
+.contactInfoShow{
+display: none;
+}
+.contactSpanLabel {
+margin-left: 15px;
+font-size: 16px;
+}
+
+#contact-info-cancel-btn {
+float: none !important;
+cursor: pointer !important;
+font-size: 16px !important;
+font-weight: bold !important;
+color: #572f5b !important;
+padding: 5px 20px !important;
+margin: 5px 10px !important;
+background-color: white !important;
+border: 1px solid #572f5b !important;
+border-radius: 5px !important;
+}
+
+#contact-info-save-btn{
+cursor: pointer !important;
+font-size: 16px !important;
+font-weight: bold !important;
+color: white !important;
+padding: 5px 20px !important;
+margin: 5px 10px !important;
+background-color: #572f5b !important;
+border: none !important;
+border-radius: 5px !important;
+}
+#contact-info-add-btn{
+width: 14%;
+}
+
+.add-contact-list-from-content{
+margin-left: 195px;
+}
+.assign-tag-btn-group.validlogin.assign-tag-btn-new-layout-group {
+position: fixed !important;
+bottom: 40px !important;
+left: 13px !important;
+border-radius: 5px!important;
+padding: 6px !important;
+left: auto !important;
+right: 83px !important;
+margin-bottom: 39px !important;
+width: 93px !important;
+text-align: center !important;
+}
+
+
+
+.contact-info-footer{
+display: none;
+}
+
 
 .badge {
   display:inline-block;
