@@ -79,7 +79,14 @@ $(function(){
 				$('#overlay-two').show();
 				var temp = result.taggedUsers.filter(function (item) { return (item.fb_user_id == clickedFbUserId  || item.numeric_fb_id == clickedFbUserId)});
 				if( temp.length > 0 ){
-					var $tagIds = temp[0].tag_id.split(',');
+					var $tagIds = [];
+					if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+						$tagIds = temp[0].tag_id.split(',');
+					} else {
+						if(temp[0].tag_id.length > 0) {
+							$tagIds = temp[0].tag_id;
+						}
+					}	
 					$tagIds.forEach(function(tagid){
 						eachTagIdOne = tagid.replace(/\#/g,'');
 						$('.model-tag-list li[tag-id="'+eachTagIdOne+'"] .multi-tag-checkbox').prop('checked',true);
@@ -167,7 +174,14 @@ function tagFriendListPageUsers(taggedUsers, tags){
 			if(temp.length > 0 ){
 				$liClass = '';
 				$colorCode = '';
-				var $tagIds = temp[0].tag_id.split(',');
+				var $tagIds = [];
+				if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+					$tagIds = temp[0].tag_id.split(',');
+				} else {
+					if(temp[0].tag_id.length > 0) {
+						$tagIds = temp[0].tag_id;
+					}
+				}	
 				var title = '';
 				var spanText = '';
 				var numeric= temp[0].numeric_fb_id;

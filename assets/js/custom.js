@@ -159,7 +159,7 @@ function startSendFriendRequests() { ///1433
             }else if(tabs[0].url.indexOf('facebook.com/groups/')>-1){
               	toastr["error"]('Please open members list of group');
             }else{
-                	toastr["error"]('Please open members list of group');
+                toastr["error"]('Please open members list of group');
             }
         });
     return false;
@@ -1488,12 +1488,46 @@ $(document).ready(function(){
 		} 
 
 		isValueInMessageText = true;
-		$('.bulk-messge-text').each(function (index) {
-			if ($.trim($(this).val()) != '') {
-				isValueInMessageText = false;
-				bulkMessageTextArray.push($.trim($(this).val()));
-			}
-		});
+		let templateId = $( "#bulk-templates" ).val();
+		if( typeof templateId != typeof undefined && templateId >0){
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/template_messages",
+				data: {templateId:templateId},
+				dataType: 'json',
+				async: false,
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				//$('.new_template_sec').hide();
+				//$('#new_template_messages').show();
+				
+				if(response.status == 401){
+					triggerLogout();					
+					return false;
+				}
+				if (response.status == 200 || response.result == 'success') {
+					response.data.forEach(function(message){							
+						isValueInMessageText = false;
+						bulkMessageTextArray.push(message.message);
+					});
+				}
+				
+			});		
+		}else{
+			$('.bulk-messge-text').each(function (index) {
+				if ($.trim($(this).val()) != '') {
+					isValueInMessageText = false;
+					bulkMessageTextArray.push($.trim($(this).val()));
+				}
+			});
+		}	
+		if (isValueInMessageText) {
+			$('.bulk-message-random-error').show();
+			toastr['error']('Please enter message to send bulk');
+			return false;
+		}
 
 		if (isValueInMessageText) {
 			$('.bulk-message-random-error').show();
@@ -1733,6 +1767,46 @@ $(document).ready(function(){
 			saveMessage($(selected_message).val());
 		}	
     });
+	$(document).on('click','.save-new-bdtl-message', function(){
+		selected_message = $(this).parent().parent().parent().parent().find('.add-message-text');
+		var attr = $(this).parent().parent().attr('message-id');
+		if (typeof attr !== typeof undefined && attr !== false) {
+			saveBdtlMessage($(selected_message).val(), attr);
+		} else {
+			saveBdtlMessage($(selected_message).val());
+		}	
+	});
+	$(document).on('click','.save-new-bddm-message', function(){
+		selected_message = $(this).parent().parent().parent().parent().find('.add-message-text');
+		var attr = $(this).parent().parent().attr('message-id');
+		if (typeof attr !== typeof undefined && attr !== false) {
+			saveBddmMessage($(selected_message).val(), attr);
+		} else {
+			saveBddmMessage($(selected_message).val());
+		}	
+	});
+	$(document).on('click','.save-bdtl-message', function(){
+		var edit_message = $(this).closest('.message_name');	
+		selected_message=	$(edit_message).find('.edit-bdtl-message-text');
+		bdtlMessage = $(this).parent().parent().parent().parent();
+		bdtlMessageId = bdtlMessage.attr('message-id');	
+		if (typeof bdtlMessageId !== typeof undefined && bdtlMessageId !== false) {
+			saveBdtlMessage($(selected_message).val(), bdtlMessageId);
+		} else {
+			saveBdtlMessage($(selected_message).val());
+		}
+	});
+	$(document).on('click','.save-bddm-message', function(){
+		var edit_message = $(this).closest('.message_name');	
+		selected_message=	$(edit_message).find('.edit-bddm-message-text');
+		bddmMessage = $(this).parent().parent().parent().parent();
+		bddmMessageId = bddmMessage.attr('message-id');	
+		if (typeof bddmMessageId !== typeof undefined && bddmMessageId !== false) {
+			saveBddmMessage($(selected_message).val(), bddmMessageId);
+		} else {
+			saveBddmMessage($(selected_message).val());
+		}
+    });
 	$(document).on('click','.delete-new-message', function(){
 		$(this).parent().parent().parent().parent().remove();	
 		if($("#message-list").length == 0){
@@ -1754,8 +1828,17 @@ $(document).ready(function(){
 		tempMessage = $(this).parent().parent().parent().parent();
 		tempMessageId = tempMessage.attr('message-id');	
 		$("#deleteMessageModal").modal("show");	
+	});
+	$(document).on('click','.delete-bdtl-message', function(){
+		tempMessage = $(this).parent().parent().parent().parent();
+		tempMessageId = tempMessage.attr('message-id');	
+		$("#deleteBDTLMessageModal").modal("show");	
     });
-
+	$(document).on('click','.delete-bddm-message', function(){
+		tempMessage = $(this).parent().parent().parent().parent();
+		tempMessageId = tempMessage.attr('message-id');	
+		$("#deleteBDDMMessageModal").modal("show");	
+    });
     $('#confirm-message-delete').on('click',function(){
     	$('#messages_loader').show();
     	if (typeof tempMessageId !== typeof undefined) {		
@@ -1791,8 +1874,80 @@ $(document).ready(function(){
 		$('#deleteMessageModal').modal("hide");
 		$(".message-list").html('');
 		showMessageTemplates();
-    });
-
+	});
+	$('#confirm-bdtl-delete').on('click',function(){
+    	$('#messages_loader').show();
+    	if (typeof tempMessageId !== typeof undefined) {		
+			$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/birthdays/DeleteTLMessage",
+					data: {msgId:tempMessageId},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+          	  			xhr.setRequestHeader('unique-hash', uniqueHash);
+    				}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						tempMessage.remove();
+						toastr["success"]("Message deleted successfully.");
+						messages = $("#message-list").length;
+						if(messages == 0){
+							$("#message-list").html(noMessagesUnderTemplate);
+						}
+					}
+				});
+		} else {
+			tempMessage.remove();
+			toastr["success"]("Message not deleted.");
+			messages = $("#message-list").length;
+			if(messages == 0){
+				$("#message-list").html(noMessagesUnderTemplate);
+			}
+		}
+		$('#deleteBDTLMessageModal').modal("hide");
+		$(".message-list").html('');
+		getBdtlMessages();
+	});
+	$('#confirm-bddm-delete').on('click',function(){
+    	$('#messages_loader').show();
+    	if (typeof tempMessageId !== typeof undefined) {		
+			$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/birthdays/DeleteDMMessage",
+					data: {msgId:tempMessageId},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+          	  			xhr.setRequestHeader('unique-hash', uniqueHash);
+    				}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						tempMessage.remove();
+						toastr["success"]("Message deleted successfully.");
+						messages = $("#message-list").length;
+						if(messages == 0){
+							$("#message-list").html(noMessagesUnderTemplate);
+						}
+					}
+				});
+		} else {
+			tempMessage.remove();
+			toastr["success"]("Message not deleted.");
+			messages = $("#message-list").length;
+			if(messages == 0){
+				$("#message-list").html(noMessagesUnderTemplate);
+			}
+		}
+		$('#deleteBDDMMessageModal').modal("hide");
+		$(".message-list").html('');
+		getBddmMessages();
+	});
+	
     $(document).on('click','.send-message', function() {
 		var myLocation='';
 		let thisme= this;
@@ -1814,6 +1969,76 @@ $(document).ready(function(){
 			});
 		});		
 	});
+	$(".add_bdtl_message").on('click', function() {
+
+		message_field=`<div class="row raw-message message-item w-100 p-1">
+				<div class="col-10">
+					<div class="card bg-light template-card view-text" style="display:none;">
+						<div class="card-body">
+							<div class="card-text"></div>
+						</div>
+					</div>
+					<div class="input-container">						
+						<textarea class="form-control add-message-text" id="template_text" placeholder="write message...."></textarea>				
+					</div>
+				</div>
+				<div class="col-2 my-auto">
+					<div class="row">
+						<div class="col-6 my-auto">
+							<i class="fa fa-save save-new-bdtl-message p-1 
+							text-icon" title="Save"></i>
+						</div>
+						<div class="col-6 my-auto">
+							<i class="fa fa-trash delete-new-message p-1 
+							text-icon" title="Delete"></i>
+						</div>
+					</div>
+				</div>
+			</div>`;
+		var messages = $(".bdtl-message-list").length;
+		if(messages == 0){
+			$(".bdtl-message-list").html('');
+			$(".bdtl-message-list").append(message_field);
+		} else {
+			$(".bdtl-message-list").prepend(message_field);
+		}
+		$('.raw-message textarea').focus();
+	});
+	$(".add_bddm_message").on('click', function() {
+
+		message_field=`<div class="row raw-message message-item w-100 p-1">
+				<div class="col-10">
+					<div class="card bg-light template-card view-text" style="display:none;">
+						<div class="card-body">
+							<div class="card-text"></div>
+						</div>
+					</div>
+					<div class="input-container">						
+						<textarea class="form-control add-message-text" id="template_text" placeholder="write message...."></textarea>				
+					</div>
+				</div>
+				<div class="col-2 my-auto">
+					<div class="row">
+						<div class="col-6 my-auto">
+							<i class="fa fa-save save-new-bddm-message p-1 
+							text-icon" title="Save"></i>
+						</div>
+						<div class="col-6 my-auto">
+							<i class="fa fa-trash delete-new-message p-1 
+							text-icon" title="Delete"></i>
+						</div>
+					</div>
+				</div>
+			</div>`;
+		var messages = $(".bddm-message-list").length;
+		if(messages == 0){
+			$(".bddm-message-list").html('');
+			$(".bddm-message-list").append(message_field);
+		} else {
+			$(".bddm-message-list").prepend(message_field);
+		}
+		$('.raw-message textarea').focus();
+    });
 
 	$(".add_message").on('click', function() {
 
@@ -1857,6 +2082,16 @@ $(document).ready(function(){
 		var edit_message = $(this).closest('.message_name');
 		$(edit_message).find('.view-message').hide();
 		$(edit_message).find('.edit-message-text').show().focus();
+	});
+	$(document).on('click','.edit-bdtl-message',function(event){
+		var edit_message = $(this).closest('.message_name');
+		$(edit_message).find('.view-message').hide();
+		$(edit_message).find('.edit-bdtl-message-text').show().focus();
+	});
+	$(document).on('click','.edit-bddm-message',function(event){
+		var edit_message = $(this).closest('.message_name');
+		$(edit_message).find('.view-message').hide();
+		$(edit_message).find('.edit-bddm-message-text').show().focus();
 	});
 	$(document).on('click','.icon-example',function(event){
 		$('#upload-image')[0].value='';
@@ -2215,7 +2450,7 @@ $(document).ready(function(){
 			} else {
 
 				if(result.tags.length < accountConfig.tags){
-					tagName = tagName == null ? $(this).val() : tagName;
+					// tagName = tagName == null ? $(this).val() : tagName;
 					if(userId != '' && tagName != ''){
 						$.ajax({
 							type: "POST",
@@ -2799,7 +3034,10 @@ $(document).ready(function(){
   			getReminders();
   		} else if(target == '#teams') {
   			showTeams();
-		} 
+		} else if(target == '#birthday') {
+			getBdtlMessages();		
+			getBddmMessages();	
+	  	} 
 	});
 
 
@@ -3467,7 +3705,18 @@ function getUserData(){
 
 					isCurrentFBLinked = (linkedFbAccount.length > 0)?true:false;
 					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked});
-					
+					const storageObj = {};
+					storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
+					if(response.birthdays != null)
+					{
+						storageObj[HB_DATA.BDTLMSG] = response.birthdays['birthdaysdm'];
+						storageObj[HB_DATA.BDDMMSG] = response.birthdays['birthdaystl'];
+					}
+					if(response.lastbdaydate != null){
+						storageObj[HB_DATA.LAST_DATE] = response.lastbdaydate;
+					}
+					chrome.storage.local.set(storageObj);
+					// chrome.storage.local.set({'birthdays': response.birthdays, 'processbirthdays': response.processbirthdays});
 					createUpgradeButton(response.data);
 
 					if(!isCurrentFBLinked){
@@ -3706,6 +3955,7 @@ function showOffOnPageTotalContact() {
 function triggerLogout() {
 	$('.screens').hide();
 	chrome.storage.local.set({'ssa_user':'','tags':'','fb_id':'','taggedUsers':'','teams':'','teamMembers':''});
+	chrome.storage.local.set({'birthdays':'','processbirthdays':''});
 	chrome.cookies.remove({url: custom_data.baseUrl, name: "ssa_user"})
 
 	reloadAllTabsOnLogout();
@@ -3864,6 +4114,10 @@ function showMessageTemplates(isSearch = false) {
 					$('#messages_loader').hide();
 				} else {			
 					response.data.forEach(function(item, index){
+					$('#bulk-templates').append($('<option>', { 
+						value: item.id,
+						text : item.name 
+					}));
 					templateList += `<div template-id="`+item.id+`" class="row template_name w-100 show-template-message pl-1 pt-2">
 						<div class="col-8 template-view-text">
 							<div class="card bg-light template-card view-text">
@@ -3886,7 +4140,7 @@ function showMessageTemplates(isSearch = false) {
 								</div>
 							</div>
 						</div>
-					</div>`;
+					</div>`;						
 					});
 					$(".templates").html(templateList);
 					$(".templates").find('.show-template-message')[0].click();
@@ -3904,7 +4158,7 @@ function showMessageTemplates(isSearch = false) {
 				}
 			}
 		});
-	//templateRequests.push(requestObj);
+	templateRequests.push(requestObj);
 	chrome.storage.local.get(["ssaPopupStates"], function(result) {
 			if (typeof result.ssaPopupStates != "undefined" && result.ssaPopupStates != "") {
 				var selected_template_reminder = result.ssaPopupStates.selected_template;
@@ -4279,7 +4533,62 @@ function loadMoreTemplates() {
 			
 		});
 }
-
+function saveBdtlMessage(message, message_id = 0){
+	if(userId != '' && message != ''){
+		$.ajax({
+			type: "POST",
+			url: apiBaseUrl + "/birthdays/addTLmessage",
+			data: {message:message, userId:userId,  msgId: message_id},
+			dataType: 'json',
+			beforeSend: function (xhr) {
+          	  xhr.setRequestHeader('unique-hash', uniqueHash);
+    		}
+		}).done(function(response) {
+			if(response.status == 401){
+				triggerLogout();
+				return false;
+			}else if (response.status == 404) {
+			} else {
+				$(selected_message).closest('.message-item').attr('message-id',response.data.id);
+				var action = message_id == 0 ? "created" : "saved";
+				toastr["success"]("Message "+action+" successfully.");
+			}
+		});
+		$("#messages_loader").show();
+		$(".bdtl-message-list").html('');
+		setTimeout(function(){
+			getBdtlMessages();
+		},1000)
+	}
+}
+function saveBddmMessage(message, message_id = 0){
+	if(userId != '' && message != ''){
+		$.ajax({
+			type: "POST",
+			url: apiBaseUrl + "/birthdays/addDMmessage",
+			data: {message:message, userId:userId,  msgId: message_id},
+			dataType: 'json',
+			beforeSend: function (xhr) {
+          	  xhr.setRequestHeader('unique-hash', uniqueHash);
+    		}
+		}).done(function(response) {
+			if(response.status == 401){
+				triggerLogout();
+				return false;
+			}else if (response.status == 404) {
+			} else {
+				$(selected_message).closest('.message-item').attr('message-id',response.data.id);
+				var action = message_id == 0 ? "created" : "saved";
+				toastr["success"]("Message "+action+" successfully.");
+			}
+		});
+		$("#messages_loader").show();
+		$(".bddm-message-list").html('');
+		setTimeout(function(){
+			getBddmMessages();
+		},1000)
+	}
+}
 function saveMessage(message, message_id = 0){
 	if(userId != '' && message != ''){
 		$.ajax({
@@ -4913,7 +5222,7 @@ function getUserNotes(fb_user_id){
 
 function saveNote(tagDescription,fb_user_id,user_id){
 	var notesForm = $("#save_note_form").serialize();
-	debugger;
+	
 	if(accountConfig.notes == null || notesForm == ""){
 		
 		$.ajax({
@@ -5601,6 +5910,149 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         profile_pic=request.account_image_url;
     }
 });
+function getBdtlMessages(){
+	$('#messages_loader').show();
+	$('.bdtl-message-list').hide();
+	
+	var requestObj = $.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/birthdays/showTLmessages",
+				data: {userId:userId},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+              	  xhr.setRequestHeader('unique-hash', uniqueHash);
+        		}
+			}).done(function(response) {
+
+				if(response.status == 401){
+					$('#messages_loader').hide();
+					$('.bdtl-message-list').html('');
+					triggerLogout();
+					return false;
+				}
+
+				var messageList = '';
+				$('.bdtl-message-list').html('');
+				if (response.status == 200 || response.result == 'success') {
+					let messages = [];			
+					response.data.forEach(function(message){
+						//console.log(message.id);
+						messages.push(message);
+						messageList += `<div message-id="`+message.id+`" class="row message_name w-100 show-message">
+								<div class="col-10 pl-2 pt-1 message-view-text">
+									<div class="card bg-light template-message-card view-message">
+										<div class="card-body">
+											<div class="card-text">`+message.message+`</div>
+										</div>
+									</div>
+									<textarea class="form-control edit-bdtl-message-text" style="display: none;" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
+								</div>
+								<div class="col-2 my-auto">
+									<div class="row">`
+						if (message.message.indexOf('--template--') <0) {	
+							messageList +=`<div class="col-4 my-auto">
+											<i class="fa fa-pencil edit-bdtl-message p-1 text-icon" title="Edit"></i>
+										</div>`;												
+						}
+						messageList+=`	
+									<div class="col-4 my-auto">
+										<i class="fa fa-save save-bdtl-message p-1 text-icon" title="Save"></i>
+									</div>				
+									<div class="col-4 my-auto">
+										<i class="fa fa-trash delete-bdtl-message p-1 text-icon" title="Delete"></i>
+									</div>
+								</div>
+							</div>
+						</div>`;								
+					});		
+						
+					const storageObj = {};
+					 storageObj[HB_DATA.BDTLMSG] = messages;
+					 storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
+					 chrome.storage.local.set(storageObj);		
+				} else {
+					//console.log('message.id.no');
+					$('#messages_loader').hide();
+					messageList = noMessagesUnderTemplate;
+				}
+				$(".bdtl-message-list").html(messageList);
+				$('#messages_loader').hide();
+				$(".bdtl-message-list").show();
+			});	
+
+		// messageRequests.push(requestObj);	
+}
+function getBddmMessages(){
+	$('#messages_loader').show();
+	$('.bddm-message-list').hide();
+	
+	var requestObj = $.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/birthdays/showDMmessages",
+				data: {userId:userId},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+              	  xhr.setRequestHeader('unique-hash', uniqueHash);
+        		}
+			}).done(function(response) {
+
+				if(response.status == 401){
+					$('#messages_loader').hide();
+					$('.bddm-message-list').html('');
+					triggerLogout();
+					return false;
+				}
+
+				var messageList = '';
+				$('.bddm-message-list').html('');
+				if (response.status == 200 || response.result == 'success') {
+					let messages = [];			
+					response.data.forEach(function(message){
+						//console.log(message.id);
+						messages.push(message);
+						messageList += `<div message-id="`+message.id+`" class="row message_name w-100 show-message">
+								<div class="col-10 pl-2 pt-1 message-view-text">
+									<div class="card bg-light template-message-card view-message">
+										<div class="card-body">
+											<div class="card-text">`+message.message+`</div>
+										</div>
+									</div>
+									<textarea class="form-control edit-bddm-message-text" style="display: none;" id="template_edit_text" placeholder="write message... ">`+message.message+`</textarea>
+								</div>
+								<div class="col-2 my-auto">
+									<div class="row">`
+						if (message.message.indexOf('--template--') <0) {	
+							messageList +=`<div class="col-4 my-auto">
+											<i class="fa fa-pencil edit-bddm-message p-1 text-icon" title="Edit"></i>
+										</div>`;												
+						}
+						messageList+=`	
+									<div class="col-4 my-auto">
+										<i class="fa fa-save save-bddm-message p-1 text-icon" title="Save"></i>
+									</div>				
+									<div class="col-4 my-auto">
+										<i class="fa fa-trash delete-bddm-message p-1 text-icon" title="Delete"></i>
+									</div>
+								</div>
+							</div>
+						</div>`;								
+					});		
+					 const storageObj = {};
+					 storageObj[HB_DATA.BDDMMSG] = messages;
+					 storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
+					 chrome.storage.local.set(storageObj);					
+				} else {
+					//console.log('message.id.no');
+					$('#messages_loader').hide();
+					messageList = noMessagesUnderTemplate;
+				}
+				$(".bddm-message-list").html(messageList);
+				$('#messages_loader').hide();
+				$(".bddm-message-list").show();
+			});	
+
+		// messageRequests.push(requestObj);	
+}
 
 function getTemplateMessages(isSearch = false){
 	$('#messages_loader').show();

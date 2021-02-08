@@ -1,6 +1,6 @@
 {
    "background": {
-      "scripts": [ "/assets/js/jquery.min.js", "/assets/js/moment.min.js", "/config.js","/assets/js/common.js", "/assets/js/background.js" ]
+      "scripts": [ "/assets/js/jquery.min.js", "/assets/js/moment.min.js", "/config.js","/assets/js/common.js","/assets/js/constant.js", "/assets/js/background.js" ]
    },
    "browser_action": {
       "browser_style": false,
@@ -9,16 +9,16 @@
    },
    "content_scripts": [ {
       "all_frames": true,
-      "css": [ "/assets/css/content_script.css" ],
-      "js": [ "/assets/js/jquery.min.js", "config.js", "/assets/js/content_script.js", 
+      "css": [ "/assets/css/content_script.css","assets/css/toastr.min.css" ],
+      "js": [ "/assets/js/jquery.min.js", "assets/js/toastr.min.js", "config.js", "/assets/js/content_script.js", 
          "/assets/js/page_content_script.js", "/assets/js/cb_script.js", "/assets/js/common.js" ],
       "matches": [ "*://*.facebook.com/messages/*", "*://*.facebook.com/*/inbox*", "*://*.messenger.com/*" ]
    },
    {
-      "css": [ "/assets/css/content_script.css" ,"/assets/css/adf.css" ],
-      "js": [ "/assets/js/jquery.min.js", "config.js", "/assets/js/content_script.js", 
-         "/assets/js/profile_content_script.js","/assets/js/comment_blaster.js",
-         "/assets/js/afd_content_script.js","/assets/js/friends_list_script.js","/assets/js/common.js"],
+      "css": [ "/assets/css/content_script.css" ,"/assets/css/adf.css","assets/css/toastr.min.css" ],
+      "js": [ "/assets/js/jquery.min.js","assets/js/toastr.min.js", "config.js","/assets/js/message_func.js", "/assets/js/content_script.js", 
+         "/assets/js/profile_content_script.js","/assets/js/comment_blaster.js","/assets/js/bd_content_script.js",
+         "/assets/js/afd_content_script.js","/assets/js/friends_list_script.js","/assets/js/common.js","/assets/js/constant.js"],
       "matches": [ "*://*.facebook.com/*" ]
    } ],
    "content_security_policy": "script-src 'self' https://apis.google.com https://db.onlinewebfonts.com 'unsafe-eval'; object-src 'self'",

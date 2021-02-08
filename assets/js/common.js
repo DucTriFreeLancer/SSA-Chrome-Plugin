@@ -150,3 +150,65 @@ function getTemplateMessage(message,fullName){
 	}
     return message.templateMessage;
 }
+function replaceNamePattern (facebookVersion, card, cardPrefix, HBMessage,mylocation){
+    let first_name = '';
+    let personFullName;
+	var d = new Date();
+    switch (facebookVersion) {
+        case FACEBOOK_VERSION.OLD: {
+            personFullName = $(card).find('a').first().attr('title');
+            break;
+        }
+        case FACEBOOK_VERSION.NEW: {
+            personFullName = $(card).find('a').find('h2').text();
+            break;
+        }
+    }
+
+    if (personFullName === undefined) {
+        printInfo(cardPrefix + 'Person name not found');
+    } else {
+        
+    
+		if (HBMessage.indexOf('[full_name]') > -1) {
+			HBMessage = HBMessage.replace(/\[full_name]/g,personFullName);
+		}
+
+		if (HBMessage.indexOf('[first_name]') > -1) {
+			first_name = personFullName.split(' ')[0];
+       		printInfo(cardPrefix + 'Person name: ' + first_name);			
+			HBMessage = HBMessage.replace(/\[first_name]/g,first_name);
+		}
+
+		if (HBMessage.indexOf('[last_name]') > -1) {
+			nameArray = personFullName.split(' ');
+			if(nameArray.length > 1){
+				last_name = nameArray[nameArray.length-1];
+				HBMessage = HBMessage.replace(/\[last_name]/g,last_name);
+			}else{
+				HBMessage = HBMessage.replace(/\[last_name]/g,'');
+			}
+		}
+
+		if (HBMessage.indexOf('[mylocation]') > -1) {	
+			if(mylocation.includes("|")){
+				var locations = mylocation.split("|");		
+				mylocation = locations[Math.floor(Math.random() * locations.length)];	
+			}		
+			HBMessage = HBMessage.replace(/\[mylocation]/g,mylocation);
+		}
+		if (HBMessage.indexOf('[thisday]') > -1) {
+			let thisday = weekday[d.getDay()];
+			HBMessage = HBMessage.replace(/\[thisday]/g,thisday);
+		}
+
+		if (HBMessage.indexOf('[thismonth]') > -1) {
+			let thismonth = month[d.getMonth()];
+			HBMessage = HBMessage.replace(/\[thismonth]/g,thismonth);
+		}
+		return HBMessage;
+   
+	}
+	return HBMessage.replace(/\[full_name]/g,first_name);
+    //resolve(HBMessage.replace(new RegExp(NAME_PATTERN, 'g'), personName));
+};

@@ -77,7 +77,14 @@ function tagPageUsers(taggedPageUsers, tags){
 			//$(this).find('select').val(temp[0].tag_id).trigger('change');
 			$liClass = '';
 			$colorCode = '';
-			var $tagIds = temp[0].tag_id.split(',');
+			var $tagIds = [];
+			if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+				$tagIds = temp[0].tag_id.split(',');
+			} else {
+				if(temp[0].tag_id.length > 0) {
+					$tagIds = temp[0].tag_id;
+				}
+			}	
 			var title = '';
 			var spanText = '';
 			$tagIds.forEach(function(eachTagId){

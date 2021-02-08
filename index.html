@@ -194,8 +194,8 @@
 										<div class="form-group">
 										   <label for="delay" class="request-label">Delay <img src="assets/images/exclamation_sign.png"aria-hidden="true" data-toggle="tooltip" title="This indicates the time interval before the first friend request sent and the next one."></label>
 										   <!-- <div class="col-12 delay"> -->
-											  <select class="form-control request-input" name="delay" id="adf-delay" >
-											   <option value="5000">5 Seconds</option>
+												<select class="form-control request-input" name="delay" id="adf-delay" >
+													<option value="5000">5 Seconds</option>
 													<option value="10000">10 Seconds</option>
 													<option value="15000">15 Seconds</option>
 													<option value="45000">45 Seconds</option>
@@ -203,7 +203,7 @@
 													<option value="300000">5 Minutes</option>
 													<option value="600000">10 Minutes</option>
 													<option value="900000">15 Minutes</option>
-											  </select>
+												</select>
 										  <!--  </div> -->
 										</div>
 									 </div>
@@ -362,8 +362,12 @@
 						<div class="dropdown-menu">
 							<a class="dropdown-item setting" id="drsetting" >
 								<i class="fa fa-cog space"></i>
-								Setting
-							</a>							
+								Settings
+							</a>	
+							<a class="dropdown-item setting" id="drsettingh" href="http://members.socialsalesaccelerator.app/" >
+								<i class="fa fa-info-circle space"></i>
+								Help							</a>	
+													
 							<a class="dropdown-item logout" id="logout" >
 								<i class="fa fa-sign-out space"></i>
 								Logout
@@ -388,13 +392,29 @@
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#send_messages"><i class="fa fa-comments"></i></a>
 						</li>
 						<li class="nav-item nav-item-tabs">
-							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friend_messages"><i class="fa fa-users"></i></a>
+							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friendmanagement"><i class="fa fa-users"></i></a>
 						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friend_messages"><i class="fa fa-user"></i></a>
+						</li>
+						
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab"id="birthday_nav" href="#birthday"><i class="fa fa-birthday-cake"></i></a>
+						</li>
+						
+						
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link" data-toggle="tab" href="#teams"><i class="fa fa-sitemap"></i></a>
 						</li>
-						<li class="nav-item nav-item-tabs">
+					<!--	<li class="nav-item nav-item-tabs">
 							<a class="nav-link" data-toggle="tab" href="#export"><i class="fa fa-download"></i></a>
+						</li>-->
+													<li class="nav-item nav-item-tabs">
+							<a class="nav-link" data-toggle="tab" href="#favgroups"><i class="fa fa-list" alt="Favorite Groups"></i></a>
+						</li>
+						
+							<li class="nav-item nav-item-tabs">
+							<a class="nav-link" data-toggle="tab" href="#favposts"><i class="fa fa-list-ol" alt="Favorite Posts"></i></a>
 						</li>
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link" data-toggle="tab" href="#reminders"><i class="fa fa-calendar"></i></a>
@@ -574,6 +594,12 @@
 									<textarea id="bulk_text" class="message-textarea bulk-messge-text"
 								 placeholder="Enter message.." rows="3"></textarea><br /><br />
 								</div>
+								<div class="input-bulk-container">
+									Or select from the template:
+									<select class="form-control wd-10" name="bulk-templates" id="bulk-templates">
+										<option value="0">None</option>
+									</select>
+								</div>
 								<br /><br />
 								<label for="delay">Send every
 									<select class="form-control wd-10" id="bulk-delay">
@@ -611,6 +637,129 @@
 							</div>
 						</div>
 					</div>
+					<div id="friendmanagement" class="container tab-pane w-100 mx-auto fade p-2">
+					
+						<div class="row h-100">
+					
+					
+							<div class="col-6 left-pane">
+								
+								<h5 class="p-2">Remove inactive friends 
+								</h5>
+								<div class="row team new_team_sec">
+								coming soon...	
+								</div>
+							</div>
+							<div class="col-6 right-pane">
+								<h5 class="p-2">Whitelisted Friends			</h5>
+								<div class="row team_member new_team_member_sec">	
+									coming soon...
+								</div>
+							</div>
+						</div>
+						
+						
+						
+						
+					</div>
+					
+					<div id="favgroups" class="container tab-pane w-100 mx-auto fade p-2">
+					
+					this is on the todo list ... you will be able to bookmark favorite groups and setup reminders to go visit them 
+					
+					</div>
+					
+					<div id="favposts" class="container tab-pane w-100 mx-auto fade p-2">
+					
+					this is on the todo list ... you will be able to bookmark favorite posts (yours or others) and set reminders to go back and reply to comments so keep it high in the group 
+					
+					</div>
+					<div id="birthday" class="container tab-pane w-100 mx-auto fade p-2">
+					
+					
+					<div class="row h-100">
+					
+					
+							<div class="col-6 left-pane">
+							<h5 class="p-2">Timeline messages</h5>
+							<h5 class="p-2">
+									<select class="emojiTemplates">
+										<option value=''>Emoji</option>
+										<option>&#128578;</option>
+										<option>&#128512;</option>
+										<option>&#128521;</option>
+										<option>&#128514;</option>
+										<option>&#128549;</option>
+										<option>&#128531;</option> 
+										<option>&#128525;</option>
+										<option>&#128518;</option> 
+									</select>									
+									<select class="personalizationTemplates">
+										<option selected disabled>Short code</option>
+										<option>[first_name]</option>
+										<option>[last_name]</option>
+										<option>[mylocation]</option>
+										<option>[thisday]</option>
+										<option>[thismonth]</option>							
+									</select><button type="button" class="float-right btn btn-primary add-button add_bdtl_message">
+										<i class="fa fa-plus"></i>
+									</button>
+								</h5>
+								
+								<div class="row team new_team_sec">
+									<div class="container bdtl-message-list pt-1 scroll-vertical">
+										<div class="row h-100 new_message messages message_sec" id="bdtl-message-listing">
+											<div class="">
+											</div>
+										</div>
+									</div>									
+								</div>
+							</div>
+							<div class="col-6 right-pane">
+						<h5 class="p-2">Direct messages</h5>
+									
+									<h5 class="p-2">
+									<select class="emojiTemplates">
+										<option value=''>Emoji</option>
+										<option>&#128578;</option>
+										<option>&#128512;</option>
+										<option>&#128521;</option>
+										<option>&#128514;</option>
+										<option>&#128549;</option>
+										<option>&#128531;</option> 
+										<option>&#128525;</option>
+										<option>&#128518;</option> 
+									</select>									
+									<select class="personalizationTemplates">
+										<option selected disabled>Short code</option>
+										<option>[first_name]</option>
+										<option>[last_name]</option>
+										<option>[mylocation]</option>
+										<option>[thisday]</option>
+										<option>[thismonth]</option>							
+									</select>	
+									<button type="button" class="float-right btn btn-primary add-button add_bddm_message">
+										<i class="fa fa-plus"></i>
+									</button>
+								</h5>
+								
+								
+								<div class="row team_member new_team_member_sec">	
+									<div class="container bddm-message-list pt-1 scroll-vertical">
+										<div class="row h-100 new_message messages message_sec" id="bddm-message-listing">
+											<div class="">
+											</div>
+										</div>
+									</div>	
+								</div>
+							</div>
+						</div>
+						
+						
+					
+					
+					</div>
+					
 					<div id="friend_messages" class="container tab-pane w-100 mx-auto fade p-2">
 						<div class="row">
 							<div class="col-4 left-pane">
@@ -938,6 +1087,54 @@ I have accepted your friend request.</textarea>
 			</div>
 			</div>
 		</div>
+		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="deleteBDTLMessageModal">
+			<div class="modal-dialog" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLabel">Delete Message</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+			Confirm delete?
+			</div>
+			<div class="col-4 mx-auto">
+			<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+			<i class="fa fa-close"></i>
+			</button>
+			<button type="button" class="btn btn-primary action-button modal-confirm-delete" id="confirm-bdtl-delete">
+			<i class="fa fa-trash"></i>
+			</button>
+			</div>
+			<div class="row m-4"></div>
+			</div>
+			</div>
+		</div>
+		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="deleteBDDMMessageModal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Delete Message</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						Confirm delete?
+					</div>
+					<div class="col-4 mx-auto">
+						<button type="button" class="btn btn-secondary action-button" data-dismiss="modal">
+						<i class="fa fa-close"></i>
+						</button>
+						<button type="button" class="btn btn-primary action-button modal-confirm-delete" id="confirm-bddm-delete">
+						<i class="fa fa-trash"></i>
+						</button>
+					</div>
+					<div class="row m-4"></div>
+				</div>
+			</div>
+		</div>
 		<div class="modal fade" style="display: none;" tabindex="-1" role="dialog" id="deleteTagModal">
 			<div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -1112,6 +1309,7 @@ I have accepted your friend request.</textarea>
 		<script src="background/authorize.js"></script>
 		<script src="assets/js/script.js"></script>
 		<script src="assets/js/cb_script.js"></script>
+		<script src="assets/js/constant.js"></script>
 		<!-- <script src="commentblaster/js/script.js"></script> -->
     </body>
 </html>

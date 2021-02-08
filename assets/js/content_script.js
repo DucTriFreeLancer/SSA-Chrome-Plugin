@@ -10,7 +10,7 @@ var processing = false;
 var currentLoggedInFBId = '';
 
 var friendRequestHistory = [];
-
+var $checkedUsersForMessenger = []; 
 ///////////bulk code/////////
 var bulkProcessing = true;
 
@@ -140,10 +140,12 @@ processRejectedProfiles();
 
 
 $(function () {
+	if (window.location.origin.indexOf('messenger') > -1) {
 		setInterval(()=>{
 			$('div[contenteditable="true"]').parent().prev().find('div').text('')
 		}, 1)
 		$('div[contenteditable="true"]').parent().prev().find('div').text('')
+	}
 });
 
 
@@ -213,8 +215,8 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 			$(fb_ul_selector+" li[fb_user_id='"+message.fb_id+"']").find('a').mclick();
 		} else {
 			var loc = getFbIdFromLocation();
-			
-			window.location.replace(loc+'/t/'+message.fb_id);
+			//str.replace("Microsoft", "W3Schools");
+			window.location.replace(window.location.href.replace(loc, message.fb_id));
 		}
 		
 	} else if(message.from === 'popup' && message.subject === 'refresh'){
@@ -243,7 +245,10 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 				// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
 			}
 		},200)
-	} else if(message.from === 'popup') {
+	}else if(message.from === 'background' && message.subject === 'unSelectCheckBox'){
+		$('.select-multi-user-messenger').prop('checked',false);
+		
+	}  else if(message.from === 'popup') {
 		verifyUserLogin();
 	}
 });
@@ -415,11 +420,11 @@ async function sendMessage(message){
 					} else {
 						$nextUser.mclick();
 					}					
-					chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
-					const k = $('._5jpt ._4rv3 ._2pen');
-					if (k.length === 1) {
+					$('div[aria-label="Press Enter to send"').mclick();
+
+					setTimeout(()=>{
 						location.reload();
-					}				
+					},500)		
 				}, 100);			
 			}
 			else{
@@ -468,7 +473,12 @@ async function sendMessage(message){
 			
 					$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
 					
-					chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+					
+					$('div[aria-label="Press Enter to send"').mclick();
+
+					setTimeout(()=>{
+						location.reload();
+					},500)
 					
 				}
 			}
@@ -545,7 +555,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		///////////////////////
 		chrome.storage.local.get(["numeric_fb_id"], function(result) {
 			if(result.numeric_fb_id!=getCookieValue("c_user")){
-				
+				if ($('div[aria-label="Settings, help and more"]').length > 0) {
+					$('div[aria-label="Settings, help and more"]').mclick();
+
+					setTimeout(()=>{
+						$('div[data-pagelet="root"] .qzhwtbm6.knvmm38d span:contains(Log Out)').mclick();
+						$('div[data-pagelet="root"] .qzhwtbm6.knvmm38d span:contains(Log out)').mclick();
+					},300);	
+
+				}
 
 				$('a[aria-label="Settings, help and more"]').mclick();
 				setTimeout(()=>{
@@ -1038,6 +1056,7 @@ $(function(){
 			cliked_Fb_Id = $(this).closest('li[fb_user_id]').attr('fb_user_id');
 			fbNameForNotes = $(this).closest('li[fb_user_id]').find('._1ht6._7st9').text();
 		}
+		
 		$('#ssa_model_two').addClass('notes-modal');
 		$('#overlay-two #ssa_model_content_two').text('loading notes for '+fbNameForNotes).show();
 		chrome.runtime.sendMessage({getUserNotes: "getUserNotes", fb_user_id: cliked_Fb_Id});
@@ -1190,15 +1209,15 @@ $(function(){
 
 			}else{
 				newThreadMessenger = 1;
-				clikedFBUserId = $(this).closest('.gl-message-list-item').attr('fb_user_id');
-				clickedNumericFbId = $(this).closest('.gl-message-list-item').attr('numeric_fb_id');
-				newMThreadId  = $(this).closest('.gl-message-list-item').attr('thread_fb_id');
+				clikedFBUserId = $(this).closest('.cts-message-list-item').attr('fb_user_id');
+				clickedNumericFbId = $(this).closest('.cts-message-list-item').attr('numeric_fb_id');
+				newMThreadId  = $(this).closest('.cts-message-list-item').attr('thread_fb_id');
 				page = 0;
 
-				if($(this).closest('.gl-message-list-item').find('svg.pzggbiyp image').length > 0){
-					profilePic = $(this).closest('.gl-message-list-item').find('svg.pzggbiyp image').attr('xlink:href');
+				if($(this).closest('.cts-message-list-item').find('svg.pzggbiyp image').length > 0){
+					profilePic = $(this).closest('.cts-message-list-item').find('svg.pzggbiyp image').attr('xlink:href');
 				} 
-				fbName = $(this).closest('.gl-message-list-item').find('span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text();
+				fbName = $(this).closest('.cts-message-list-item').find('span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text();
 
 			}
 			chrome.storage.local.get(["tags", "taggedUsers", "teams", "teamMembers"], function(result) {
@@ -1318,13 +1337,157 @@ $(function(){
 		}
 
 	});
+	$(document).on('click','.assign-tag-btn-messenger', function() { // all tag group member page
+		if ($('.select-multi-user-messenger:checkbox:checked').length <= 10 ) {
+			$checkedUsersForMessenger = [];
+
+			$('.select-multi-user-messenger').each(function(index){
+				if ($(this).is(':checked')) {
+
+					var oneMesseangerUser = $(this).closest('.cts-message-list-item');
+					tempUser = {};
+					var profilePic = '';
+
+			
+					tempUser.fb_user_id = oneMesseangerUser.attr('fb_user_id');
+					tempUser.numeric_fb_id = oneMesseangerUser.attr('numeric_fb_id');
+					
+
+					if(oneMesseangerUser.find('svg.pzggbiyp image').length > 0){
+						profilePic = oneMesseangerUser.find('svg.pzggbiyp image').attr('xlink:href');
+					}
+					fbName = $.trim(oneMesseangerUser.find('.qzhwtbm6.knvmm38d:eq(0) span:last').text());
+	
+					fbName = fbName.replace("'", " ");
+					
+					tempUser.profilePic = profilePic
+					tempUser.fbName = fbName;
+					$checkedUsersForMessenger.push(tempUser);
+				}
+			});
+
+			//console.log($checkedUsersForMessenger); 
+			if ($checkedUsersForMessenger.length > 0) {
+				showMultiTagListForMassTagging();
+			}else{
+				toastr["warning"]('Please select atleast one user');
+			}
+
+
+		}else{
+			toastr["warning"]('You can add maximum of 10 contacts at once.');
+		}
+	});
+
+	$(document).on('click','.multi-tag-checkbox-multi-user', function() {
+	 
+		if(window.location.origin.indexOf("messenger") > -1 ){
+			var multiTagChecked = $(this).find('.multi-tag-checkbox-multi-user').is(':checked');
+		   if(multiTagChecked){
+			   
+			   $(this).find('.multi-tag-checkbox-multi-user').prop('checked',false);
+		   }else{
+			   
+			   $(this).find('.multi-tag-checkbox-multi-user').prop('checked',true);	
+		   }
+
+
+			$checkedTagsTemp = [];
+		   $('.model-tag-list li').each(function(index){
+			   if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
+				   $checkedTagsTemp.push($(this).attr('tag-id'));
+			   }
+		   });
+
+		   
+		   if ($checkedTagsTemp.length == 0) {
+			   $('.save-multi-tag-user').prop('disabled',true);
+		   }else{
+			   $('.save-multi-tag-user').prop('disabled',false);
+		   }
+	   }
+   });
+
+   $(document).on('click','.tag-n-c-multi-user', function() {
+
+		if(window.location.origin.indexOf("messenger") > -1 ){
+
+			var multiTagChecked = $(this).parent().find('.multi-tag-checkbox-multi-user').is(':checked');
+		   if(multiTagChecked){
+			   $(this).parent().find('.multi-tag-checkbox-multi-user').prop('checked',false);
+		   }else{
+			   $(this).parent().find('.multi-tag-checkbox-multi-user').prop('checked',true);
+
+		   }
+
+			$checkedTagsTemp = [];
+		   $('.model-tag-list li').each(function(index){
+			   if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
+				   $checkedTagsTemp.push($(this).attr('tag-id'));
+			   }
+		   });
+		   
+		   if ($checkedTagsTemp.length == 0) {
+			   $('.save-multi-tag-user').prop('disabled',true);
+		   }else{
+			   $('.save-multi-tag-user').prop('disabled',false);
+		   }
+	   }
+   });
+
+
+   $(document).on('click','.save-multi-tag-user', function() {
+	   if(window.origin.indexOf("messenger") > -1 ){
+		   $(this).text('Saving...').attr('disabled',true);
+		   $checkedTags = [];
+		   $('.model-tag-list li').each(function(index){
+			   if ($(this).find('.multi-tag-checkbox-multi-user').is(':checked')) {
+				   $checkedTags.push($(this).attr('tag-id'));
+			   }
+		   });
+
+		   if ($checkedTags.length > 0) {
+				updateFBUsertagForMultiUserOnMessenger($checkedTags);
+				setTimeout(()=>{
+					$(".save-multi-tag-user").text('Save').attr('disabled',false);
+				},2000)
+		   }
+	   }
+   });
+
+   $(document).on('click','.select-all-friends-members', function() { // all tag messenger page
+	   selectAllCheck = true;
+	   if ($(this).is(':checked')){
+		   selectAllCheck = true;
+	   }else{
+		   selectAllCheck = false;
+	   }
+	   if ($('.select-multi-user-messenger:checkbox:checked').length <= 9) {
+		   $('div[data-testid="mwthreadlist-item"]').each(function(index){
+			   if ($('.select-multi-user-messenger:checkbox:checked').length <= 9 ) {
+				   $(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
+			   }
+		   });
+	   }
+	   else{
+		   $('div[data-testid="mwthreadlist-item"]').each(function(index){
+			   $(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
+		   });
+	   }
+   });
+
+   setInterval(()=>{
+	   $('span.total-selected-messenger-member').text('Selected: '+$('.select-multi-user-messenger:checked').length);
+   },200);
+
+
     $(document).on('click','.ssa-tags-right',function(){	
 		var fb_user_id = $(this).attr('fb_user_id');
 		
 		if($(fb_ul_selector+" li[fb_user_id='"+fb_user_id+"']").length > 0){
 			$(fb_ul_selector+" li[fb_user_id='"+fb_user_id+"']").find('.ssa-tags-container span').mclick();
 		}else{
-			$(".gl-message-list-item[fb_user_id='"+fb_user_id+"']").find('.ssa-tags-container span').mclick();
+			$(".cts-message-list-item[fb_user_id='"+fb_user_id+"']").find('.ssa-tags-container span').mclick();
 			
 		}		
 	});
@@ -1406,11 +1569,47 @@ $(function(){
 		}
 	});
 })
+addCheckBoxMessenger();
+
+function addCheckBoxMessenger() {
+	var mCHeckBoxHtml = '<div class="add-tag-from-messenger"><input class="select-multi-user-messenger" type="checkbox" ></div></div>';
+		setInterval(()=>{
+
+			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
+					if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0 && result.isCurrentFBLinked) { 
+
+						$('div[data-testid="mwthreadlist-item"]').each(function(index) {
+
+							if ($(this).find('.add-tag-from-messenger').length == 0 && window.location.origin.indexOf('messenger') >-1) {
+								$(this).prepend(mCHeckBoxHtml); 
+							}
+						});
+
+
+						if( window.location.origin.indexOf('messenger') >-1 && $('div[data-testid="mwthreadlist-item"]').length > 0 ){
+							var showTagBtnGroupMessenger = '<span class="assign-tag-btn-select-all-messenger validlogin"><input class="select-all-friends-members" type="checkbox"><span class="checkmark"></span><span class="total-selected-messenger-member"></span></span><span class="assign-tag-btn-messenger validlogin">Tag All</span>';
+					
+							if(!$('.assign-tag-btn-select-all-messenger').length)
+							$("body").append(showTagBtnGroupMessenger);
+							$('.assign-tag-btn-messenger').addClass('assign-tag-btn-new-layout-group');
+
+						}else{
+							$('.assign-tag-btn-select-all-messenger, .total-selected-messenger-member').remove();
+						}
+
+
+				}else{
+					$('.add-tag-from-messenger').remove();
+					$('.assign-tag-btn-select-all-messenger, .total-selected-messenger-member').remove();
+				}
+			})
+		}, 1000);
+}
 function integrateSSAFeatureWM(){
 	
 	setInterval(function(){
 		
-		if($('div[data-testid="mwthreadlist-item"]').length > 0 &&  !processing ){			
+		if($('div[data-testid="mwthreadlist-item"]:not(".cts-message-list-item-processed")').length > 0 &&  !processing && window.location.origin.indexOf('messenger') > -1 ){				
 			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
 			
 				if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
@@ -1422,7 +1621,9 @@ function integrateSSAFeatureWM(){
 				
 					/********** Create Tags Drop Down for each chat thread ********/
 					$('div[data-testid="mwthreadlist-item"]').each(function(index) {
-						$(this).addClass('gl-message-list-item')
+						$(this).addClass('cts-message-list-item')
+						$(this).addClass('cts-message-list-item-processed')
+						
 						var fbUser =  ''; 
 						currentWindowUrl = window.location.origin;
 						if (currentWindowUrl.indexOf('messenger') > -1) {
@@ -1441,23 +1642,16 @@ function integrateSSAFeatureWM(){
 							$(this).find('div.tags-container').remove();
 											
 							$(this).attr('fb_user_id',fbUser);
-							$(this).attr('numeric_fb_id','0');
-							$(this).attr('thread_fb_id',0); 
+							$(this).attr('numeric_fb_id',fbUser);
+							$(this).attr('thread_fb_id',fbUser); 
 							$(this).append(spanTagPerChat);
 						} else {
-							$(this).attr('numeric_fb_id','0');
+							$(this).attr('numeric_fb_id',fbUser);
 							$(this).attr('fb_user_id',fbUser);
-							$(this).attr('thread_fb_id',0); 
+							$(this).attr('thread_fb_id',fbUser); 
 							$(this).append(spanTagPerChat);
 						}
-
-						if (fbUser.length < 13) {
-							$(this).addClass('gl-message-thread-id-1'); 
-							$(this).attr('numeric_fb_id',fbUser); 
-							$(this).attr('thread_fb_id',fbUser); 
-							$(this).attr('fb_user_id',0);
-						}
-					
+						$(this).addClass('cts-message-thread-id-1');
 					});
 															
 					if(result.isCurrentFBLinked){
@@ -1473,7 +1667,7 @@ function integrateSSAFeatureWM(){
 				}
 			});
 		}
-	},1000);
+	},500);
 }
 
 
@@ -1491,104 +1685,98 @@ function getBothIdsViaThreadId(){
 
 
 function tagUsersWM(taggedUsers,tags){
-	
-	$('div[data-testid="mwthreadlist-item"]').each(function() {
+	if (window.location.origin.indexOf('messenger') > -1) {
+		$('div[data-testid="mwthreadlist-item"]').each(function() {
 
-		var li_fb_user_id = $(this).attr('fb_user_id');
-		if ($(this).hasClass('gl-message-thread-id-1')) {
-			li_fb_user_id = $(this).attr('numeric_fb_id');
-		}
-		
-		var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id)});
-		
-		if( temp.length > 0 ){
-			$liClass = '';
-			$colorCode = '';
-			var $tagIds = [];
-			if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
-				$tagIds = temp[0].tag_id.split(',');
-			} else {
-				if(temp[0].tag_id.length > 0) {
-					$tagIds = temp[0].tag_id;
-				}
-			}			
-			var title = '';
-			var spanText = '';
-			var numeric= temp[0].numeric_fb_id;
-			$tagIds.forEach(function(eachTagId){
+			var li_fb_user_id = $(this).attr('fb_user_id');
+			if ($(this).hasClass('cts-message-thread-id-1')) {
+				li_fb_user_id = $(this).attr('numeric_fb_id');
+			}
+			
+			var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id)});
+			
+			if( temp.length > 0 ){
+				$liClass = '';
+				$colorCode = '';
+				var $tagIds = [];
+				if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+					$tagIds = temp[0].tag_id.split(',');
+				} else {
+					if(temp[0].tag_id.length > 0) {
+						$tagIds = temp[0].tag_id;
+					}
+				}			
+				var title = '';
+				var spanText = '';
+				var numeric= temp[0].numeric_fb_id;
+				$tagIds.forEach(function(eachTagId){
 
-				eachTagIdOne = eachTagId.replace(/\#/g,'');
-				var foundTag = tags.filter(function (item) { return item.value == eachTagIdOne});
-				if (foundTag.length > 0) {
-					title += foundTag[0].text+', ';
-					$liClass = foundTag[0].class;
-					$colorCode = foundTag[0].color;
-					spanText = foundTag[0].text;
-				}
-			})
+					eachTagIdOne = eachTagId.replace(/\#/g,'');
+					var foundTag = tags.filter(function (item) { return item.value == eachTagIdOne});
+					if (foundTag.length > 0) {
+						title += foundTag[0].text+', ';
+						$liClass = foundTag[0].class;
+						$colorCode = foundTag[0].color;
+						spanText = foundTag[0].text;
+					}
+				})
 
-			if (title != '') {
-				$(this).find('.tags-container span').text(spanText);
-				$(this).find('.tags-container span').prop('title',title.slice(0, -1));
-				$(this).find('.tags-container span').removeClass('bg-primary bg-danger bg-success bg-warning bg-dark bg-info');
-				if(numeric == null){
-					$(this).attr('numeric_fb_id','0');
+				if (title != '') {
+					$(this).find('.tags-container span').text(spanText);
+					$(this).find('.tags-container span').prop('title',title.slice(0, -1));
+					$(this).find('.tags-container span').removeClass('bg-primary bg-danger bg-success bg-warning bg-dark bg-info');
+					if(numeric == null){
+						$(this).attr('numeric_fb_id','0');
+					}else{
+						$(this).attr('numeric_fb_id',numeric);
+					}
+
+					if ($colorCode == null) {
+						$(this).find('.tags-container span').addClass('bg-'+$liClass);
+					}else{
+						$(this).find('.tags-container span').removeClass('bg-muted');
+						$(this).find('.tags-container span').css('background',$colorCode);
+						$(this).find('.tags-container span').addClass('tag-text-color');
+					}
+					
 				}else{
-					$(this).attr('numeric_fb_id',numeric);
+					
+					var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+					options += '<div class="get-gl-notes">Add Notes</div>';
+					if($(this).find('div.tags-container').length > 0 ){
+						$(this).find('div.tags-container').remove();
+						$(this).append(options);
+						// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+					} else {
+						$(this).append(options);
+						// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+					}
+					
 				}
-
-				if ($colorCode == null) {
-					$(this).find('.tags-container span').addClass('bg-'+$liClass);
-				}else{
-					$(this).find('.tags-container span').removeClass('bg-muted');
-					$(this).find('.tags-container span').css('background',$colorCode);
-					$(this).find('.tags-container span').addClass('tag-text-color');
-				}
-				
 			}else{
-				var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-				options += '<div class="get-gl-notes">Add Notes</div>';
+				var options = '<div class="tags-container ssa-tags-container cts-messenger "><span class="bg-muted ssa-selected-tag">+</span>';
+				options += '<div class="get-gl-notes">Add Notes</div> </div> ';
+
 				if($(this).find('div.tags-container').length > 0 ){
 					$(this).find('div.tags-container').remove();
 					$(this).append(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+					
 				} else {
 					$(this).append(options);
-					// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-				}
-				// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag">+</span>';
-				// options += '<div class="get-gl-notes">Notes</div> </div>';
+				}		
+				// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+				// options += '<div class="get-gl-notes">Notes</div>';
 				// if($(this).find('div.tags-container').length > 0 ){
 				// 	$(this).find('div.tags-container').remove();
-				// 	$(this).append(options);
+				// 	$(this).prepend(options);
+				// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);					
 				// } else {
-				// 	$(this).append(options);
+				// 	$(this).prepend(options);
+				// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
 				// }
-			}
-		}else{
-			var options = '<div class="tags-container ssa-tags-container cts-messenger "><span class="bg-muted ssa-selected-tag">+</span>';
-			options += '<div class="get-gl-notes">Add Notes</div> </div> ';
-
-			if($(this).find('div.tags-container').length > 0 ){
-				$(this).find('div.tags-container').remove();
-				$(this).append(options);
-				
-			} else {
-				$(this).append(options);
-			}		
-			// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-			// options += '<div class="get-gl-notes">Notes</div>';
-			// if($(this).find('div.tags-container').length > 0 ){
-			// 	$(this).find('div.tags-container').remove();
-			// 	$(this).prepend(options);
-			// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);					
-			// } else {
-			// 	$(this).prepend(options);
-			// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-			// }
-		}				
-	});
-
+			}				
+		});
+	}
 	chrome.storage.local.get(["isCurrentFBLinked"], function(result) {
 			if(result.isCurrentFBLinked){
 				$(".tags-container").show();
@@ -1809,7 +1997,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 				var pathname = window.location.pathname.toString();	
 			 	if(pathname.indexOf("/messages") > -1 || window.location.origin.indexOf('messenger.com')>-1){	
 					//  tagUsers(changes.taggedUsers.newValue,result.tags);
-					if ($('.gl-message-list-item').length > 0) {			 		
+					if ($('.cts-message-list-item').length > 0) {			 		
 						tagUsersWM(changes.taggedUsers.newValue,result.tags);
 					} else {
 						tagUsers(changes.taggedUsers.newValue,result.tags);
@@ -1824,6 +2012,34 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 			}
 		});
 	}
+	if( typeof changes.tags != 'undefined' && typeof changes.tags.newValue != 'undefined'){
+	
+		chrome.storage.local.get(["ssa_user","taggedUsers"], function(result) {
+			if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
+				 
+				var pathname = window.location.pathname.toString();	
+
+			 	if(pathname.indexOf("/messages") > -1 || window.location.origin.indexOf('messenger.com')>-1){	
+			 		
+			 		if ($('.cts-message-list-item').length > 0) {
+			 	
+			 			tagUsersWM(result.taggedUsers,changes.tags.newValue);
+			 		} else {
+			 			tagUsers(result.taggedUsers,changes.tags.newValue);
+
+			 		}
+
+			 	}else if(pathname.indexOf("/inbox") > -1){
+			 		tagPageUsers(result.taggedUsers,changes.tags.newValue);
+			 	}else if(pathname.indexOf("/friends") > -1){
+			 		tagUsersForProfileFriends(result.taggedUsers,changes.tags.newValue);
+			 	}else if(pathname.indexOf("/groups") > -1 && pathname.indexOf("/members")){
+			 		tagUsersForGroupMembers(result.taggedUsers,changes.tags.newValue);
+			 	}
+			}
+		});
+	}
+
 });
 	
 function verifyConversationList(){
@@ -1931,7 +2147,7 @@ function displaySelectedTagRightSide(){
 							notesList = '<div class="notes-list-container"><div class="notes-list">';
 							notesList += '<div class="grid-container">';
 							var fullName=''
-							if ($('.gl-message-list-item').length > 0) {
+							if ($('.cts-message-list-item').length > 0) {
 								fullName = $('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
 							}else
 							{
@@ -2043,7 +2259,7 @@ function displaySelectedTagRightSide(){
 					if(window.location.origin.indexOf('messenger.com') > -1){
 						
 						// $('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);						
-						if ($('.gl-message-list-item').length > 0) {
+						if ($('.cts-message-list-item').length > 0) {
 							$('.right-side-tag-list').remove();
 							$('.notes-list-container').remove();
 							 // _3tkv
@@ -2381,6 +2597,40 @@ function getCookieValue(a) {
     return b ? b.pop() : '';
 }
 
+var saveBtnHtmlForMessenger = '<div class="row custom-row text-center"> <button disabled="true" class="save-multi-tag-user bg-purple ssa-btn" type="button" value="1">Save</button> </div> ';
+
+function showMultiTagListForMassTagging() {
+	chrome.storage.local.get(["tags"], function(result) {
+		var options = '<div class="row custom-row"><div class="leve-1 tagged-name">'+' '+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+saveBtnHtmlForMessenger+'<div class="row custom-row"> <div class="tags-container ssa-tags-container"><ul class="model-tag-list custom-scroll">';
+		if (typeof result.tags != "undefined" && result.tags != "") { 
+			temp = result.tags;
+			for(i=0;i<result.tags.length;i++){
+				var style ='';
+				if (result.tags[i].color !== null ) {
+					style = 'style = "background:'+result.tags[i].color+' !important"';
+					options += "<li "+style+" color-code= '"+result.tags[i].color+"' class='tag-text-color multi-tag-multi-user'  tag-id='"+result.tags[i].value+"'";
+					options += "><input class = 'multi-tag-checkbox-multi-user' type='checkbox'><div class='tag-n-c-multi-user'>"+result.  tags[i].text+"</div></li>";
+				}else{
+					options += "<li class='bg-"+result.tags[i].class+" tag-text-color multi-tag-multi-user' color-code= '0' li-class='"+result.tags[i].class+"' tag-id='"+result.tags[i].value+"'";
+					options += "><input class = 'multi-tag-checkbox-multi-user' type='checkbox'><div class='tag-n-c-multi-user'>"+result. tags[i].text+"</div></li>";
+				}
+			}					
+		}
+		options += '</ul></div>';
+		$('#ssa_model_content_two').html(options);
+		$('#overlay-two').show();
+	});
+}
+
+
+function updateFBUsertagForMultiUserOnMessenger($checkedTags){
+	chrome.storage.local.get(["ssa_user"], function(result) {
+		if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+			port.postMessage({'type': 'updateFBUsertagForMultiUserOnGroupMember','data': {userId:result.ssa_user.id,loggedInFBId: currentLoggedInFBId, tagsArray:$checkedTags, checkedUsers: $checkedUsersForMessenger}});		
+		}
+	});
+
+}
 
 
 

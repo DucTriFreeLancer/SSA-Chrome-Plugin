@@ -4,9 +4,9 @@
 
 #ssa_model_content {
     position: fixed;
-    right:  20px;
+    left:  0px;
     width: 300px;
-    bottom: 20px;
+    bottom: 60px;
     background: rgb(255, 255, 255);
 }
 #ssa_model_content div {
