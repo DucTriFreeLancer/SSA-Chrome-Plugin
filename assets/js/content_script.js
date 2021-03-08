@@ -141,10 +141,13 @@ processRejectedProfiles();
 
 $(function () {
 	if (window.location.origin.indexOf('messenger') > -1) {
-		setInterval(()=>{
+		setInterval(()=>{			
 			$('div[contenteditable="true"]').parent().prev().find('div').text('')
 		}, 1)
 		$('div[contenteditable="true"]').parent().prev().find('div').text('')
+		setInterval(()=>{
+			$('span.total-selected-messenger-member').text('Selected: '+$('.select-multi-user-messenger:checked').length);
+		},200);
 	}
 });
 
@@ -1475,12 +1478,7 @@ $(function(){
 		   });
 	   }
    });
-
-   setInterval(()=>{
-	   $('span.total-selected-messenger-member').text('Selected: '+$('.select-multi-user-messenger:checked').length);
-   },200);
-
-
+   
     $(document).on('click','.ssa-tags-right',function(){	
 		var fb_user_id = $(this).attr('fb_user_id');
 		
@@ -1572,7 +1570,8 @@ $(function(){
 addCheckBoxMessenger();
 
 function addCheckBoxMessenger() {
-	var mCHeckBoxHtml = '<div class="add-tag-from-messenger"><input class="select-multi-user-messenger" type="checkbox" ></div></div>';
+	if (window.location.origin.indexOf('messenger') > -1) {
+		var mCHeckBoxHtml = '<div class="add-tag-from-messenger"><input class="select-multi-user-messenger" type="checkbox" ></div></div>';
 		setInterval(()=>{
 
 			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
@@ -1603,7 +1602,8 @@ function addCheckBoxMessenger() {
 					$('.assign-tag-btn-select-all-messenger, .total-selected-messenger-member').remove();
 				}
 			})
-		}, 1000);
+		}, 2000);
+	}
 }
 function integrateSSAFeatureWM(){
 	
@@ -1668,19 +1668,6 @@ function integrateSSAFeatureWM(){
 			});
 		}
 	},500);
-}
-
-
-getBothIdsViaThreadId();
-
-function getBothIdsViaThreadId(){
-
-	setInterval(()=>{
-
-
-
-	},2000)
-
 }
 
 
@@ -1983,12 +1970,7 @@ function tagUsers(taggedUsers,tags){
 	})
 	processing = false;
 }
-$(function () {
-	setInterval(()=>{
-		$('div[contenteditable="true"]').parent().prev().find('div').text('')
-	}, 1)
-	$('div[contenteditable="true"]').parent().prev().find('div').text('')
-});
+
 chrome.storage.onChanged.addListener(function(changes, namespace) {
 	if( typeof changes.taggedUsers != 'undefined' && typeof changes.taggedUsers.newValue != 'undefined'){
 		chrome.storage.local.get(["ssa_user","tags"], function(result) {
@@ -2313,7 +2295,8 @@ function verifyUserLogin(){
 }
 
 function hide_loader() {
-	setTimeout(()=>{
+	var timeout=setTimeout(()=>{
+		clearTimeout(timeout);
 		$('#overlay').hide();
 	},2000);
 }
@@ -2379,46 +2362,72 @@ function triggerRequestSendMessage(bulkMsgText) {
 	let message_total_send =0;
 	var delay=1000;
 	if(bulkMsgText.includes("|")){
-		var res = bulkMsgText.split("|");		
-		res.forEach(function(text){			
-			let messId=setTimeout(()=>{
-				$('textarea').val(text);
-				if ($('button[name="Send"]').length > 0) {
-					$('button[name="Send"]').mclick();
-				}else if($('input[name="Send"]').length > 0){
-					$('input[name="Send"]').mclick();
-				}
-				message_total_send = message_total_send + 1;
-			},delay);
-			bulkMessageTimeout.push(messId);
-			delay=delay+1000;
-		});		
+		isNameSet = setInterval(()=>{
+
+			if ($('.mToken').length > 0 && $('.mToken').text().length > 0) {
+				clearInterval(isNameSet)
+				
+				var res = bulkMsgText.split("|");		
+				res.forEach(function(text,index){			
+					let messId=setTimeout(()=>{
+						$('textarea').val(text);
+						setTimeout(()=>{							
+							if(index == res.length -1){
+								chrome.runtime.sendMessage({closeRequestMessageTab: "closeRequestMessageTab"});	
+							}
+							setTimeout(()=>{							
+								if ($('button[name="Send"]').length > 0) {
+									$('button[name="Send"]').mclick();
+								}else if($('input[name="Send"]').length > 0){
+									$('input[name="Send"]').mclick();
+								}
+							}, 200)
+							
+						},500);
+						message_total_send = message_total_send + 1;
+					},delay);
+					bulkMessageTimeout.push(messId);
+					delay=delay+1000;
+				});	
+			}
+		},200)	
 	} 
 	else{
-		$('textarea').val(bulkMsgText);
-		let messId = setTimeout(()=>{
-			if ($('button[name="Send"]').length > 0) {
-				$('button[name="Send"]').mclick();
-			}else if($('input[name="Send"]').length > 0){
-				$('input[name="Send"]').mclick();
+		isNameSet = setInterval(()=>{
+
+			if ($('.mToken').length > 0 && $('.mToken').text().length > 0) {
+				clearInterval(isNameSet)
+				$('textarea').val(bulkMsgText);
+	
+				setTimeout(()=>{					
+					chrome.runtime.sendMessage({closeRequestMessageTab: "closeRequestMessageTab"});	
+					setTimeout(()=>{						
+						if ($('button[name="Send"]').length > 0) {
+							$('button[name="Send"]').mclick();
+						}else if($('input[name="Send"]').length > 0){
+							$('input[name="Send"]').mclick();
+						}
+					}, 200)
+					
+				},500);
+	
 			}
-			message_total_send = message_total_send + 1;
-		},delay);
-		bulkMessageTimeout.push(messId);
-		delay=delay+1000;		
+		},200)
 	}
 	
-	var closeMessage= setTimeout(function(){			
+	let timeout =setTimeout(function(){
+		clearTimeout(timeout);
 		clearTimeOutIntervals();
 		chrome.runtime.sendMessage({closeRequestMessageTab: "closeRequestMessageTab"});	
-	},delay);	
-	bulkMessageTimeout.push(closeMessage);
+	},30000);	
+
 }
 
 
 function  checkFriendRequestForPostMessageNew(){
 	 $('div.kd0sc8dh.sl8jk4me.ie5zihkj.i09qtzwb.rm3jng1j.hzruof5a.pmk7jnqg.kr520xx4.c0wkt4kp').prev().animate({ scrollTop:  5000 }, 1000);
-	setTimeout(function(){
+	let timeout= setTimeout(function(){
+		clearTimeout(timeout);
 		var logSelector = 'div[aria-label="List of activity log items"]';
 		if($(logSelector).length == 0){
 			logSelector = 'div[aria-label="List of Activity Log Items"]';

@@ -4,6 +4,7 @@
         <meta charset="utf-8">		
         <meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		<link rel="stylesheet" href="assets/css/bootstrap4-toggle.min.css">
 		<link rel="stylesheet" href="assets/css/font-awesome.min.css">
 		<link rel="stylesheet" href="assets/css/baloo_font.css">
 		<link href="dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
@@ -600,6 +601,11 @@
 										<option value="0">None</option>
 									</select>
 								</div>
+								<div class="input-bulk-container">
+									<label class="form-check pt-3">
+										<input type="checkbox" id="remove-from-tag" class="form-check-input" value="false">Remove user from tag after sending
+									</label>									
+								</div>								
 								<br /><br />
 								<label for="delay">Send every
 									<select class="form-control wd-10" id="bulk-delay">
@@ -675,89 +681,86 @@
 					
 					</div>
 					<div id="birthday" class="container tab-pane w-100 mx-auto fade p-2">
-					
-					
-					<div class="row h-100">
-					
-					
-							<div class="col-6 left-pane">
-							<h5 class="p-2">Timeline messages</h5>
-							<h5 class="p-2">
-									<select class="emojiTemplates">
-										<option value=''>Emoji</option>
-										<option>&#128578;</option>
-										<option>&#128512;</option>
-										<option>&#128521;</option>
-										<option>&#128514;</option>
-										<option>&#128549;</option>
-										<option>&#128531;</option> 
-										<option>&#128525;</option>
-										<option>&#128518;</option> 
-									</select>									
-									<select class="personalizationTemplates">
-										<option selected disabled>Short code</option>
-										<option>[first_name]</option>
-										<option>[last_name]</option>
-										<option>[mylocation]</option>
-										<option>[thisday]</option>
-										<option>[thismonth]</option>							
-									</select><button type="button" class="float-right btn btn-primary add-button add_bdtl_message">
-										<i class="fa fa-plus"></i>
-									</button>
-								</h5>
-								
-								<div class="row team new_team_sec">
-									<div class="container bdtl-message-list pt-1 scroll-vertical">
-										<div class="row h-100 new_message messages message_sec" id="bdtl-message-listing">
-											<div class="">
-											</div>
-										</div>
-									</div>									
-								</div>
-							</div>
-							<div class="col-6 right-pane">
-						<h5 class="p-2">Direct messages</h5>
-									
-									<h5 class="p-2">
-									<select class="emojiTemplates">
-										<option value=''>Emoji</option>
-										<option>&#128578;</option>
-										<option>&#128512;</option>
-										<option>&#128521;</option>
-										<option>&#128514;</option>
-										<option>&#128549;</option>
-										<option>&#128531;</option> 
-										<option>&#128525;</option>
-										<option>&#128518;</option> 
-									</select>									
-									<select class="personalizationTemplates">
-										<option selected disabled>Short code</option>
-										<option>[first_name]</option>
-										<option>[last_name]</option>
-										<option>[mylocation]</option>
-										<option>[thisday]</option>
-										<option>[thismonth]</option>							
-									</select>	
-									<button type="button" class="float-right btn btn-primary add-button add_bddm_message">
-										<i class="fa fa-plus"></i>
-									</button>
-								</h5>
-								
-								
-								<div class="row team_member new_team_member_sec">	
-									<div class="container bddm-message-list pt-1 scroll-vertical">
-										<div class="row h-100 new_message messages message_sec" id="bddm-message-listing">
-											<div class="">
-											</div>
-										</div>
-									</div>	
-								</div>
-							</div>
+						<div class="checkbox text-right">
+							<input id="chkDoBDay" type="checkbox" data-width="124.828px" data-height="34px" checked data-toggle="toggle" data-on="Active" data-off="Not Running" data-onstyle="success" data-offstyle="danger">
 						</div>
+						<div class="row h-100">
 						
 						
-					
-					
+								<div class="col-6 left-pane">
+								<h5 class="p-2">Timeline messages</h5>
+								<h5 class="p-2">
+										<select class="emojiTemplates">
+											<option value=''>Emoji</option>
+											<option>&#128578;</option>
+											<option>&#128512;</option>
+											<option>&#128521;</option>
+											<option>&#128514;</option>
+											<option>&#128549;</option>
+											<option>&#128531;</option> 
+											<option>&#128525;</option>
+											<option>&#128518;</option> 
+										</select>									
+										<select class="personalizationTemplates">
+											<option selected disabled>Short code</option>
+											<option>[first_name]</option>
+											<option>[last_name]</option>
+											<option>[mylocation]</option>
+											<option>[thisday]</option>
+											<option>[thismonth]</option>							
+										</select><button type="button" class="float-right btn btn-primary add-button add_bdtl_message">
+											<i class="fa fa-plus"></i>
+										</button>
+									</h5>
+									
+									<div class="row team new_team_sec">
+										<div class="container bdtl-message-list pt-1 scroll-vertical">
+											<div class="row h-100 new_message messages message_sec" id="bdtl-message-listing">
+												<div class="">
+												</div>
+											</div>
+										</div>									
+									</div>
+								</div>
+								<div class="col-6 right-pane">
+							<h5 class="p-2">Direct messages</h5>
+										
+										<h5 class="p-2">
+										<select class="emojiTemplates">
+											<option value=''>Emoji</option>
+											<option>&#128578;</option>
+											<option>&#128512;</option>
+											<option>&#128521;</option>
+											<option>&#128514;</option>
+											<option>&#128549;</option>
+											<option>&#128531;</option> 
+											<option>&#128525;</option>
+											<option>&#128518;</option> 
+										</select>									
+										<select class="personalizationTemplates">
+											<option selected disabled>Short code</option>
+											<option>[first_name]</option>
+											<option>[last_name]</option>
+											<option>[mylocation]</option>
+											<option>[thisday]</option>
+											<option>[thismonth]</option>							
+										</select>	
+										<button type="button" class="float-right btn btn-primary add-button add_bddm_message">
+											<i class="fa fa-plus"></i>
+										</button>
+									</h5>
+									
+									
+									<div class="row team_member new_team_member_sec">	
+										<div class="container bddm-message-list pt-1 scroll-vertical">
+											<div class="row h-100 new_message messages message_sec" id="bddm-message-listing">
+												<div class="">
+												</div>
+											</div>
+										</div>	
+									</div>
+								</div>
+						</div>
 					</div>
 					
 					<div id="friend_messages" class="container tab-pane w-100 mx-auto fade p-2">
@@ -779,6 +782,10 @@
 										On friend request acceptance
 										</p>
 									</div>
+								</div>
+								<br />	
+								<div class="card">
+									<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
 								</div>
 							</div>
 							<div class="col-8 right-pane">
@@ -830,10 +837,7 @@ Thank you so much for sending me a friend request.</textarea>
 										<div class="row p-2">
 											<div class="col-1">
 												<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
-											</div>
-											<div class="col-1">
-												<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
-											</div>
+											</div>											
 										</div>
 									</div>
 									
@@ -902,10 +906,7 @@ I have accepted your friend request.</textarea>
 										<div class="row p-2">
 											<div class="col-1">
 												<i class="p-2 fa fa-send btn btn-primary add-button save-request-message"></i>
-											</div>
-											<div class="col-1">
-												<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
-											</div>
+											</div>											
 										</div>
 									</div>   
 								</div>
@@ -1297,6 +1298,7 @@ I have accepted your friend request.</textarea>
 		<script src="assets/js/jquery.min.js"></script>
 		<script src="assets/js/popper.min.js"></script>
 		<script src="assets/js/bootstrap.min.js"></script>
+		<script src="assets/js/bootstrap4-toggle.min.js"></script>
 		<script src="assets/js/jquery.validate.js"></script>
 		<script type="text/javascript" src="assets/js/moment.min.js"></script>
 		<script type="text/javascript" src="assets/js/datepicker.js"></script>

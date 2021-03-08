@@ -8,7 +8,10 @@ var opt = {
 }
 
 var baseUrl = custom_data.baseUrl;
-
+////////// ADF welcome messages /////////
+var friendRequestTabIdsADF = [];
+////////// HB direct messages /////////
+var dmRequestTabIds = [];
 ////// friend request messages////////
 var friendRequestSettings = false;
 var friendRequestHistory = [];
@@ -28,7 +31,7 @@ var bulkTaggedUserArray = [];
 var bulkUserDelay = 0;
 var bulkMessageTextArray = [];
 var sendRandomMessage = false;
-
+var removeFromTag = false;
 var bulkSendMessageLimit = 0;
 var bulkIntervalIds = [];
 var bulkArrayCounter = 0;
@@ -406,7 +409,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 		const tabId = sender.tab.id;
 		const { threadId, dmMessage } = message;
 		// let resp = false;
-		sendRequestDMMessage(threadId, dmMessage);
+		processBdayMessage(threadId, dmMessage);
 		sendResponse(true)
 
 	} else if (message.action == ACTIONS.CLOSE_LI_TAB) {
@@ -473,52 +476,21 @@ function getOneMessage(localData, tlMessages) {
 		message: '',
 		localData: SENDING_DATA
 	};
-	let i;
-
-
-	let lastMessage = localData.LAST_MESSAGE;
-	let lastIndex = localData.LAST_INDEX;
-	let hasMessage = false;
-	for (i in tlMessages) {
-		if (typeof tlMessages[i].message != "undefined" && tlMessages[i].message.length > 0) {
-			hasMessage = true;
-		}
-	}
-
-	if (!hasMessage) return returnValue;
-
-
-
-	if (lastMessage.length === 0) {
+	
+	if ( typeof tlMessages != undefined && tlMessages != null && tlMessages.length > 0) {
 		let i = Math.floor(Math.random() * tlMessages.length);
-		tlMessage = tlMessages[i];
-		if (tlMessage.message.length > 0) {
-			returnValue.message = tlMessage.message;
-			returnValue.error = false;
-			returnValue.localData = {
-				LAST_MESSAGE: tlMessage.message,
-				LAST_INDEX: i,
-				TIME: Date.now()
-			}
-		}
-
+		let tlMessage = tlMessages[i];
+		returnValue.message = tlMessage.message;
+		returnValue.error = false;
+		returnValue.localData = {
+			LAST_MESSAGE: tlMessage.message,
+			LAST_INDEX: i,
+			TIME: Date.now()
+		};
+		console.log('response from method', returnValue);
 		return returnValue;
 	}
-
-	if (lastMessage.length !== 0) {
-		let i = Math.floor(Math.random() * tlMessages.length);
-		tlMessage = tlMessages[i];
-		if (tlMessage.message.length > 0) {
-			returnValue.message = tlMessage.message;
-			returnValue.error = false;
-			returnValue.localData = {
-				LAST_MESSAGE: tlMessage.message,
-				LAST_INDEX: i,
-				TIME: Date.now()
-			}
-		}
-		return returnValue;
-	}
+	return returnValue;
 
 }
 function getDMMessageToSend(from, data) {
@@ -867,26 +839,27 @@ setInterval(function () {
 		}
 	});
 }, 90000);
-const HOUR = 120 * 1000;
+const HOUR = 3600 * 1000;
 
 let facebookIFrame;
 let timerOneHour;
 
 const everyHoursSendMsgTimer = () => {
-	timerOneHour = setInterval(() => {
+	timerOneHour = setInterval(() => {		
 		let reqArr = Object.values(HB_DATA);
 		chrome.storage.local.get(reqArr, (result) => {
-			if (result[HB_DATA.IS_WORKING] === "1") {
-				const lastDateSendFB = result[HB_DATA.LAST_DATE];
-				if (lastDateSendFB === undefined || new Date(lastDateSendFB).getDate() != new Date().getDate()) {
-					console.log('Messages for FB were not sent today');
-					sendMessageFB();
-				} else {
-					console.log('Messages for FB were sent today. Waiting for an hour for a new check');
+			if (result[HB_DATA.CAN_SEND] === "1") {
+				if (result[HB_DATA.IS_WORKING] === "1") {
+					const lastDateSendFB = result[HB_DATA.LAST_DATE];
+					if (lastDateSendFB === undefined || new Date(lastDateSendFB).getDate() != new Date().getDate()) {
+						console.log('Messages for FB were not sent today');
+						sendMessageFB();
+					} else {
+						console.log('Messages for FB were sent today. Waiting for an hour for a new check');
+					}
 				}
 			}
 		});
-
 	}, HOUR);
 };
 
@@ -1368,8 +1341,37 @@ function requestTabListener(tabId, changeInfo, tab) {
 		chrome.tabs.onUpdated.removeListener(requestTabListener);
 	}
 }
-function sendRequestDMMessage(threadId, dmMessage) {/// 1 for pre // 2for post message
-
+function processBdayMessage(threadId,dmMessage){
+	chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
+		if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && typeof result.fb_id != "undefined" && result.fb_id != "") {
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/birthdays/processBdayMessage",
+				data: { userId: result.ssa_user.id,fbUserId: threadId },
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function (response) {
+				if (response.status == 401) {
+					chrome.storage.local.set({ 'ssa_user': '' });
+				}
+				else
+				{
+					if (response.process === 1)
+					{
+						console.log('DM Messages for FB were not sent today');
+						sendRequestDMMessage(threadId,dmMessage);
+					} else {
+						console.log('DM Messages for FB were sent today. Waiting for an hour for a new check');
+					}
+				}
+			});
+		}
+	});
+}
+var dmMessageTabId = 0;
+function sendRequestDMMessage(threadId, dmMessage) {/// 1 for pre // 2for post message	
 	threadId = threadId.replace('/', '');
 	if (/[a-zA-Z]/.test(threadId)) {   /// having alphabets id
 		$.ajax({
@@ -1393,12 +1395,12 @@ function sendRequestDMMessage(threadId, dmMessage) {/// 1 for pre // 2for post m
 					height: Math.floor(window.screen.availHeight / 4),
 					width: Math.floor(window.screen.availWidth / 4)
 				}, function (tabs) {
-					requestMessageTabId = tabs.tabs[0].id;
+					dmMessageTabId = tabs.tabs[0].id;
 					var temp = {};
 					temp.currentRequestId = threadId;
 					temp.dmMessage = dmMessage;
-					temp.tabId = requestMessageTabId;
-					friendRequestTabIds.push(temp);
+					temp.tabId = dmMessageTabId;
+					dmRequestTabIds.push(temp);
 					chrome.tabs.onUpdated.addListener(requestDMTabListener);
 				});
 			}
@@ -1414,24 +1416,24 @@ function sendRequestDMMessage(threadId, dmMessage) {/// 1 for pre // 2for post m
 			height: Math.floor(window.screen.availHeight / 4),
 			width: Math.floor(window.screen.availWidth / 4)
 		}, function (tabs) {
-			requestMessageTabId = tabs.tabs[0].id;
+			dmMessageTabId = tabs.tabs[0].id;
 			var temp = {};
 			temp.currentRequestId = threadId;
 			temp.dmMessage = dmMessage;
-			temp.tabId = requestMessageTabId;
+			temp.tabId = dmMessageTabId;
 
-			friendRequestTabIds.push(temp);
+			dmRequestTabIds.push(temp);
 			chrome.tabs.onUpdated.addListener(requestDMTabListener);
 		});
 	}
 }
 
 function requestDMTabListener(tabId, changeInfo, tab) {
-	if (changeInfo.status === "complete" && tabId === requestMessageTabId) {
+	if (changeInfo.status === "complete" && tabId === dmMessageTabId) {
 		chrome.tabs.onUpdated.removeListener(requestDMTabListener);
-		var foundTabRecord = friendRequestTabIds.filter((list) => { return list.tabId == requestMessageTabId });
+		var foundTabRecord = dmRequestTabIds.filter((list) => { return list.tabId == dmMessageTabId });
 		if (foundTabRecord.length > 0) {
-			chrome.tabs.sendMessage(requestMessageTabId, { from: 'background', subject: 'triggerRequestMessage', welcomeMessageText: foundTabRecord[0].dmMessage });
+			chrome.tabs.sendMessage(dmMessageTabId, { from: 'background', subject: 'triggerRequestMessage', welcomeMessageText: foundTabRecord[0].dmMessage });
 		}
 		return {};;
 	}
@@ -1892,7 +1894,7 @@ function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
 
 					temp.tabId = requestMessageTabIdADF;
 					temp.ADF_welcome_message = ADF_welcome_message
-					friendRequestTabIds.push(temp);
+					friendRequestTabIdsADF.push(temp);
 					chrome.tabs.onUpdated.addListener(requestTabListenerADF);
 				});
 			}
@@ -1913,7 +1915,7 @@ function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
 
 			temp.tabId = requestMessageTabIdADF;
 			temp.ADF_welcome_message = ADF_welcome_message
-			friendRequestTabIds.push(temp);
+			friendRequestTabIdsADF.push(temp);
 			chrome.tabs.onUpdated.addListener(requestTabListenerADF);
 		});
 	}
@@ -1922,7 +1924,7 @@ function sendWelcomeMessageADF(ADFmemberId, ADF_welcome_message) {
 
 function requestTabListenerADF(tabId, changeInfo, tab) {
 	if (changeInfo.status === "complete" && tabId === requestMessageTabIdADF) {
-		var foundTabRecord = friendRequestTabIds.filter((list) => { return list.tabId == requestMessageTabIdADF });
+		var foundTabRecord = friendRequestTabIdsADF.filter((list) => { return list.tabId == requestMessageTabIdADF });
 		var welcomeMessageText = '';
 
 		if (foundTabRecord.length > 0) {
@@ -1961,7 +1963,7 @@ function prepareDataForBulkMessage(bulkMessageSettings) {
 	bulkParentTabId = bulkMessageSettings.bulkMessageTabId;
 
 
-	chrome.storage.local.get(["taggedUsers", "bulkMessageSettings"], function (result) {
+	chrome.storage.local.get(["taggedUsers"], function (result) {
 		// chrome.cookies.set({ url: cookiesBaseUrl, name: "cts_bulkMessageSettings", value:  JSON.stringify(result.bulkMessageSettings), expirationDate: (new Date().getTime()/1000) + (3600 * 1000*87660)  });
 
 		result.taggedUsers.forEach(function (item, index) {
@@ -2009,7 +2011,7 @@ function readLastStateOfTaggedUserArray() {
 		if (bulkMessageSettings.useRandomDelay) {
 			bulkUserDelay = parseInt(bulkRandomDelayArray[Math.floor(Math.random() * bulkRandomDelayArray.length)]);
 		}
-
+		removeFromTag = bulkMessageSettings.removeFromTag;
 		bulkMessageTextArray = bulkMessageSettings.messageTextArray;
 		sendRandomMessage = bulkMessageSettings.sendRandomMessage;
 
@@ -2039,16 +2041,13 @@ function readLastStateOfTaggedUserArray() {
 }
 function startBulkFromIndex(bulkTaggedUserArray, startIndex, mylocation) {
 
-
 	var tempDelay = 0;
 	var sentMessagesInCurrentProcess = 0;
 
 	bulkTaggedUserArray.forEach(function (oneBulkMember, currentIndex) {
 		if (currentIndex >= startIndex) {
 			let outIds = setTimeout(() => {
-
 				if (sentMessagesInCurrentProcess < bulkSendMessageLimit) {
-
 					sentMessagesInCurrentProcess = sentMessagesInCurrentProcess + 1;
 					bulkMessageStatus = 'running';
 
@@ -2071,6 +2070,11 @@ function startBulkFromIndex(bulkTaggedUserArray, startIndex, mylocation) {
 					bulkMessageTextArray.forEach(oneMessage => {
 						var timeoutId = setTimeout(() => {
 							sendBulkMessage(oneBulkMember, oneMessage, mylocation);
+							if(removeFromTag){
+								if(selectedBulkTagIds != null && selectedBulkTagIds.length ==1){
+									removeUserFromTag(oneBulkMember,selectedBulkTagIds[0].tagid);
+								}								
+							}
 						}, delaySend);
 						delaySend = parseInt(delaySend) + parseInt(5000);
 						bulkIntervalIds.push(timeoutId);
@@ -2120,7 +2124,34 @@ function clearBulkIntervals() {
 	});
 	bulkIntervalIds = [];
 }
+function removeUserFromTag(oneSC, tagId) {
 
+	threadId = oneSC.numeric_fb_id;
+
+	if (threadId == null || threadId == 0) {
+		threadId = oneSC.fb_user_id;
+	}	
+	// Save new date
+	chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+		if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/tagged_users/removefromtag",
+				data: {userId:result.ssa_user.id,fbUserId:threadId,tagId:tagId},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					chrome.storage.local.set({'ssa_user':''});	
+				}else if (response.status == 404) {
+					//port.postMessage({'false': true});
+				}		  
+			});
+		}
+	});	
+}
 
 function sendBulkMessage(oneSC, oneMessage, mylocation) {
 
@@ -2198,9 +2229,9 @@ function bulkTabListener(tabId, changeInfo, tab) {
 			welcomeMessageText = getBulkMessage(foundTabRecord[0].fullName, foundTabRecord[0].mylocation, foundTabRecord[0].bulkMessage);
 		}
 		setTimeout(() => {
-			chrome.tabs.sendMessage(RebulkMessageTabId, { from: 'background', subject: 'triggerRequestMessage', welcomeMessageText: welcomeMessageText });
-
+			chrome.tabs.sendMessage(RebulkMessageTabId, { from: 'background', subject: 'triggerRequestMessage', welcomeMessageText: welcomeMessageText });			
 		}, 2000)
+		
 		chrome.tabs.onUpdated.removeListener(bulkTabListener);
 	}
 }

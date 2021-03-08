@@ -17,7 +17,7 @@ const parseElement = {
         'HBBLockPage': 'div[role="complementary"] > div > div > div > div.cxgpxx05 > div > div.l9j0dhe7' +
             ' > div.cxgpxx05.sj5x9vvc div.qzhwtbm6.knvmm38d > span > strong',
         'HBBlockPopup': 'div[role="dialog"] > div.sjgh65i0 > div > div > div > div',
-        'HBCards': 'div > div.j83agx80.pybr56ya.rz4wbd8a.sj5x9vvc.a8nywdso',
+        'HBCards': 'div > div.j83agx80.pybr56ya.rz4wbd8a.a8nywdso',
         'HBPlaceOfMessage': 'form div._5rp7 > div._5rpb > div[role="textbox"]',
         'HBSendMsgBtn': 'input[type="submit"]'
     }
@@ -71,18 +71,56 @@ async function sendBDMessages() {
                     const cardPrefix = '[Card ' + i + ']';
                     i++;
                     await pending(2000 * i);
-                    let resp = await getTLMessageToSend('facebook');
-
-                    if (resp.error) {
-                        printInfo("Didn't get tl message");
-                        resp = await getDMMessageToSend('facebook');                        
-                    } 
+                    let resp = await getTLMessageToSend('facebook');                   
                     if (resp.error) {	
-                        printInfo("Didn't get dm message");
+                        printInfo("Didn't get tl message");                        
+                        resp = await getDMMessageToSend('facebook');
+                        if (resp.error) {
+                            printInfo("Didn't get DM message");
+                        } else {
+                            var url = $(card).find('a').attr("href");
+                            var alphaNumericId = '';
+                            if (url.indexOf('profile.php') > -1) {
+                                alphaNumericArray= url.split('profile.php?id=');
+                                alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
+                                if(alphaNumericId.indexOf('&')){
+                                        alphaNumericId=alphaNumericId.split('&')[0];
+                                }
+                            } else {
+            
+                                alphaNumericArray= url.split('/');
+                                alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
+                                if(alphaNumericId.indexOf('?')){
+                                    alphaNumericId=alphaNumericId.split('?')[0];
+                                }
+                            }
+                            // Insert message from storage
+                            let HBMessage = resp.message;
+
+                            // Change name pattern on person name
+                            HBMessage = replaceNamePattern(facebookVersion, card, cardPrefix, HBMessage,mylocation);
+
+                            console.log(HBMessage); 
+
+                            if (typeof(alphaNumericId) == undefined || !alphaNumericId.length) {
+                                printInfo(cardPrefix + 'Place of birthday message not found');
+                            } else {
+                                printInfo(cardPrefix + 'Place of birthday message were found');
+
+                                await  sendDMMessage(alphaNumericId,HBMessage).then(async(result) => {
+                                    if (result) {
+                                        await sleep(10000);
+                                        //break;
+                                        printInfo(cardPrefix + 'Message has been sent');       
+                                    }
+                                });
+                            
+                                                    
+                            }
+                        }
+                        await sleep(5000);
                     }
                     else {
-                        let localData = resp.localData;
-
                         // Insert message from storage
                         let HBMessage = resp.message;
 
@@ -169,65 +207,65 @@ async function sendBDMessages() {
                             }
 
                             //break;
-                            printInfo(cardPrefix + 'Message has been sent');
+                            printInfo(cardPrefix + 'TL message has been sent');
 
-                            setLastMessage(localData, 'facebook');
+                            // setLastMessage(localData, 'facebook');
                         }
-                    }
-                    await sleep(30000);
-                    var url = $(card).find('a').attr("href");
-                    var alphaNumericId = '';
-                    if (url.indexOf('profile.php') > -1) {
-                        alphaNumericArray= url.split('profile.php?id=');
-                        alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
-                        if(alphaNumericId.indexOf('&')){
-                                alphaNumericId=alphaNumericId.split('&')[0];
-                        }
-                    } else {
-    
-                        alphaNumericArray= url.split('/');
-                        alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
-                        if(alphaNumericId.indexOf('?')){
-                            alphaNumericId=alphaNumericId.split('?')[0];
-                        }
-                    }
-                    resp = await getDMMessageToSend('facebook');
-                    if (resp.error) {
-                        printInfo("Didn't get message");
-                    } else {
-                        // Insert message from storage
-                        let HBMessage = resp.message;
-
-                        // Change name pattern on person name
-                        HBMessage = replaceNamePattern(facebookVersion, card, cardPrefix, HBMessage,mylocation);
-
-                        console.log(HBMessage); 
-
-                        if (typeof(alphaNumericId) == undefined || !alphaNumericId.length) {
-                            printInfo(cardPrefix + 'Place of birthday message not found');
+                        
+                        resp = await getDMMessageToSend('facebook');
+                        if (resp.error) {
+                            printInfo("Didn't get DM message");
                         } else {
-                            printInfo(cardPrefix + 'Place of birthday message were found');
-
-                            await  sendDMMessage(alphaNumericId,HBMessage).then(async(result) => {
-                                if (result) {
-                                    await sleep(10000);
-                                     //break;
-                                    printInfo(cardPrefix + 'Message has been sent');       
+                            await sleep(30000);
+                            var url = $(card).find('a').attr("href");
+                            var alphaNumericId = '';
+                            if (url.indexOf('profile.php') > -1) {
+                                alphaNumericArray= url.split('profile.php?id=');
+                                alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
+                                if(alphaNumericId.indexOf('&')){
+                                        alphaNumericId=alphaNumericId.split('&')[0];
                                 }
-                            });
-                           
-                                                
+                            } else {
+            
+                                alphaNumericArray= url.split('/');
+                                alphaNumericId= alphaNumericArray[alphaNumericArray.length-1];
+                                if(alphaNumericId.indexOf('?')){
+                                    alphaNumericId=alphaNumericId.split('?')[0];
+                                }
+                            }
+                            // Insert message from storage
+                            let HBMessage = resp.message;
+
+                            // Change name pattern on person name
+                            HBMessage = replaceNamePattern(facebookVersion, card, cardPrefix, HBMessage,mylocation);
+
+                            console.log(HBMessage); 
+
+                            if (typeof(alphaNumericId) == undefined || !alphaNumericId.length) {
+                                printInfo(cardPrefix + 'Place of birthday message not found');
+                            } else {
+                                printInfo(cardPrefix + 'Place of birthday message were found');
+                               
+                                await  sendDMMessage(alphaNumericId,HBMessage).then(async(result) => {
+                                    if (result) {
+                                        await sleep(10000);
+                                        //break;
+                                        printInfo(cardPrefix + 'DM message has been sent');       
+                                    }
+                                });
+                            
+                                                    
+                            }
                         }
-                    }
-                    await sleep(5000);
+                        await sleep(5000);
+                    }                    
                 }                
             }
         }
     
         await sleep(5000);
     } catch(err) {
-        console.log(err);
-        // closeFbTab();
+        closeFbTab();
     }
     
 }
@@ -307,7 +345,7 @@ function closeFbTab() {
 async function sendDMMessage(threadId, dmMessage) {
     return new Promise (function (resolve, reject) {
         sleep(5000)
-        .then(() => {
+        .then(() => {            
             let reqArr = Object.values(HB_DATA);            
             chrome.storage.local.get(reqArr, function(result) {
                 const work = result[HB_DATA.IS_WORKING];
@@ -317,8 +355,7 @@ async function sendDMMessage(threadId, dmMessage) {
                     dmMessage: dmMessage
                 },
                 function(resp) {
-                    console.log('send direct message', resp);
-                   
+                    console.log('send direct message', resp);                   
                     resolve(resp);
                 })
             })
@@ -330,40 +367,60 @@ function triggerDMRequestSendMessage(bulkMsgText) {
 	return new Promise(function(resolve, reject) {       
         var delay=1000;
         if(bulkMsgText.includes("|")){
-            var res = bulkMsgText.split("|");		
-            res.forEach(function(text){			
-                let messId=setTimeout(()=>{
-                    $('textarea').val(text);
-                    if ($('button[name="Send"]').length > 0) {
-                        $('button[name="Send"]').mclick();
-                    }else if($('input[name="Send"]').length > 0){
-                        $('input[name="Send"]').mclick();
-                    }
-                    message_total_send = message_total_send + 1;
-                },delay);
-                bulkMessageTimeout.push(messId);
-                delay=delay+1000;
-            });		
+            isNameSet = setInterval(()=>{
+
+                if ($('.mToken').length > 0 && $('.mToken').text().length > 0) {
+                    clearInterval(isNameSet)
+                    
+                    var res = bulkMsgText.split("|");		
+                    res.forEach(function(text){			
+                        let messId=setTimeout(()=>{
+                            $('textarea').val(text);
+                            setTimeout(()=>{
+                                setTimeout(()=>{
+                                    if ($('button[name="Send"]').length > 0) {
+                                        $('button[name="Send"]').mclick();
+                                    }else if($('input[name="Send"]').length > 0){
+                                        $('input[name="Send"]').mclick();
+                                    }
+                                }, 200)
+                                
+                            },500);
+                            message_total_send = message_total_send + 1;
+                        },delay);
+                        bulkMessageTimeout.push(messId);
+                        delay=delay+1000;
+                    });	
+                }
+            },200)	
         } 
         else{
-            $('textarea').val(bulkMsgText);
-            let messId = setTimeout(()=>{
-                if ($('button[name="Send"]').length > 0) {
-                    $('button[name="Send"]').mclick();
-                }else if($('input[name="Send"]').length > 0){
-                    $('input[name="Send"]').mclick();
+            isNameSet = setInterval(()=>{
+
+                if ($('.mToken').length > 0 && $('.mToken').text().length > 0) {
+                    clearInterval(isNameSet)
+                    $('textarea').val(bulkMsgText);
+        
+                    setTimeout(()=>{
+                        chrome.runtime.sendMessage({closeRequestMessageTab: "closeRequestMessageTab"});	
+                        setTimeout(()=>{
+                            if ($('button[name="Send"]').length > 0) {
+                                $('button[name="Send"]').mclick();
+                            }else if($('input[name="Send"]').length > 0){
+                                $('input[name="Send"]').mclick();
+                            }
+                        }, 200)
+                        
+                    },500);
+        
                 }
-                message_total_send = message_total_send + 1;
-            },delay);
-            bulkMessageTimeout.push(messId);
-            delay=delay+1000;		
+            },200)	
         }
 
-        var closeMessage= setTimeout(function(){			
+        setTimeout(()=>{
             clearTimeOutIntervals();
             chrome.runtime.sendMessage({closeRequestMessageTab: "closeRequestMessageTab"});	
-        },delay);	
-        bulkMessageTimeout.push(closeMessage);                
+        },30000);             
         resolve();
     })	
 }

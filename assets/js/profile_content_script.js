@@ -49,7 +49,7 @@ $(function(){
 				}
 			});
 		}
-	},1000);
+	},2000);
 	setInterval(()=>{
 		if (($('div[role="tablist"] span:contains("About")').length > 0)||($('div[role="tablist"] span:contains("Posts")').length > 0)) {
 			var pathname = window.location.href.toString();
@@ -68,7 +68,7 @@ $(function(){
 				}
 			});
 		}
-	},1000);
+	},2000);
 	setInterval(()=>{
 
 		var spanElement = $('div[role="tablist"] span:contains("Timeline")');
@@ -98,7 +98,7 @@ $(function(){
 				}
 			});
 		}
-	},1000);
+	},2000);
 
 	var findULText = setInterval(function(){
 		if($("div[data-referrer='timeline_collections_section_title']").length > 0 || $(fb_list_friends_selectors_new).length > 0){
@@ -106,7 +106,7 @@ $(function(){
 				
 			integrateSSAMultiTags();
 		}
-	}, 1000);
+	}, 2000);
 
    /////////// open tag list model for profile friends and group members 
 	$(document).on('click','.ssa-tags-container span', function() {

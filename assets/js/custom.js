@@ -1346,11 +1346,8 @@ $(document).ready(function(){
 						//if (tagUser.fb_user_id != null && (tagUser.tag_id.indexOf(searchTagById) > -1)) {
 						if (tagUser.fb_user_id != null && tagUser.tag_id == item.value) {	
 							contactsPerTag++;
-						} 
-
+						}
 					});
-
-
 					liStyle = '';
 					liclass = '';
 					if (item.color == null) {
@@ -1464,6 +1461,7 @@ $(document).ready(function(){
 		var bulkMessageTextArray = [];
 		var sendRandomMessage = false;
 		var useRandomDelay = false;
+		var removeFromTag = false;
 		var sendLimit = $('#bulk-send-limit').val();
 		var useSendLimit = true;
 		if ($('#bulk-send-limit').val() != '' && parseInt($('#bulk-send-limit').val()) < 1) {
@@ -1485,6 +1483,9 @@ $(document).ready(function(){
 
 		if ($('#randomize-toggle-delay').is(':checked')) {
 			useRandomDelay = true;
+		} 
+		if ($('#remove-from-tag').is(':checked')) {
+			removeFromTag = true;
 		} 
 
 		isValueInMessageText = true;
@@ -1540,7 +1541,7 @@ $(document).ready(function(){
 		selectedBulkTagIds = [];
 		if ($('#send-to-all-tagged-user').prop('checked')) {
 			sendToAll = true;
-			sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit);
+			sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit,removeFromTag);
 		}else{
 			selectedBulkTagIds = [];
 			
@@ -1550,7 +1551,7 @@ $(document).ready(function(){
 					temp.tagname = result.currentSelTag;
 					temp.tagid = result.currentSelTag;
 					selectedBulkTagIds.push(temp);
-					sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay,sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit);
+					sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay,sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit,removeFromTag);
 				} else {
 					toastr['error']('Please select tag to send bulk');
 				}
@@ -2279,6 +2280,13 @@ $(document).ready(function(){
 		$(this).parent().parent().parent().parent().prev().find('.tag-name').focus();
 		if (userId != "") {
 			selected_tag = tagId;
+		}
+	});
+	$(document).on('click','.duplicate-tag', function() {    
+		var tagId = $(this).attr('tag-id');		
+		if (userId != "") {
+			selected_tag = tagId;
+			duplicateUserTag();
 		}
 	});
 	
@@ -3035,6 +3043,7 @@ $(document).ready(function(){
   		} else if(target == '#teams') {
   			showTeams();
 		} else if(target == '#birthday') {
+			getDoBDate();
 			getBdtlMessages();		
 			getBddmMessages();	
 	  	} 
@@ -3501,6 +3510,34 @@ $(document).ready(function(){
 			}
 		}
 	});
+	$('#chkDoBDay').change(function() {
+		console.log('Toggle: ' + $(this).prop('checked'));		
+		// Save do bday
+		var do_bday =  $(this).prop('checked') === true? "1":"0";
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/birthdays/toggle",
+					data: {userId:result.ssa_user.id,do_bday:do_bday},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						chrome.storage.local.set({'ssa_user':''});	
+					}else if (response.status == 404) {
+						//port.postMessage({'false': true});
+					} else {
+						const storageObj = {};					
+						storageObj[HB_DATA.CAN_SEND] = response.do_bday;
+						chrome.storage.local.set(storageObj);						            
+					}				  
+				});	
+			}
+		})
+	});
 });
 
 function loadMoreReminder(){
@@ -3715,6 +3752,9 @@ function getUserData(){
 					if(response.lastbdaydate != null){
 						storageObj[HB_DATA.LAST_DATE] = response.lastbdaydate;
 					}
+					if(response.do_bday != null){
+						storageObj[HB_DATA.CAN_SEND] = response.do_bday;
+					}
 					chrome.storage.local.set(storageObj);
 					// chrome.storage.local.set({'birthdays': response.birthdays, 'processbirthdays': response.processbirthdays});
 					createUpgradeButton(response.data);
@@ -3892,6 +3932,7 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 							  <ul class="m-0 p-0">
 								 <li class="pr-3"><i class="fa fa-envelope send-bulk-message" tag-id="`+tag.value+`" title="Send Message"></i></li>
 								 <li class="pr-3"><i class="fa fa-pencil edit-tag" tag-id="`+tag.value+`" title="Edit"></i></li>
+								 <li class="pr-3"><i class="fa fa-clone duplicate-tag" tag-id="`+tag.value+`" title="Duplicate"></i></li>	
 								 <li class="pr-3"><i class="fa fa-trash remove-tag" tag-id="`+tag.value+`" title="Delete"></i></li>
 								 <li class="pr-3"><i class="fa fa-paint-brush change-color" id="`+tag.value+`" tag-id="`+tag.value+`" title="Change Color"></i></li>
 							  </ul>										  
@@ -4566,7 +4607,7 @@ function saveBddmMessage(message, message_id = 0){
 		$.ajax({
 			type: "POST",
 			url: apiBaseUrl + "/birthdays/addDMmessage",
-			data: {message:message, userId:userId,  msgId: message_id},
+			data: {message:message, userId:userId, msgId: message_id},
 			dataType: 'json',
 			beforeSend: function (xhr) {
           	  xhr.setRequestHeader('unique-hash', uniqueHash);
@@ -4808,7 +4849,51 @@ function editUserTag(){
 		} 
 	}	
 }
+function duplicateUserTag(){
+	if(selected_tag > 0){
+		var tagId = selected_tag;
+		selected_tag = 0;
+		if(userId != ''){
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/tags/duplicate",
+				data: {tagId:tagId},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+              	  xhr.setRequestHeader('unique-hash', uniqueHash);
+        		}
+			}).done(function(response) {		
 
+				if(response.status == 401){
+					triggerLogout();
+					return false;
+				}else if (response.status == 404) {
+				} else {					
+					toastr["success"](response.msg);
+					var dupTag= response.data;
+					/********************/
+					chrome.storage.local.get(["tags"], function(result) {
+						var temp = [];
+						result.tags.forEach(function(item) {
+							temp.push(item);
+						});	
+						temp.push(dupTag);					
+						chrome.storage.local.set({"tags":temp});	
+						chrome.tabs.query({
+							active: true,
+							currentWindow: true
+						}, function (tabs) {
+							chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'syncTags'});
+							refreshTagsOnActions();
+							verifyUser();
+						});
+					});
+					/********************/
+				}	
+			});
+		} 
+	}	
+}
 function syncTags(tag){
 	chrome.storage.local.get(["tags"], function(result) {
 		var temp = [];
@@ -4890,7 +4975,7 @@ function verifyUser(){
 					});
 					REDUCE_CALLS
 					*/
-					
+					displayTags(response.tags, response.taggedUsers, result.fb_id);
 					$(".notes").each(function(i, obj) {
 						if(accountConfig.notes != null){
 							if(i > (accountConfig.notes-1)){
@@ -5642,7 +5727,7 @@ function displayRandomizeMessge(result,running = false) {
 	}	
 }
 
-function sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, sendAll, sendRandomMessage, sendLimit,useRandomDelay, useSendLimit) {
+function sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, sendAll, sendRandomMessage, sendLimit,useRandomDelay, useSendLimit,removeFromTag) {
 	var bulkTaggedUserArray = [];
 	chrome.storage.local.get(["taggedUsers","ssaPopupStates"], function(result) {
 		
@@ -5694,11 +5779,12 @@ function sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, send
 					temp.sendRandomMessage = sendRandomMessage;
 					temp.sendLimit = sendLimit;
 					temp.useRandomDelay = useRandomDelay;
+					temp.removeFromTag = removeFromTag;
 					temp.useSendLimit = useSendLimit;
 				
 					chrome.storage.local.set({"bulkMessageSettings":temp});
 					$('.arrow_icon').hide(); 
-					chrome.runtime.sendMessage({action: 'startBulkFromBackground',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay});
+					chrome.runtime.sendMessage({action: 'startBulkFromBackground',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay,removeFromTag:removeFromTag});
 					// chrome.tabs.sendMessage(tab.id,{from: 'popup', subject: 'openChatThreadBulkMessage',  bulkMessageTabId: tab.id, selectedBulkTagIds: selectedBulkTagIds, bulkMessageTextArray:bulkMessageTextArray, bulkDelay:bulkDelay,sendAll:sendAll,sendRandomMessage:sendRandomMessage,sendLimit:sendLimit,useRandomDelay:useRandomDelay});
 				}
 			});
@@ -5910,6 +5996,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         profile_pic=request.account_image_url;
     }
 });
+function getDoBDate(){
+	let reqArr = Object.values(HB_DATA);
+	chrome.storage.local.get(reqArr, (result) => {
+		if (result[HB_DATA.CAN_SEND] === "1") {
+			$('#chkDoBDay').prop('checked', true).change();
+		} else {
+			$('#chkDoBDay').prop('checked', false).change();
+		}
+	});
+}
 function getBdtlMessages(){
 	$('#messages_loader').show();
 	$('.bdtl-message-list').hide();
@@ -5933,8 +6029,9 @@ function getBdtlMessages(){
 
 				var messageList = '';
 				$('.bdtl-message-list').html('');
+				let messages = [];	
 				if (response.status == 200 || response.result == 'success') {
-					let messages = [];			
+							
 					response.data.forEach(function(message){
 						//console.log(message.id);
 						messages.push(message);
@@ -5971,6 +6068,9 @@ function getBdtlMessages(){
 					 storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
 					 chrome.storage.local.set(storageObj);		
 				} else {
+					const storageObj = {};
+					storageObj[HB_DATA.BDTLMSG] = messages;				
+					chrome.storage.local.set(storageObj);
 					//console.log('message.id.no');
 					$('#messages_loader').hide();
 					messageList = noMessagesUnderTemplate;
@@ -6005,8 +6105,9 @@ function getBddmMessages(){
 
 				var messageList = '';
 				$('.bddm-message-list').html('');
+				let messages = [];
 				if (response.status == 200 || response.result == 'success') {
-					let messages = [];			
+							
 					response.data.forEach(function(message){
 						//console.log(message.id);
 						messages.push(message);
@@ -6042,6 +6143,9 @@ function getBddmMessages(){
 					 storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
 					 chrome.storage.local.set(storageObj);					
 				} else {
+					const storageObj = {};
+					storageObj[HB_DATA.BDDMMSG] = messages;					
+					chrome.storage.local.set(storageObj);		
 					//console.log('message.id.no');
 					$('#messages_loader').hide();
 					messageList = noMessagesUnderTemplate;
