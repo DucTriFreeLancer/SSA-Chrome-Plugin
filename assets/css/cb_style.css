@@ -249,7 +249,7 @@ textarea{
     margin-bottom: 30px;
 }
 
-.react-comment{
+.react-comment, .react-tag-comment{
     min-height:30px;
     width:100%;
     padding:10px;
@@ -257,7 +257,7 @@ textarea{
     font-weight:bold;
 }
 
-.react-comment option{
+.react-comment option, .react-tag-comment option{
     font-weight:bold;
 }
 

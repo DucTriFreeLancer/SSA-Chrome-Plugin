@@ -3510,6 +3510,16 @@ $(document).ready(function(){
 			}
 		}
 	});
+	$('.send_hb_btn').click(function() {
+		let reqArr = Object.values(HB_DATA);
+		chrome.storage.local.get(reqArr, (result) => {
+			if (result[HB_DATA.CAN_SEND] === "0") {
+				toastr["info"]("You must set HB to active before sending");
+			} else {
+				chrome.runtime.sendMessage({action: 'startHBProcess'});
+			}
+		});
+	});
 	$('#chkDoBDay').change(function() {
 		console.log('Toggle: ' + $(this).prop('checked'));		
 		// Save do bday
@@ -3630,7 +3640,7 @@ function reloadAllTabsOnLogout() {
 			if (eachWindow.type == "normal") {
 				chrome.tabs.getAllInWindow(eachWindow.id, function(tabs) {
 						for (var i = 0, tab; tab = tabs[i]; i++) {
-						if (tab.url && ( tab.url.indexOf('/inbox') != -1 || tab.url.indexOf('facebook.com/messages') != -1 || tab.url.indexOf('messenger.com') != -1) ) {
+						if (tab.url && ( tab.url.indexOf('/inbox') != -1 || tab.url.indexOf('facebook.com/messages') != -1 || tab.url.indexOf('messenger.com') != -1 || tab.url.indexOf('facebook.com') != -1) ) {
 							chrome.tabs.reload(tab.id);
 						}
 					}

@@ -11,12 +11,12 @@
       "all_frames": true,
       "css": [ "/assets/css/content_script.css","assets/css/toastr.min.css" ],
       "js": [ "/assets/js/jquery.min.js", "assets/js/toastr.min.js", "config.js", "/assets/js/content_script.js", 
-         "/assets/js/page_content_script.js", "/assets/js/cb_script.js", "/assets/js/common.js" ],
+         "/assets/js/page_content_script.js", "/assets/js/common.js" ],
       "matches": [ "*://*.facebook.com/messages/*", "*://*.facebook.com/*/inbox*", "*://*.messenger.com/*" ]
    },
    {
-      "css": [ "/assets/css/content_script.css" ,"/assets/css/adf.css","assets/css/toastr.min.css" ],
-      "js": [ "/assets/js/jquery.min.js","assets/js/toastr.min.js", "config.js","/assets/js/message_func.js", "/assets/js/content_script.js", 
+      "css": [ "/assets/css/content_script.css" ,"/assets/css/adf.css","assets/css/toastr.min.css","/assets/css/jquery-ui.min.css" ],
+      "js": [ "/assets/js/jquery.min.js","/assets/js/jquery-ui.min.js","assets/js/toastr.min.js", "config.js","/assets/js/message_func.js", "/assets/js/content_script.js", 
          "/assets/js/profile_content_script.js","/assets/js/comment_blaster.js","/assets/js/bd_content_script.js",
          "/assets/js/afd_content_script.js","/assets/js/friends_list_script.js","/assets/js/common.js","/assets/js/constant.js"],
       "matches": [ "*://*.facebook.com/*" ]
@@ -43,6 +43,6 @@
    "short_name": "S$A",
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "1.0.0",
-   "web_accessible_resources": [ "comment_blaster.html", "assets/images/64.png", "assets/images/welcome.png",
-      "assets/css/cb_main.css" ]
+   "web_accessible_resources": [ "comment_blaster.html","lead_sniper.html", "assets/images/64.png", "assets/images/welcome.png",
+      "assets/css/cb_main.css","assets/js/t.js" ]
 }

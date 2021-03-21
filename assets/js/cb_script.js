@@ -3,13 +3,22 @@ const url_expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-
 const url_regex = new RegExp(url_expression);
 
 //** CLEAN PREVIOUS MESSAGES */
-chrome.storage.local.set({
+chrome.storage.local.set({   
     cb_custom_dms : []
-},function(res){});
+},function(res){
+    console.log('cleanned dm message')
+});
 
 chrome.storage.local.set({
     addPeopleToFriends : false
-},function(res){});
+},function(res){
+    console.log('cleanned add friend')
+});
+chrome.storage.local.set({   
+    cb_tag_people : ""
+},function(res){
+    console.log('cleanned tag cb')
+});
 $(document).ready(function () {
     //login system
     var byte = '';
@@ -130,7 +139,10 @@ $(document).ready(function () {
         }
 
     });
-
+    $('#react-tag-comment').on('change', function (e) {
+        var valueSelected = this.value;
+        chrome.storage.local.set({cb_tag_people:valueSelected},function(res){ console.log(valueSelected)});
+    });
 
     /////* Show Reply Texts onLoad */////
     var reply_bytes = '';
@@ -177,6 +189,16 @@ $(document).ready(function () {
 		if(result != null && typeof result.emoji_focus) {
 			chrome.storage.sync.set({emoji_focus: 0 });
 		}
+	});	
+    chrome.storage.local.get(["tags"], function(result) {
+		if(result != null && typeof result.tags  != undefined && result.tags != '') {
+			result.tags.forEach(function(item, index){
+                $('#react-tag-comment').append($('<option>', { 
+                    value: item.value,
+                    text : item.text 
+                }));
+		    });
+        }
 	});	
 
    /////* Add New Reply Text */////
@@ -695,11 +717,18 @@ $(document).ready(function () {
             alert('Invalid post url!');
             return;
         }
-
-        if(post_url.indexOf('?') > -1) {
-            post_url = post_url+"&lets_blast=1";
+        let lets_blast ='';
+        if(window.location.href.indexOf('lead_sniper.html') > 0) {
+            lets_blast ='lets_blast=0';
+        }
+        else{
+            lets_blast ='lets_blast=1';
+        }
+       
+        if(post_url.indexOf('?') > -1) {            
+            post_url = post_url+`&${lets_blast}`;
         }else{
-            post_url = post_url+"?lets_blast=1";
+            post_url = post_url+ `?${lets_blast}`;
         }
 
         //if (save_default){

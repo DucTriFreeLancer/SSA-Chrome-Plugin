@@ -39,6 +39,7 @@ $(document).ready(function () {
     //console.log('Document is ready now');
 
     insertControlsHtml();
+    $("#cf_controls").draggable();
     $('.cf_stop_btn').hide();
     $('.cf_start_btn').on('click', function () {
         startComments();
@@ -83,7 +84,6 @@ function insertControlsHtml() {
 <!--                    </div>-->
 
   <link rel="stylesheet" href="${chrome.extension.getURL("assets/css/cb_main.css")}">
-  <div class="cf_overlay"></div>
   <div id="cf_controls" class="cf_progressBar">
     <div class="cf_finished">
         <img src="${chrome.extension.getURL("assets/images/welcome.png")}"  style="width:200px"/ >
@@ -109,7 +109,12 @@ function startComments() {
 
     $('.cf_start_btn').hide();
     $('.cf_stop_btn').show();
-    $('.cf_text').text('Comment Blaster is replying to comments. Please wait...');
+    if(getLetBlast() =="1"){
+        $('.cf_text').text('Comment Blaster is replying to comments. Please wait...');
+    }
+    else{
+        $('.cf_text').text('Lead Sniper is replying to comments. Please wait...');
+    }
 
 
     reply_btns = getReplyButtons();
@@ -155,13 +160,13 @@ function cancelComments() {
 function updateStatusString(newLen) {
     let status_string = '';
     let main_text = '';
-
+    let comment_type = getLetBlast()=="1"? "Comment Blaster" :"Lead Sniper";
     if (newLen === 0) {
         stopComments();
-        main_text = 'Comment Blaster replied to all comments';
+        main_text = `${comment_type} replied to all comments`;
         status_string = "All Done!";
     } else {
-        main_text = 'Comment Blaster is replying to comments. Please wait...';
+        main_text = `${comment_type} is replying to comments. Please wait...`;
         //status_string = (reply_btns_count - newLen) + " of " + reply_btns_count + " Done!";
         status_string = (reply_btns_count - newLen) + " of " + getMaxReplies() + " Done!";
     }
@@ -344,6 +349,11 @@ function getPostId() {
     return post_url.searchParams.get("id");
 }
 
+function getLetBlast() {
+    //console.log('getLetBlast called');
+    return post_url.searchParams.get("lets_blast");
+}
+
 function getFbStoryId() {
     //console.log('getFbStoryId called');
 
@@ -461,6 +471,21 @@ function getCommenterName(comment) {
 
     return comment.find('._2b05>a').first().text();
 }
+function getCommenterFbId(comment) {
+    ////console.log('getCommenterFbId called');
+    var pathname = comment.find('._2b05>a')[0].href;
+    var clikedFBUserId = false;
+    if (pathname.indexOf('profile.php') > -1) {
+        clikedFBUserId =(new URL(pathname)).searchParams.get('id');
+
+    }else {
+        pathname=pathname.substring(pathname.lastIndexOf('/')+1, pathname.length);
+        if (pathname.indexOf('?') > -1) {
+            clikedFBUserId = pathname.split('?')[0];
+        }
+    }
+    return clikedFBUserId;
+}
 
 function getTagString(comment) {
     //console.log('getTagString called', comment);
@@ -526,7 +551,7 @@ async function postReply(form) {
 
         })
     })
-
+    
     let submit_btn = form.find('button[type="submit"]');
     let textarea = form.find('textarea.mentions-input');
     let input = form.find('input[name="comment_text"]');
@@ -539,20 +564,44 @@ async function postReply(form) {
 		like.get(0).click();
 	}
 
-    let reply_content = await makeReply(form, comment);
+    if(getLetBlast() == "1"){
+        let reply_content = await makeReply(form, comment);
 
-    submit_btn.removeAttr('disabled'); // enable button
-    //textarea.val(reply_content);
-    if(reply_content!=null){
-        input.val(reply_content);
+        submit_btn.removeAttr('disabled'); // enable button
+        //textarea.val(reply_content);
+        if(reply_content!=null){
+            input.val(reply_content);
 
-        submit_btn.click();
-        //submit_btn.css({'background': 'red'});
+            submit_btn.click();
+            //submit_btn.css({'background': 'red'});
+        }
     }
-    
 
     //rememberComment
     rememberComment(comment);
+    //tag people
+    let cb_tag_people ="";
+    let $checkedTags = [];
+    let $checkedUsersForMessenger = []; 
+    chrome.storage.local.get(["ssa_user","fb_id","cb_tag_people"],function(result){        
+        if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+            cb_tag_people= result.cb_tag_people;
+            if( cb_tag_people!=undefined && cb_tag_people!=null && cb_tag_people !=""){
+                $checkedTags.push(cb_tag_people);               
+                var fbName = getCommenterName(comment); 
+                var fbUserId = getCommenterFbId(comment)               
+                tempUser = {}; 
+                tempUser.fb_user_id = fbUserId;
+                tempUser.numeric_fb_id="";
+                tempUser.profilePic = "";
+                tempUser.fbName = fbName;
+                $checkedUsersForMessenger.push(tempUser);  
+                console.log("update fb user tag");              
+                port.postMessage({'type': 'updateFBUsertagForMultiUserOnGroupMember','data': {userId:result.ssa_user.id,loggedInFBId: result.fb_id, tagsArray:$checkedTags, checkedUsers: $checkedUsersForMessenger}});
+            }
+        }
+      
+    })
 }
 
 /*function makeReply(form, comment) {

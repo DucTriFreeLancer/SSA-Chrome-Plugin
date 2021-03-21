@@ -76,6 +76,46 @@ function getADFWelcomeMessage(welcomeMessageTextAdf, fullName,mylocation) {
 	return welcomeMessageTextAdf;
 }
 
+function getCBDMMessage(welcomeMessageText, fullName,mylocation) {
+
+    var d = new Date();
+	if (welcomeMessageText.indexOf('{full_name}') > -1) {
+		welcomeMessageText = welcomeMessageText.replace(/\{full_name}/g,fullName);
+	}
+
+	if (welcomeMessageText.indexOf('{first_name}') > -1) {
+		first_name = fullName.split(' ')[0];
+		welcomeMessageText = welcomeMessageText.replace(/\{first_name}/g,first_name);
+	}
+
+	if (welcomeMessageText.indexOf('{last_name}') > -1) {
+		nameArray = fullName.split(' ');
+		if(nameArray.length > 1){
+			last_name = nameArray[nameArray.length-1];
+			welcomeMessageText = welcomeMessageText.replace(/\{last_name}/g,last_name);
+		}else{
+			welcomeMessageText = welcomeMessageText.replace(/\{last_name}/g,'');
+		}
+	}
+
+	if (welcomeMessageText.indexOf('[mylocation]') > -1) {	
+		if(mylocation.includes("|")){
+			var locations = mylocation.split("|");		
+			mylocation = locations[Math.floor(Math.random() * locations.length)];	
+		}		
+		welcomeMessageText = welcomeMessageText.replace(/\[mylocation]/g,mylocation);
+    }
+    if (welcomeMessageText.indexOf('{thisday}') > -1) {
+		let thisday = weekday[d.getDay()];
+		welcomeMessageText = welcomeMessageText.replace(/\{thisday}/g,thisday);
+    }
+
+    if (welcomeMessageText.indexOf('{thismonth}') > -1) {
+		let thismonth = month[d.getMonth()];
+		welcomeMessageText = welcomeMessageText.replace(/\{thismonth}/g,thismonth);
+	}
+	return welcomeMessageText;
+}
 function getWelcomeMessage(welcomeMessageText, fullName,mylocation) {
 
     var d = new Date();

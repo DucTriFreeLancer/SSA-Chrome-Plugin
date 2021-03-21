@@ -3,7 +3,6 @@
 var port = chrome.runtime.connect({'name': 'formfiller'})
 port.postMessage({'type': 'get-form-data'});
 
-
 chrome.runtime.sendMessage({setFbIdForAll: "setFbIdForAll"});
 
 var processing = false;
@@ -2081,205 +2080,209 @@ function formatDate(dateFormat){
 
 	return today = mm + '/' + dd + ' ' + hh + ':'+ min;
 }
+
 displaySelectedTagRightSide();
 function displaySelectedTagRightSide(){
 	setInterval(()=>{
-		chrome.storage.local.get(["ssa_user","tags","taggedUsers", "teams", "teamMembers", "notes", "linkedFbAccount"], function(result) {			
-			if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
-				var loc1 = window.location.href;
-				loc1 = loc1.split("/t/");
-				if (typeof result.taggedUsers != "undefined" && result.taggedUsers != "" && typeof result.tags != "undefined" && result.tags != "") { 
+		var pathname = window.location.href.toString();	
+	 	if(pathname.indexOf("/messages") > -1 || pathname.indexOf("messenger") > -1){
+			chrome.storage.local.get(["ssa_user","tags","taggedUsers", "teams", "teamMembers", "notes", "linkedFbAccount"], function(result) {			
+				if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
+					var loc1 = window.location.href;
+					loc1 = loc1.split("/t/");
+					if (typeof result.taggedUsers != "undefined" && result.taggedUsers != "" && typeof result.tags != "undefined" && result.tags != "") { 
 
-					var taggedUsers = result.taggedUsers != null ? result.taggedUsers : [];
-					var li_fb_user_id = loc1[1];
-					// GetBothAphaAndNumericId(li_fb_user_id).then(function(fbIDsObject){
-					// 	li_fb_user_id = fbIDsObject.fb_user_id.replace('/', '');
-					// });		
-					var $tagIds = [];
-					var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id) });
-					if( temp.length > 0 ){
-						if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
-							$tagIds = temp[0].tag_id.split(',');
-						} else {
-							$tagIds = temp[0].tag_id;
+						var taggedUsers = result.taggedUsers != null ? result.taggedUsers : [];
+						var li_fb_user_id = loc1[1];
+						// GetBothAphaAndNumericId(li_fb_user_id).then(function(fbIDsObject){
+						// 	li_fb_user_id = fbIDsObject.fb_user_id.replace('/', '');
+						// });		
+						var $tagIds = [];
+						var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id) });
+						if( temp.length > 0 ){
+							if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+								$tagIds = temp[0].tag_id.split(',');
+							} else {
+								$tagIds = temp[0].tag_id;
+							}
 						}
-					}
-					var teamInfo = {};
-					if( typeof result.teams != "undefined" && result.teams != "" ){
-						result.teams.forEach(function (item) {
-							teamInfo[item.id] = item.name;
-						});
-					}
-					var teamMembersInfo = {};
-					if( typeof result.teamMembers != "undefined" && result.teamMembers != "" ){
-						result.teamMembers.forEach(function (item) {
-							teamMembersInfo[item.fb_user_id] = item.fb_name;
-						});
-					}
-					var mylocation='';
-					if( typeof result.linkedFbAccount != "undefined" && result.linkedFbAccount != "" && result.linkedFbAccount != null  && result.linkedFbAccount.location != null ){
-						mylocation= result.linkedFbAccount.location;
-					}
-					var notesList = '';
-					
-					if (typeof result.notes != "undefined" && result.notes != "") { 
-
-						var tempNotes = result.notes.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id) });
-						if(tempNotes.length > 0) {
-							notesList = '<div class="notes-list-container"><div class="notes-list">';
-							notesList += '<div class="grid-container">';
-							var fullName=''
-							if ($('.cts-message-list-item').length > 0) {
-								fullName = $('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
-							}else
-							{
-								fullName = $('._3tkv').find('a[target="_blank"]').first().text();
-							}								
-							tempNotes.forEach(function(eachNote){
-								var scope = description = '';
-								var sender = '?';
-								if(eachNote.team_id != 0) {
-								// 	scope = 'private';
-								// 	description = eachNote.description;
-								// } else {
-									scope = typeof teamInfo[eachNote.team_id]!= "undefined"?teamInfo[eachNote.team_id]:"";
-									description = '<a target="_blank" href="https://www.facebook.com/'+
-										eachNote.sender_fb_user_id+'">'+eachNote.description+'</a>';
-								}
-								if(eachNote.sender_fb_user_id in teamMembersInfo) {
-									var sender_name = teamMembersInfo[eachNote.sender_fb_user_id];
-									sender_name = sender_name.split(" ");
-									if(sender_name.length >= 2) {
-										sender = sender_name[0].charAt(0) + sender_name[1].charAt(0);
-									} else if(sender_name.length == 1) {
-										sender = sender_name[0].charAt(0) + sender_name[0].charAt(1);
-									} else {
-										sender = '?';
-									}
-								} else if(typeof eachNote.sender_fb_user_id != "undefined") {
-									sender = eachNote.sender_fb_user_id.split(".");
-									if(sender.length >= 2) {
-										sender = sender[0].charAt(0) + sender[1].charAt(0);
-									} else if(sender.length == 1) {
-										sender = sender[0].charAt(0) + sender[0].charAt(1);
-									} else {
-										sender = '?';
-									}
-								}
-								sender = sender.toUpperCase();
-								sender = '<a class="link-to-sender" target="_blank" href="https://www.facebook.com/'+
-										eachNote.sender_fb_user_id+'">' + sender + '</a>';
-								
-								if (eachNote.description.indexOf('[mylocation]') > -1) {	
-									if(mylocation.includes("|")){
-										var locations = mylocation.split("|");		
-										mylocation = locations[Math.floor(Math.random() * locations.length)];	
-									}								
-									eachNote.description = eachNote.description.replace(/\[mylocation]/g,mylocation);
-								}
-								if (eachNote.description.indexOf('[first_name]') > -1) {
-									first_name = fullName.split(' ')[0];
-									eachNote.description = eachNote.description.replace(/\[first_name]/g,first_name);
-								}
-				
-								if (eachNote.description.indexOf('[last_name]') > -1) {
-									nameArray = fullName.split(' ');
-									if(nameArray.length > 1){
-										last_name = nameArray[nameArray.length-1];
-										eachNote.description = eachNote.description.replace(/\[last_name]/g,last_name);
-									}else{
-										eachNote.description = eachNote.description.replace(/\[last_name]/g,'');
-									}
-								}	
-								/*notesList += '<div class="ssa-cols ssa-col-md-12 notes" note-id="'+eachNote.id+'">'+
-								'<div class="right-col-item ssa-cols ssa-col-md-4" >'+description+'</div>'+
-								'<div class="ssa-cols ssa-col-md-3 text-right">'+ scope +'</div>'+
-								'<div class="ssa-cols ssa-col-md-5 note-timing text-right" >'+eachNote.updatedDate+'</div></div>';*/
-								
-								notesList += '<div class="grid-item"><div class="grid-notes-sender">'+sender
-												+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div>';
-								if (scope != ''){
-									notesList+='<div class="grid-notes-team">' + scope + '</div></div>';
-								}
-								else 
-									notesList+='</div>';
-								notesList += '<div class="grid-item custom-scroll">'+eachNote.description+'</div>';
-						
+						var teamInfo = {};
+						if( typeof result.teams != "undefined" && result.teams != "" ){
+							result.teams.forEach(function (item) {
+								teamInfo[item.id] = item.name;
 							});
-							notesList += '</div>';
-							notesList += '</div>';
-							notesList += '</div>';									
 						}
-					} else {
-							//notesList += '<br>No notes to display!';
-					}
-
-					var totalTagLi = '<ul class="right-side-tag-list">';
-					$tagIds.forEach(function(eachTagId){
-						liclass = '';
-						liStyle = '';
-						eachTagIdOne = eachTagId.replace(/\#/g,'');
-						var foundTag = result.tags.filter(function (item) { return item.value == eachTagIdOne});
-						if (foundTag.length > 0) {
-							$liClass = foundTag[0].class;
-							$colorCode = foundTag[0].color;
-							liText = foundTag[0].text;
-
-							if ($colorCode== null) {
-								liclass = 'bg-'+$liClass;
-							}else{
-								liStyle = 'style = "background-color:'+$colorCode +'";'
-							}
-				
-							totalTagLi += '<li '+liStyle+' class="'+liclass+'">'+liText+'</li>';
+						var teamMembersInfo = {};
+						if( typeof result.teamMembers != "undefined" && result.teamMembers != "" ){
+							result.teamMembers.forEach(function (item) {
+								teamMembersInfo[item.fb_user_id] = item.fb_name;
+							});
 						}
-
-					})
-
-					totalTagLi += '</ul>';
-					
-					if(window.location.origin.indexOf('messenger.com') > -1){
+						var mylocation='';
+						if( typeof result.linkedFbAccount != "undefined" && result.linkedFbAccount != "" && result.linkedFbAccount != null  && result.linkedFbAccount.location != null ){
+							mylocation= result.linkedFbAccount.location;
+						}
+						var notesList = '';
 						
-						// $('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);						
-						if ($('.cts-message-list-item').length > 0) {
-							$('.right-side-tag-list').remove();
-							$('.notes-list-container').remove();
-							 // _3tkv
-							if ($('div[role="main"]').find('.tags-container').length == 0) {
-								var options='<div class="temp_image_box" style="width: calc(100%);"></div>'
-								options += '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-								options += '<div class="get-gl-right-notes">Add Notes</div>';
-								$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').first().parent().parent().parent().parent().prepend(options); 					
-							}							
-							$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').parent().after(notesList);
-							$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').parent().after(totalTagLi); 
-						}
- 						else{
+						if (typeof result.notes != "undefined" && result.notes != "") { 
+
+							var tempNotes = result.notes.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id) });
+							if(tempNotes.length > 0) {
+								notesList = '<div class="notes-list-container"><div class="notes-list">';
+								notesList += '<div class="grid-container">';
+								var fullName=''
+								if ($('.cts-message-list-item').length > 0) {
+									fullName = $('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
+								}else
+								{
+									fullName = $('._3tkv').find('a[target="_blank"]').first().text();
+								}								
+								tempNotes.forEach(function(eachNote){
+									var scope = description = '';
+									var sender = '?';
+									if(eachNote.team_id != 0) {
+									// 	scope = 'private';
+									// 	description = eachNote.description;
+									// } else {
+										scope = typeof teamInfo[eachNote.team_id]!= "undefined"?teamInfo[eachNote.team_id]:"";
+										description = '<a target="_blank" href="https://www.facebook.com/'+
+											eachNote.sender_fb_user_id+'">'+eachNote.description+'</a>';
+									}
+									if(eachNote.sender_fb_user_id in teamMembersInfo) {
+										var sender_name = teamMembersInfo[eachNote.sender_fb_user_id];
+										sender_name = sender_name.split(" ");
+										if(sender_name.length >= 2) {
+											sender = sender_name[0].charAt(0) + sender_name[1].charAt(0);
+										} else if(sender_name.length == 1) {
+											sender = sender_name[0].charAt(0) + sender_name[0].charAt(1);
+										} else {
+											sender = '?';
+										}
+									} else if(typeof eachNote.sender_fb_user_id != "undefined") {
+										sender = eachNote.sender_fb_user_id.split(".");
+										if(sender.length >= 2) {
+											sender = sender[0].charAt(0) + sender[1].charAt(0);
+										} else if(sender.length == 1) {
+											sender = sender[0].charAt(0) + sender[0].charAt(1);
+										} else {
+											sender = '?';
+										}
+									}
+									sender = sender.toUpperCase();
+									sender = '<a class="link-to-sender" target="_blank" href="https://www.facebook.com/'+
+											eachNote.sender_fb_user_id+'">' + sender + '</a>';
+									
+									if (eachNote.description.indexOf('[mylocation]') > -1) {	
+										if(mylocation.includes("|")){
+											var locations = mylocation.split("|");		
+											mylocation = locations[Math.floor(Math.random() * locations.length)];	
+										}								
+										eachNote.description = eachNote.description.replace(/\[mylocation]/g,mylocation);
+									}
+									if (eachNote.description.indexOf('[first_name]') > -1) {
+										first_name = fullName.split(' ')[0];
+										eachNote.description = eachNote.description.replace(/\[first_name]/g,first_name);
+									}
+					
+									if (eachNote.description.indexOf('[last_name]') > -1) {
+										nameArray = fullName.split(' ');
+										if(nameArray.length > 1){
+											last_name = nameArray[nameArray.length-1];
+											eachNote.description = eachNote.description.replace(/\[last_name]/g,last_name);
+										}else{
+											eachNote.description = eachNote.description.replace(/\[last_name]/g,'');
+										}
+									}	
+									/*notesList += '<div class="ssa-cols ssa-col-md-12 notes" note-id="'+eachNote.id+'">'+
+									'<div class="right-col-item ssa-cols ssa-col-md-4" >'+description+'</div>'+
+									'<div class="ssa-cols ssa-col-md-3 text-right">'+ scope +'</div>'+
+									'<div class="ssa-cols ssa-col-md-5 note-timing text-right" >'+eachNote.updatedDate+'</div></div>';*/
+									
+									notesList += '<div class="grid-item"><div class="grid-notes-sender">'+sender
+													+ '</div><div class="grid-notes-update">' + formatDate(eachNote.updated_at)+ '</div>';
+									if (scope != ''){
+										notesList+='<div class="grid-notes-team">' + scope + '</div></div>';
+									}
+									else 
+										notesList+='</div>';
+									notesList += '<div class="grid-item custom-scroll">'+eachNote.description+'</div>';
 							
-							if ($('._3tkv .right-side-tag-list').length > 0) {
-								$('._3tkv .right-side-tag-list').remove();
+								});
+								notesList += '</div>';
+								notesList += '</div>';
+								notesList += '</div>';									
+							}
+						} else {
+								//notesList += '<br>No notes to display!';
+						}
+
+						var totalTagLi = '<ul class="right-side-tag-list">';
+						$tagIds.forEach(function(eachTagId){
+							liclass = '';
+							liStyle = '';
+							eachTagIdOne = eachTagId.replace(/\#/g,'');
+							var foundTag = result.tags.filter(function (item) { return item.value == eachTagIdOne});
+							if (foundTag.length > 0) {
+								$liClass = foundTag[0].class;
+								$colorCode = foundTag[0].color;
+								liText = foundTag[0].text;
+
+								if ($colorCode== null) {
+									liclass = 'bg-'+$liClass;
+								}else{
+									liStyle = 'style = "background-color:'+$colorCode +'";'
+								}
+					
+								totalTagLi += '<li '+liStyle+' class="'+liclass+'">'+liText+'</li>';
 							}
 
-							if ($('._3tkv .notes-list-container').length > 0) {
-								$('._3tkv .notes-list-container').remove();
-							}
-							//$('._3tkv').find('a[target="_blank"]').first().after(totalTagLi);
-							$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);
-							$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().parent().after(notesList);
+						})
+
+						totalTagLi += '</ul>';
+						
+						if(window.location.origin.indexOf('messenger.com') > -1){
 							
-						}
-					}else{
+							// $('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);						
+							if ($('.cts-message-list-item').length > 0) {
+								$('.right-side-tag-list').remove();
+								$('.notes-list-container').remove();
+								// _3tkv
+								if ($('div[role="main"]').find('.tags-container').length == 0) {
+									var options='<div class="temp_image_box" style="width: calc(100%);"></div>'
+									options += '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+									options += '<div class="get-gl-right-notes">Add Notes</div>';
+									$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').first().parent().parent().parent().parent().prepend(options); 					
+								}							
+								$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').parent().after(notesList);
+								$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').parent().after(totalTagLi); 
+							}
+							else{
+								
+								if ($('._3tkv .right-side-tag-list').length > 0) {
+									$('._3tkv .right-side-tag-list').remove();
+								}
 
-						if ($('._4_j5 .right-side-tag-list').length > 0) {
-							$('._4_j5 .right-side-tag-list').remove();
-						}
+								if ($('._3tkv .notes-list-container').length > 0) {
+									$('._3tkv .notes-list-container').remove();
+								}
+								//$('._3tkv').find('a[target="_blank"]').first().after(totalTagLi);
+								$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().after(totalTagLi);
+								$('._3tkv').find('a[target="_blank"]').first().parent().parent().parent().parent().parent().after(notesList);
+								
+							}
+						}else{
 
- 						$('._4_j5').find('a[uid]').after(totalTagLi);
-						}					
-				}	
+							if ($('._4_j5 .right-side-tag-list').length > 0) {
+								$('._4_j5 .right-side-tag-list').remove();
+							}
 
-			}
-		});
+							$('._4_j5').find('a[uid]').after(totalTagLi);
+							}					
+					}	
+
+				}
+			});
+		}
 	}, 2000);
 }
 
@@ -2646,80 +2649,62 @@ function updateFBUsertagForMultiUserOnMessenger($checkedTags){
 //Handling opened window
 handleCB_UserWindow();
 function handleCB_UserWindow(){
-	let cb_current_window = window.location.href;
-	let url = new URL(cb_current_window);
-	if(window.name.indexOf("close")!=-1){
-		// let windowName = window.name;
-		// windowName = windowName.split("close")[1];
-		// setTimeout(function(){
-		// 	window.close();
-		// },parseInt(windowName));
-	}
-	//Handling sending messages
-	if(window.name.indexOf("sendMessageToUser")!=-1){
-		chrome.storage.local.get('cb_custom_dms',function(res){
-			let messages = res.cb_custom_dms;
-			let count = 0;
-			let message = messages[Math.floor(Math.random()*messages.length)];
+	setTimeout(() => {
+		let cb_current_window = window.location.href;
+		let url = new URL(cb_current_window);
+		
+		
+		console.log(url.searchParams.get('lets_blast_user'));
+		if(url.searchParams.get('lets_blast_user')!="1"){
+			return;
+		}
 
-			let input = $('textarea').get(0);
-			let btn = $('[name="send"]').get(0);
-
-			if(input && btn){
-				input.value=message;
-				btn.click();
+		let addFriendButton = $("[aria-label='Add Friend']").get(0);
+		
+		if(url.searchParams.get('addFriend')=="1"){
+			if(typeof addFriendButton != "undefined" ){
+				console.log("send the friend request");
+				let path = addFriendButton.getAttribute('href');
+				$.ajax({
+					type: "GET",
+					url: path,
+					success: function (data, txtStatus, request) {
+						
+					}
+				});
+			}		
+		}
+		
+					
+		if(url.searchParams.get('sendMessages')=="1"){
+		
+			console.log("send dm messge");	
+			var alphaNumericId = '';				
+			if (cb_current_window.indexOf('profile.php') > -1) {
+				alphaNumericId=	url.searchParams.get('id');
+			} else {
+				alphaNumericId= url.pathname.replace('/','');							
 			}
-
-		})
-	}
-	console.log(url.searchParams.get('lets_blast_user'));
-	if(url.searchParams.get('lets_blast_user')!="1"){
-		return;
-	}
-
-	let addFriendButton = $("[aria-label='Add Friend']").get(0);
-	let sendMsgButton = $("[aria-label='Message']").get(0);
-
-	
-	if(url.searchParams.get('addFriend')=="1"){
-		let path = addFriendButton.getAttribute('href');
-		let addAsFriendURL = new URL("https://m.facebook.com"+path);
-		addAsFriendURL.searchParams.set('closeTime',2000);
-		window.open(addAsFriendURL.href,'close',
-		`toolbar=no,
-		location=no,
-		status=no,
-		menubar=no,
-		scrollbars=yes,
-		resizable=yes,
-		width=100px,
-		height=100px`);
-	}
-	
+			console.log("Fb user id:" & alphaNumericId);
+			chrome.storage.local.get(["cb_custom_dms","linkedFbAccount"],function(res){
+				if (typeof res.linkedFbAccount.location != "undefined" && res.linkedFbAccount.location != ""){
+					mylocation= res.linkedFbAccount.location;				
+				}			
+				let messages = res.cb_custom_dms;
+				let fullname = $('#cover-name-root')[0].innerText;
+				let message = messages[Math.floor(Math.random()*messages.length)];
+				message = getCBDMMessage(message, fullname, mylocation);				
+				chrome.runtime.sendMessage({'action': 'sendCBRequestDMMessage',threadId:alphaNumericId, dmMessage:message})
+			});
 				
-	if(url.searchParams.get('sendMessages')=="1"){
-		let path2 = sendMsgButton.getAttribute('href');
-		let sendMsgPath = new URL("https://m.facebook.com"+path2);
-		chrome.storage.local.get('cb_custom_dms',function(res){
-			let messagesCount = res.length;
-			let closeAfter = 30000;
-			window.open(sendMsgPath.href,'sendMessageToUser|close'+closeAfter,
-					`toolbar=no,
-					location=no,
-					status=no,
-					menubar=no,
-					scrollbars=yes,
-					resizable=yes,
-					width=100px,
-					height=100px`);
-		});
-	}
-	
-	if(window.name=="currentUserBlaster"){
-		window.close();
-	}
-
-
+		}
+		
+		if(window.name=="currentUserBlaster"){
+			setTimeout(() => {
+				window.close();
+			}, 3000);		
+		}
+	}, 1000);
 }
 async function GetBothAphaAndNumericId(numericFBid) {
 
