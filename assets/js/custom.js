@@ -6556,7 +6556,7 @@ $(document).on('change', '.personalizationTemplates', function (e) {
 			}
 			 else if (template_text.length > 1 && item.emoji_template_focus==0) {
  
-				 $('#template_text').val(bulk_text + personalizationTemplate); 
+				 $('#template_text').val(template_text + personalizationTemplate); 
 			}else{
 				 $('#template_text').val(personalizationTemplate); 
 			} 
