@@ -9,8 +9,8 @@ const post_url = new URL(window.location);
 var diff = 10 * 1000;
 var reply_btns = [];
 var reply_btns_count = 0;
-var people_like = [];
-var people_like_count = [];
+var people_likes = [];
+var people_like_count = 0;
 var sleep_after = 15; // sleep after replying sleep_after comments and wait for sleep_for seconds and start again
 var sleep_for = 1* 60 * 1000 ; //
 var active_status = false; // to check if commenting is working or stopped
@@ -20,7 +20,7 @@ var max_reply = 0;
 var replys = [];
 var reply_filters = [];
 var scheduled_start = null;
-
+var fb_user_id = null;
 chrome.storage.sync.get(null, items => {
     console.log('items', items);
 
@@ -35,7 +35,11 @@ chrome.storage.sync.get(null, items => {
     post_type = items.post_type;
     //makeReply(items)
 });
-
+chrome.storage.local.get("fb_id",function(result){
+    if( typeof result.fb_id != "undefined" && result.fb_id != "" ){
+        fb_user_id = result.fb_id;
+    }
+});
 
 $(document).ready(function () {
     //console.log('Document is ready now');
@@ -106,34 +110,7 @@ function insertControlsHtml() {
 
     $(document.body).append(cont_html);
 }
-function startLikes() {
-    console.log('startLikes called');
-
-    //clear timeout in case we have set one
-    clearTimeout(scheduled_start);
-
-    $('.cf_start_btn').hide();
-    $('.cf_stop_btn').show();
-    $('.cf_text').text('Lead Sniper is replying to comments. Please wait...');
-    people_like=getPeopleLike();
-    all_people_likes = getPeopleLike(true);
-    
-    //console.log('reply_btns', reply_btns);
-    //console.log('all_reply_btns', all_reply_btns);
-    if (!people_like.length) {
-        // click load more if we have
-        loadMoreLikes();
-    }
-    people_like_count = all_people_likes.length;
-
-    // start replying to likers
-    if (people_like_count) {
-        active_status = true;
-        startAction();
-    }else{
-        active_status = false;
-    }
-}
+//#region "For People that commented post"
 function startComments() {
     console.log('startComments called');
 
@@ -187,24 +164,7 @@ function cancelComments() {
     $('#cf_controls').remove();
 
 }
-function updateStatusStringLikes(newLen) {
-    let status_string = '';
-    let main_text = '';
-    let comment_type = getLetBlast()=="1"? "Comment Blaster" :"Lead Sniper";
-    if (newLen === 0) {
-        stopComments();
-        main_text = `${comment_type} replied to all comments`;
-        status_string = "All Done!";
-    } else {
-        main_text = `${comment_type} is replying to comments. Please wait...`;
-        //status_string = (reply_btns_count - newLen) + " of " + reply_btns_count + " Done!";
-        status_string = (people_like_count - newLen) + " of " + getMaxLikes() + " Done!";
-    }
 
-    $('#cf_controls .status_string').text(status_string);
-    $('.cf_text').text(main_text);
-
-}
 function updateStatusString(newLen) {
     let status_string = '';
     let main_text = '';
@@ -223,36 +183,14 @@ function updateStatusString(newLen) {
     $('.cf_text').text(main_text);
 
 }
-function getMaxLikes() {
-    if (people_like_count > max_reply) {
-        return max_reply
-    }
-    return people_like_count;
-}
+
 function getMaxReplies() {
     if (reply_btns_count > max_reply) {
         return max_reply
     }
     return reply_btns_count;
 }
-function getPeopleLike(all=false){
-    let likes = [];
-    if (all){
-        let all_action_btns = $("#reaction_profile_browser").find("div.item._cs2.acw");
-        all_action_btns.each(function (ev) {
-            likes.push(this);
-        });
-        return btns;
-    }
-   
-	let all_action_btns = $("#reaction_profile_browser").find("div.item._cs2.acw:not(.gone_through)"); // Like,Comment and More buttons of all comments
-    
-	all_action_btns.each(function (ev) {
-        likes.push(this);
-    });
-    return btns;
-    
-}
+
 function getReplyButtons(all = false) {
     //console.log('getReplyButtons called');
 
@@ -367,58 +305,16 @@ function alreadyReplied(reply_btn) {
     return already_replied;
 }
 
-function getLoadMoreButton(like) {
+function getLoadMoreButton() {
    // console.log('getLoadMoreButton called');
-    if(like =="Like"){
-        let see_more_like= $('.title.mfsm.fcl')
-        if(see_more_like.length){
-            return see_more_like;
-        }
+   
+    let btn_prev_id = 'see_prev_' + getFbStoryId();
+    let see_prev_btn = $('#' + btn_prev_id + '>a');
+    if (see_prev_btn.length){
+        return see_prev_btn;
     }
-    else
-    {
-        let btn_prev_id = 'see_prev_' + getFbStoryId();
-        let see_prev_btn = $('#' + btn_prev_id + '>a');
-        if (see_prev_btn.length){
-            return see_prev_btn;
-        }
-        let btn_next_id = 'see_next_' + getFbStoryId();
-        return $('#' + btn_next_id + '>a');
-    }
-}
-async function loadMoreLikesBtns(load_btn) {
-    //console.log('loadMoreComments called', load_btn);
-
-    load_btn.get(0).click();
-
-    return new Promise(function (resolve, reject) {
-        let count = 0;
-        let interval = setInterval(function () {
-
-            people_like = getPeopleLike();
-
-			//5e7k3t start
-			loadMoreLikes();
-			//5e7k3t end
-			
-            if (people_like.length) {
-                //reply_btns_count = rep_btns.length;
-
-                //console.log('reply_btns', rep_btns);
-                resolve(people_like);
-                clearInterval(interval);
-            }
-            if (count > 60) {
-               // console.log('something web wrong ');
-                reject('could not load more like');
-                clearInterval(interval);
-                // try Again
-                loadMoreLikes()
-            }
-            count++
-        }, 500);
-    });
-
+    let btn_next_id = 'see_next_' + getFbStoryId();
+    return $('#' + btn_next_id + '>a');
 }
 
 async function loadMoreReplyBtns(load_btn) {
@@ -465,10 +361,7 @@ function getLetBlast() {
     //console.log('getLetBlast called');
     return post_url.searchParams.get("lets_blast");
 }
-function getLetBlastForLike() {
-    //console.log('getLetBlast called');
-    return post_url.searchParams.get("ft_ent_identifier");
-}
+
 function getFbStoryId() {
     //console.log('getFbStoryId called');
 
@@ -543,30 +436,7 @@ function scheduleStart() {
             startComments();
     }, sleep_for)
 }
-function loadMoreLikes() {
-    //console.log('loadMoreComments called');
-    let load_more_btn = getLoadMoreButton("Like");
-    if (load_more_btn.length) {
-        loadMoreLikesBtns(load_more_btn).then((res) => {
-            //console.log(' Loaded more comments');
-          //  console.log(' got new reps ', reply_btns);
-            // console.log('reply_btns_count ', reply_btns_count);
 
-          //  reply_btns = getReplyButtons();
-            //reply_btns_count += reply_btns.length;
-            active_status = true;
-            setTimeout(function () {
-
-                startLikes(); //
-
-            }, randomBetween(seconds + diff, seconds - diff));
-
-        });
-    }else{
-        active_status = false
-        updateStatusStringLikes(0);
-    }
-}
 function loadMoreComments() {
     //console.log('loadMoreComments called');
     let load_more_btn = getLoadMoreButton();
@@ -895,7 +765,308 @@ function startTyping(comment) {
 
     let url = "https://mobile.facebook.com/ufi/typing/" + fbstory_id + "/start/?session_id=" + session_id + "&parent_comment_id=2581004138793547_543157266217454&av=100014369911062"
 }
+//#endregion
+//#region "For people that liked post"
+function startLikes() {
+    console.log('startLikes called');
+
+    //clear timeout in case we have set one
+    clearTimeout(scheduled_start);
+
+    $('.cf_start_btn').hide();
+    $('.cf_stop_btn').show();
+    $('.cf_text').text('Lead Sniper is replying to comments. Please wait...');
+    people_likes=getPeopleLike();
+    all_people_likes = getPeopleLike(true);
+    
+    //console.log('reply_btns', reply_btns);
+    //console.log('all_reply_btns', all_reply_btns);
+    if (!people_likes.length) {
+        // click load more if we have
+        loadMoreLikes();
+    }
+    people_like_count = all_people_likes.length;
+
+    // start replying to likers
+    if (people_like_count) {
+        active_status = true;
+        startActionForLike();
+    }else{
+        active_status = false;
+    }
+}
+function startActionForLike() {
+    //console.log('startAction called');
+
+    let people_like = people_likes[0];
+
+    if (!people_likes.length) {
+        //console.log('All done');
+        active_status = false;
+        return;
+    }
+    if (!active_status) {
+
+        //console.log('Stopped');
+        return;
+    }
+    let timeBetweenComments = 10000; //Seconds * 1000
+    setTimeout(function(){
+        var fbId = getLikerFbId(people_like);
+
+        if(fbId.indexOf(fb_user_id) > -1) { 
+            setTimeout(function () {
+                let remembered_people = people_likes.shift();
+                $(remembered_people).addClass('gone_through');
+                startActionForLike(); //
+
+            }, randomBetween(seconds - diff, seconds + diff));
+        } else{
+            friendAction(people_like);
+        }
+    },timeBetweenComments);
+}
+
+function updateStatusStringLikes(newLen) {
+    let status_string = '';
+    let main_text = '';
+    let comment_type = getLetBlast()=="1"? "Comment Blaster" :"Lead Sniper";
+    if (newLen === 0) {
+        stopComments();
+        main_text = `${comment_type} replied to all comments`;
+        status_string = "All Done!";
+    } else {
+        if(getLetBlastForLike()!= null){
+            main_text = `${comment_type} is replying to likes. Please wait...`;
+        }
+        else 
+            main_text = `${comment_type} is replying to comments. Please wait...`;
+        //status_string = (reply_btns_count - newLen) + " of " + reply_btns_count + " Done!";
+        status_string = (people_like_count - newLen) + " of " + getMaxLikes() + " Done!";
+    }
+
+    $('#cf_controls .status_string').text(status_string);
+    $('.cf_text').text(main_text);
+
+}
+function getMaxLikes() {
+    if (people_like_count > max_reply) {
+        return max_reply
+    }
+    return people_like_count;
+}
+function getPeopleLike(all=false){
+    let likes = [];
+    if (all){
+        let all_action_btns = $("#reaction_profile_browser").find("div.item._cs2.acw");
+        all_action_btns.each(function (ev) {
+            likes.push(this);
+        });
+        return likes;
+    }
+   
+	let all_action_btns = $("#reaction_profile_browser").find("div.item._cs2.acw:not(.gone_through)"); // Like,Comment and More buttons of all comments
+    
+	all_action_btns.each(function (ev) {
+        likes.push(this);
+    });
+    return likes;
+    
+}
+function loadMoreLikes() {
+    //console.log('loadMoreComments called');
+    let load_more_btn = getSeeMoreButton();
+    if (load_more_btn.length) {
+        loadMoreLikesBtns(load_more_btn).then((res) => {
+            //console.log(' Loaded more comments');
+          //  console.log(' got new reps ', reply_btns);
+            // console.log('reply_btns_count ', reply_btns_count);
+
+          //  reply_btns = getReplyButtons();
+            //reply_btns_count += reply_btns.length;
+            active_status = true;
+            setTimeout(function () {
+
+                startLikes(); //
+
+            }, randomBetween(seconds + diff, seconds - diff));
+
+        });
+    }else{
+        active_status = false
+        updateStatusStringLikes(0);
+    }
+}
+function getSeeMoreButton() {
+    // console.log('getLoadMoreButton called');
+    let see_more_like= $('.title.mfsm.fcl')
+    if(see_more_like.length){
+        return see_more_like;
+    }
+}
+async function loadMoreLikesBtns(load_btn) {
+    //console.log('loadMoreComments called', load_btn);
+
+    load_btn.get(0).click();
+
+    return new Promise(function (resolve, reject) {
+        let count = 0;
+        let interval = setInterval(function () {
+
+            people_likes = getPeopleLike();
+
+			//5e7k3t start
+			loadMoreLikes();
+			//5e7k3t end
+			
+            if (people_likes.length) {
+                //reply_btns_count = rep_btns.length;
+
+                //console.log('reply_btns', rep_btns);
+                resolve(people_likes);
+                clearInterval(interval);
+            }
+            if (count > 60) {
+               // console.log('something web wrong ');
+                reject('could not load more like');
+                clearInterval(interval);
+                // try Again
+                loadMoreLikes()
+            }
+            count++
+        }, 500);
+    });
+
+}
+function getLetBlastForLike() {
+    //console.log('getLetBlast called');
+    return post_url.searchParams.get("ft_ent_identifier");
+}
+async function friendAction(people_like) {    
+	//console.log('postReply called', form);
+    let urlpath = getLikerFbId(people_like);
+    console.log(urlpath);
+    let addFriend = false;
+    let messages = [];
+    let dm_new_contact=false; 
+    let sendMessages=false; 
+    chrome.storage.local.get('addPeopleToFriends',function(res1){
+        addFriend=res1.addPeopleToFriends;
+        chrome.storage.local.get(["cb_custom_dms","cb_custom_dms_new_contact"],function(res2){
+            messages = res2.cb_custom_dms;
+            dm_new_contact= res2.cb_custom_dms_new_contact;
+            if(messages!=undefined && messages.length>0){
+                sendMessages= true;
+            }
+            
+            if(addFriend || (messages!=null && messages!=undefined && messages.length>0)){
+                let url = new URL("https://m.facebook.com/"+urlpath);
+                url.searchParams.set("lets_blast_user",1);
+                url.searchParams.set('addFriend',addFriend?1:0);
+                url.searchParams.set('sendMessages',sendMessages?1:0);
+                url.searchParams.set('dm_new_contact',dm_new_contact?1:0);
+                url = url.href;
+                window.open(url,'currentUserBlaster',
+                `toolbar=no,
+                location=no,
+                status=no,
+                menubar=no,
+                scrollbars=yes,
+                resizable=yes,
+                width=500px,
+                height=500px`);
+            }
 
 
+        })
+    })
+	
 
+    //rememberComment
+    rememberLike();
+    //tag people
+    let cb_tag_people ="";
+    let $checkedTags = [];
+    let $checkedUsersForMessenger = []; 
+    chrome.storage.local.get(["ssa_user","fb_id","cb_tag_people"],function(result){        
+        if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+            cb_tag_people= result.cb_tag_people;
+            if( cb_tag_people!=undefined && cb_tag_people!=null && cb_tag_people !=""){
+                $checkedTags.push(cb_tag_people);               
+                var fbName = getLikerName(people_like); 
+                var fbUserId = getLikerFbId(people_like);              
+                tempUser = {}; 
+                tempUser.fb_user_id = fbUserId;
+                tempUser.numeric_fb_id="";
+                tempUser.profilePic = "";
+                tempUser.fbName = fbName;
+                $checkedUsersForMessenger.push(tempUser);  
+                console.log("update fb user tag");              
+                port.postMessage({'type': 'updateFBUsertagForMultiUserOnGroupMember','data': {userId:result.ssa_user.id,loggedInFBId: result.fb_id, tagsArray:$checkedTags, checkedUsers: $checkedUsersForMessenger}});
+            }
+        }
+      
+    })
+}
+function rememberLike() {
+    //console.log('rememberComment called');
+
+    let remembered_people = people_likes.shift();
+    $(remembered_people).addClass('gone_through');
+
+    //console.log('reply_btns popped', reply_btns);
+    //console.log('remembered_btn', remembered_btn);
+
+    if (people_likes.length) {
+        updateStatusStringLikes(people_likes.length); 
+        // stop comments if react MAX_Reply
+        if (people_like_count - people_likes.length >= max_reply){
+            console.log('stop reached max',max_reply);
+
+            stopComments();
+        }
+
+        // sleep for sleep_for seconds and start again
+        if (people_like_count - people_likes.length >= sleep_after){
+            sleep_after = sleep_after + sleep_after;
+            console.log('sleep for',sleep_for);
+            stopComments();
+            scheduleStart();
+        }
+
+    }else {
+        // click load more if we have
+        loadMoreLikes();
+    }
+
+    // run again if we still have comments
+    if (people_likes.length && active_status) {
+        setTimeout(function () {
+
+            startActionForLike(); //
+
+        }, randomBetween(seconds - diff, seconds + diff));
+    }
+}
+function getLikerName(people_like) {
+    ////console.log('getCommenterName called');
+
+    return $(people_like).find("a:eq(1)").text()
+}
+function getLikerFbId(people_like) {
+    ////console.log('getCommenterFbId called');
+    var pathname = $(people_like).find("a:eq(1)")[0].href;
+    var clikedFBUserId = false;
+    if (pathname.indexOf('profile.php') > -1) {
+        clikedFBUserId =(new URL(pathname)).searchParams.get('id');
+
+    }else {
+        pathname=pathname.substring(pathname.lastIndexOf('/')+1, pathname.length);
+        if (pathname.indexOf('?') > -1) {
+            clikedFBUserId = pathname.split('?')[0];
+        }
+    }
+    return clikedFBUserId;
+}
+//#endregion
 //TODO:// SAVE_SETTINGS,....
