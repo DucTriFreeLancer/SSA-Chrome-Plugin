@@ -61,7 +61,7 @@ $(function(){
 			chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
 				var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 model-close">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") { 
-					temp = result.tags;
+					result.tags = result.tags.reverse();
 					for(i=0;i<result.tags.length;i++){
 						var style ='';
 						if (result.tags[i].color !== null ) {

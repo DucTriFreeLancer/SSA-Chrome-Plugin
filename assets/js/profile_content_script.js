@@ -134,7 +134,7 @@ $(function(){
 			chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
 				var options = '<div class="row custom-row"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") { 
-					temp = result.tags;
+					result.tags = result.tags.reverse();
 					for(i=0;i<result.tags.length;i++){
 						var style ='';
 						if (result.tags[i].color !== null ) {
@@ -205,7 +205,7 @@ $(function(){
 			chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
 				var options = '<div class="row custom-row"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") { 
-					temp = result.tags;
+					result.tags = result.tags.reverse();
 					for(i=0;i<result.tags.length;i++){
 						var style ='';
 						if (result.tags[i].color !== null ) {
@@ -285,7 +285,7 @@ $(function(){
 			chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
 				var options = '<div class="row custom-row"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") { 
-					temp = result.tags;
+					result.tags = result.tags.reverse();
 					for(i=0;i<result.tags.length;i++){
 						var style ='';
 						if (result.tags[i].color !== null ) {
@@ -775,7 +775,7 @@ function showMultiTagList() {
 	chrome.storage.local.get(["tags"], function(result) {
 		var options = '<div class="row custom-row"><div class="leve-1 tagged-name">'+' '+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+saveBtnHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container"><ul class="model-tag-list custom-scroll">';
 		if (typeof result.tags != "undefined" && result.tags != "") { 
-			temp = result.tags;
+			result.tags = result.tags.reverse();
 			for(i=0;i<result.tags.length;i++){
 				var style ='';
 				if (result.tags[i].color !== null ) {

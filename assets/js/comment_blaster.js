@@ -44,6 +44,22 @@ postsAddSSAButton = () =>{
     if(post_url==undefined || post_url==null || post_url.length<3){
         return;
     }
+    if(post_url.includes("/permalink/")== true){
+        var pid=post_url.split("permalink/")[1].split("&")[0].split("?")[0];
+    } 
+    else if(post_url.includes("/posts/")== true){
+        var pid=post_url.split("posts/")[1].split("&")[0].split("?")[0];
+    } 
+    else if(post_url.includes("?story_fbid=")== true){
+        var pid=post_url.split("?story_fbid=")[1].split("&")[0];
+    } 
+    else if(post_url.includes("/videos/")== true){
+        var pid=post_url.split("/videos/")[1].split("&")[0].split("?")[0];
+    } 
+    if(typeof pid == "undefined")
+    {
+        return;
+    }
     for (let dropdownAnc of ancestorOfDropdownOptions) {
         let prependCBElementHTML = '<img class="_2yaw img" src="'+chrome.extension.getURL("assets/images/64.png")+'"/> Use Comment Blaster™ ';
         let prependLSElementHTML = '<img class="_2yaw img" src="'+chrome.extension.getURL("assets/images/64.png")+'"/> Use Leads Sniper™ ';
@@ -53,7 +69,7 @@ postsAddSSAButton = () =>{
             newCBElement.innerHTML = prependCBElementHTML;
             
             
-            newCBElement.post_url = "https://m.facebook.com/"+post_url;
+            newCBElement.post_url = "https://m.facebook.com/"+pid;
             newCBElement.className="custom-link";
             newCBElement.setAttribute('role','menuitem');
             newCBElement.onclick = function(){
@@ -64,7 +80,7 @@ postsAddSSAButton = () =>{
             newLSElement.innerHTML = prependLSElementHTML;
             
             
-            newLSElement.post_url = "https://m.facebook.com/"+post_url;
+            newLSElement.post_url = "https://m.facebook.com/"+pid;
             newLSElement.className="custom-link";
             newLSElement.setAttribute('role','menuitem');
             newLSElement.onclick = function(){
@@ -136,11 +152,30 @@ function attachClickEvent() {
 
 
                     //
+                    box.find('._54nf').prepend('<li class="funnel-comment-ls __MenuItem">' +
+                        '<a href="#" class="_54nc" target="_blank">' +
+                        '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;">' +
+                        '<span style="font-size:15px !important;">' +
+                        ' Use Leads Sniper' + '&trade;' + 
+                        '</span>' +
+                        '</a></li><style>.funnel-comment-ls:hover{' +
+                        'background: rgb(255, 170, 0)' +
+                        '}</style>').find('.funnel-comment-ls').click(function () {
+                       //TODO://
+                        console.log('clicked')
+                        window.open(chrome.extension.getURL("lead_sniper.html?post_id=https://m.facebook.com/" + url2))
+                        // chrome.extension.sendMessage({type: "notification", options: {
+                        //         action: "create_tab",
+                        //         url: chrome.extension.getURL("index.html?post_id=https://m.facebook.com/" + url2)
+                        //     }}, (a,b) =>{
+                        //     console.log(a,b);
+                        // });
+                    });
                     box.find('._54nf').prepend('<li class="funnel-comment __MenuItem">' +
                         '<a href="#" class="_54nc" target="_blank">' +
                         '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;">' +
                         '<span style="font-size:15px !important;">' +
-                        ' Use Social Sales Accelerator' + '&trade;' + 
+                        ' Use Comment Blaster' + '&trade;' + 
                         '</span>' +
                         '</a></li><style>.funnel-comment:hover{' +
                         'background: rgb(255, 170, 0)' +
@@ -189,97 +224,107 @@ function onElementHeightChange(elm, callback){
 
 
 
- $('body').on('click', '.oajrlxb2', function() {
-    var out= $(this);
-    var myVar = setInterval(function(){ 
-        var href= out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find("._6coi.oygrvhab.ozuftl9m.l66bhrea.linoseic a.oajrlxb2").attr("href");
+// $('body').on('click', '.oajrlxb2', function() {
+//     var out= $(this);
+//     var myVar = setInterval(function(){ 
+//         var href= out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find("._6coi.oygrvhab.ozuftl9m.l66bhrea.linoseic a.oajrlxb2").attr("href");
 
-        if(out.hasClass("custom")==true && $('.nqmvxvec.j83agx80.jnigpg78').find(".custom-link").text().trim() != " Use Social Sales Accelerator™" && out.hasClass("clicked") ==false){  
-                    out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".custom").trigger("click");
-                    out.removeClass("custom");
-                    out.addClass("clicked");
-        }  
-        if(href == undefined){
-                if( out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".j83agx80.fv0vnmcu.hpfvmrgz:eq(0)").text().includes("View ") == true){
-                    if(out.hasClass("custom")==false){
-                            out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".j83agx80.fv0vnmcu.hpfvmrgz").trigger("click");
-                            out.addClass("clickking custom");
+//         if(out.hasClass("custom")==true && $('.nqmvxvec.j83agx80.jnigpg78').find(".custom-link").text().trim() != "Use Comment Blaster™" && out.hasClass("clicked") ==false){  
+//                     out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".custom").trigger("click");
+//                     out.removeClass("custom");
+//                     out.addClass("clicked");
+//         }  
+//         if(href == undefined){
+//                 if( out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".j83agx80.fv0vnmcu.hpfvmrgz:eq(0)").text().includes("View ") == true){
+//                     if(out.hasClass("custom")==false){
+//                             out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".j83agx80.fv0vnmcu.hpfvmrgz").trigger("click");
+//                             out.addClass("clickking custom");
 
-                    }
+//                     }
                     
-                } 
-        }
+//                 } 
+//         }
             
 
-        $('.q5bimw55').each(function(i, obj) {
-            var self=$(this);
-            var find =$(this).find(".qzhwtbm6.knvmm38d");
-            $(find).each(function(i, obj) {
+//         $('.q5bimw55').each(function(i, obj) {
+//             var self=$(this);
+//             var find =$(this).find(".qzhwtbm6.knvmm38d");
+//             $(find).each(function(i, obj) {
             
-            if(($(this).find("span").text() == "Delete post" || $(this).find("span").text() == "Remove post") &&  href !== undefined) {
-                if(href.includes("/permalink/")== true){
-                        var pid=href.split("facebook.com")[1].split("permalink/")[1].split("&")[0].split("?")[0];
-                } 
-                else if(href.includes("/posts/")== true){
-                        var pid=href.split("facebook.com")[1].split("posts/")[1].split("&")[0].split("?")[0];
-                } 
-                else if(href.includes("?story_fbid=")== true){
-                        var pid=href.split("facebook.com")[1].split("?story_fbid=")[1].split("&")[0];
-                } 
-                else if(href.includes("/videos/")== true){
-                        var pid=href.split("facebook.com")[1].split("/videos/")[1].split("&")[0].split("?")[0];
-                } 
-                $('.custom-link').remove();
-                // out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.n05y2jgg").trigger("click");
-                var url = chrome.extension.getURL("comment_blaster.html?post_id=https://m.facebook.com/" + pid);
-                self.prepend('<div class="custom-link" style="margin-left:8px;padding-left:8px;margin-bottom: 8px;font-weight: 600;font-size: 13px;"><a href="'+url+'" class="_54n" target="_blank" style="color: var(--primary-text);">' +
-                                        '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;margin-right:5px;">' +
-                                        '<span style="font-size:15px !important;">' + 
-                                        ' Use Social Sales Accelerator' + '&trade;' + 
-                                        '</span>' + 
-                                        '</a></div>'); 
-                                                out.removeClass("clickking");
-                                        if($('.nqmvxvec.j83agx80.jnigpg78').find(".custom-link").text()!=='' && out.hasClass("custom")==false){
-                                            clearInterval(myVar);
-                                        }
-            
-            }
-            });
-        });
+//             if(($(this).find("span").text() == "Delete post" || $(this).find("span").text() == "Remove post") &&  href !== undefined) {
+//                 if(href.includes("/permalink/")== true){
+//                         var pid=href.split("facebook.com")[1].split("permalink/")[1].split("&")[0].split("?")[0];
+//                 } 
+//                 else if(href.includes("/posts/")== true){
+//                         var pid=href.split("facebook.com")[1].split("posts/")[1].split("&")[0].split("?")[0];
+//                 } 
+//                 else if(href.includes("?story_fbid=")== true){
+//                         var pid=href.split("facebook.com")[1].split("?story_fbid=")[1].split("&")[0];
+//                 } 
+//                 else if(href.includes("/videos/")== true){
+//                         var pid=href.split("facebook.com")[1].split("/videos/")[1].split("&")[0].split("?")[0];
+//                 } 
+//                 if(typeof pid != "undefined"){
+//                     $('.custom-link').remove();
+//                     // out.parents(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0").find(".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.n05y2jgg").trigger("click");
+//                     var url = chrome.extension.getURL("lead_sniper.html?post_id=https://m.facebook.com/" + pid);
+//                     self.prepend('<div class="custom-link" style="margin-left:8px;padding-left:8px;margin-bottom: 8px;font-weight: 600;font-size: 13px;"><a href="'+url+'" class="_54n" target="_blank" style="color: var(--primary-text);">' +
+//                                             '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;margin-right:5px;">' +
+//                                             '<span style="font-size:15px !important;">' + 
+//                                             ' Use Leads Sniper' + '&trade;' + 
+//                                             '</span>' + 
+//                                             '</a></div>'); 
+//                     url = chrome.extension.getURL("comment_blaster.html?post_id=https://m.facebook.com/" + pid);
+//                     self.prepend('<div class="custom-link" style="margin-left:8px;padding-left:8px;margin-bottom: 8px;font-weight: 600;font-size: 13px;"><a href="'+url+'" class="_54n" target="_blank" style="color: var(--primary-text);">' +
+//                                             '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;margin-right:5px;">' +
+//                                             '<span style="font-size:15px !important;">' + 
+//                                             ' Use Comment Blaster' + '&trade;' + 
+//                                             '</span>' + 
+//                                             '</a></div>');                
+//                                             out.removeClass("clickking");
+//                                             clearInterval(myVar);
+//                 }
+//             }
+//             });
+//         });
 
-    }, 500);
-});
+//     }, 500);
+// });
 
 
  
 
 
 
-document.addEventListener("click", function(e){
+// document.addEventListener("click", function(e){
   
-    var myVar = setInterval(function(){   
-        $('.q5bimw55').each(function(i, obj) {
+//     var myVar = setInterval(function(){   
+//         $('.q5bimw55').each(function(i, obj) {
         
-            if($(this).find('a').attr("href") && $(this).find("a").text() == "Embed" && $(this).find("a").text() == "Delete post") {
-                var ahref = decodeURIComponent($(this).find('a').attr("href"));
-                var pid=ahref.split("facebook.com")[2].split("posts/")[1].split("&")[0];
-                var appel = $(this);
+//             if($(this).find('a').attr("href") && $(this).find("a").text() == "Embed" && $(this).find("a").text() == "Delete post") {
+//                 var ahref = decodeURIComponent($(this).find('a').attr("href"));
+//                 var pid=ahref.split("facebook.com")[2].split("posts/")[1].split("&")[0];
+//                 var appel = $(this);
 
-                $('.custom-link').remove();
+//                 $('.custom-link').remove();
+//                 var url = chrome.extension.getURL("lead_sniper.html?post_id=https://m.facebook.com/" + pid);
+//                 appel.prepend('<div class="custom-link" style="margin-left:8px;padding-left:8px;margin-bottom: 8px;font-weight: 600;font-size: 13px;"><a href="'+url+'" class="_54n" target="_blank" style="color: var(--primary-text);">' +
+//                     '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;margin-right:5px;">' +
+//                     '<span style="font-size:15px !important;">' + 
+//                     ' Use Leads Sniper' + '&trade;' + 
+//                     '</span>' + 
+//                     '</a></div>'); 
+//                 var url = chrome.extension.getURL("comment_blaster.html?post_id=https://m.facebook.com/" + pid);
+//                 appel.prepend('<div class="custom-link" style="margin-left:8px;padding-left:8px;margin-bottom: 8px;font-weight: 600;font-size: 13px;"><a href="'+url+'" class="_54n" target="_blank" style="color: var(--primary-text);">' +
+//                     '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;margin-right:5px;">' +
+//                     '<span style="font-size:15px !important;">' + 
+//                     ' Use Comment Blaster' + '&trade;' + 
+//                     '</span>' + 
+//                     '</a></div>'); 
+//                     clearInterval(myVar);
+//             }
 
-                var url = chrome.extension.getURL("comment_blaster.html?post_id=https://m.facebook.com/" + pid);
-                appel.prepend('<div class="custom-link" style="margin-left:8px;padding-left:8px;margin-bottom: 8px;font-weight: 600;font-size: 13px;"><a href="'+url+'" class="_54n" target="_blank" style="color: var(--primary-text);">' +
-                    '<img class="_2yaw img" aria-hidden="true" src="'+chrome.extension.getURL("assets/images/64.png")+'" alt="" style=" max-height: 22px;max-width: 22px;margin-right:5px;">' +
-                    '<span style="font-size:15px !important;">' + 
-                    ' Use Social Sales Accelerator' + '&trade;' + 
-                    '</span>' + 
-                    '</a></div>'); 
-                    if($('.nqmvxvec.j83agx80.jnigpg78').find(".custom-link").text()!==''){
-                        clearInterval(myVar);
-                    }
-            }
-
-        });
-    }, 500);
+//         });
+//     }, 500);
      
-}); 
+// }); 

@@ -1192,3 +1192,6 @@ input::placeholder {
     position: relative;
     display: block;
 }
+.overlay-four {
+	background: rgba(8, 8, 8, 0.3)
+}

@@ -32,7 +32,18 @@
                         <input readonly disabled type="text" name="post_id" id="post_id" class="input">
                     </div>
                 </div>
-            
+                <div class="col-sm-6">
+                    <div class="inputBox ">
+                        <label style="font-size: 18pt; margin-top: 10px;"><b>People</b></label><br />
+                        <label style="font-size: 12pt; opacity: 0.7;"><i>Choose either comments or likes</i></label>
+                        <div class="clearfix" style="min-height:75px;">
+                            <select name="post_type"  class="post_type" style="max-height:45px;cursor:pointer;width:100%;padding:10px;font-size: 13pt;font-weight:bold">
+                                <option value = "">Process people that commented.</option>
+                                <option value ="Like">Process people that liked.</option> 
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="row">
@@ -70,10 +81,12 @@
             <div class="row">
                 <div class="col-sm-12" style="font-size: 18pt; margin-top: 20px;">
                     <label>Add to friends : </label> <input type="checkbox" id="addPeopleToFriends"/>
-                </div>
-                
-                <div class="col-sm-12" style="font-size: 18pt; margin-top: 20px;">
+                </div>                
+                <div class="col-sm-6" style="font-size: 18pt; margin-top: 20px;">
                     <label>Send Direct Message : </label> <input type="checkbox" id="sendDirectMessage"/>
+                </div>
+                <div class="col-sm-6" style="font-size: 18pt; margin-top: 20px;">
+                    <label>Only Send Direct Message To New Contacts : </label> <input type="checkbox" id="sendDirectMessageToNewContact"/>
                 </div>
                 <!-- Modal -->
                 <div class="modal fade" id="dm_texts" role="dialog">

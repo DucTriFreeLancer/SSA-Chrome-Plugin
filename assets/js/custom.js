@@ -16,6 +16,8 @@ var selected_tag = 0;
 var tagName;
 var tagId;
 var accountConfig = {};
+var is_expired = 0;
+var partner_url ='';
 var tagColors = ['warning','primary','danger','success','dark','info'];
 var requests = [];
 var templateRequests = [];
@@ -295,6 +297,196 @@ function displayTagsListForAdf(tagsAndMessageSate=''){
 var reminderIdsArray=[];
 
 $(document).ready(function(){
+	$('#new_message_friend').click(function () {
+
+        $('#message_texts').modal(300);
+
+    });
+	
+    /////* Show Message Texts onLoad */////
+    var message_bytes = '';
+
+    function messageBytes(bytes) {
+        message_bytes = bytes;
+    }
+	/////* Show Message Texts onLoad */////
+	var message_bytes = '';
+
+    function messageBytes(bytes) {
+        message_bytes = bytes;
+    }
+	
+    // gets the number of bytes used in sync storage area
+   chrome.storage.sync.getBytesInUse(['messages'], messageBytes);
+    chrome.storage.sync.get('messages', items => {
+
+        if (message_bytes != 0) {
+            const messages = items.messages;
+            Object.keys(messages).forEach(key => {
+                var message = messages[key];
+				var reg = /'/g;
+				var newstr = "";
+				var datamessage =  message.replace(reg,newstr);
+				
+                $(".saved_message_friends").prepend("<p class='btn-outline-rounded  saved_tags'  data-message='"+datamessage+"'>"+
+                    message +
+                    " <button class='btn btn-sm btn-default float-right remove_message_friend' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
+                    "</p>");
+            });
+
+            if (!messages.length) {
+                $(".saved_message_friends").prepend('<p class="text-center text-danger nothing_text">Please add some messages</p>');
+
+            }
+        }else{
+            $(".saved_message_friends").prepend('<p class="text-center text-danger nothing_text">Please add some messages</p>');
+        }
+    });
+
+	 /////* Remove Message Filter */////
+     $(document).on('click', '.remove_message_friend', function (e) {
+
+        chrome.storage.sync.getBytesInUse(['messages'], messageBytes);
+        chrome.storage.sync.get('messages', items => {
+            let messages = [];
+            if (message_bytes != 0) {
+                messages = items.messages;
+                let message = $(this).closest('p');
+                messages.splice(messages.indexOf(message.data('message')),1);
+                message.remove();
+                chrome.storage.sync.set({messages: messages});
+
+                if (!messages.length) {
+                    $(".saved_message_friends").prepend('<p class="text-center text-danger nothing_text">No Filter Text added yet</p>');
+
+                }
+            }
+        });
+
+    });
+    $('#remove_message_friend').click(function () {
+        chrome.storage.sync.set({messages: []});
+		$('.saved_message_friends p').remove();
+    });
+	 /////* Add New Message Text */////
+	 $(document).on('click', '#submit_message', function (e) {
+        e.preventDefault();
+
+        chrome.storage.sync.getBytesInUse(['messages'], messageBytes);
+        chrome.storage.sync.get('messages', items => {
+            let messages = [];
+            if (message_bytes != 0) {
+                messages = items.messages;
+                //console.log(replys);
+            }
+            let message_input = $('#reply_text');
+            if (message_input.val().length > 1) {
+                let message = message_input.val().replace(/\r?\n/g, '<br />');
+                messages.push(message);
+                chrome.storage.sync.set({messages: messages});
+                message_input.val('');
+                var reg = /'/g;
+                var newstr = "";
+                var datareply =  message.replace(reg,newstr);
+    
+                $(".saved_message_friends").find('.nothing_text').remove();
+                $(".saved_message_friends").prepend("<p class='btn-outline-rounded saved_tags'  data-message='"+datareply+"'>"+
+                message +
+                    " <button class='btn btn-sm btn-default float-right remove_message_friend' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
+                    "</p>");
+            }
+        });
+    });
+	$(document).on('change', '.emoji', function (e) {
+		let emoji= $(this).val();
+		if(emoji!==''){
+			let reply_input = $('#reply_text').val(); 
+			//var position = $('#reply_text').prop("selectionStart");
+			 chrome.storage.sync.get('emoji_focus', item => {
+				 
+				if (reply_input.length > 1 && item.emoji_focus!=0) {
+					var count = Array.from(reply_input.split(/[\ufe00-\ufe0f]/).join("")).length;
+				 
+					const usingSpread = [...reply_input]; 
+				  
+					 var output = usingSpread.slice(0, item.emoji_focus).join('') +  emoji + usingSpread.slice(item.emoji_focus, count).join('');
+						  
+					 $('#reply_text').val(output);  
+
+				}
+				 else if (reply_input.length > 1 && item.emoji_focus==0) {
+	 
+					 $('#reply_text').val(reply_input + emoji); 
+				}else{
+					 $('#reply_text').val(emoji); 
+				} 
+				chrome.storage.sync.set({emoji_focus: parseInt(item.emoji_focus) +1 });
+			
+			 });
+		}
+			  
+	   
+	});
+	
+	
+	$( "#reply_text" ).click(function() { 
+	 var position = $('#reply_text').prop("selectionStart"); 
+	 var reply_input = $('#reply_text').val().substr(0, position);
+	 var minus= ((reply_input.match(/🙂/g) || []).length) + ((reply_input.match(/😀/g) || []).length) + 
+	 ((reply_input.match(/😉/g) || []).length)+
+	 ((reply_input.match(/😂/g) || []).length)+ 
+	 ((reply_input.match(/😥/g) || []).length) + 
+	 ((reply_input.match(/😓/g) || []).length)+ 
+	 ((reply_input.match(/😍/g) || []).length)+ 
+	 ((reply_input.match(/😆/g) || []).length)
+				
+	  chrome.storage.sync.set({emoji_focus: position-minus });
+	});
+	
+	$( "#reply_text" ).blur(function() { 
+	 var position = $('#reply_text').prop("selectionStart"); 
+	 var reply_input = $('#reply_text').val().substr(0, position);
+	var minus= ((reply_input.match(/🙂/g) || []).length) + ((reply_input.match(/😀/g) || []).length) + 
+	 ((reply_input.match(/😉/g) || []).length)+
+	 ((reply_input.match(/😂/g) || []).length)+ 
+	 ((reply_input.match(/😥/g) || []).length) + 
+	 ((reply_input.match(/😓/g) || []).length)+ 
+	 ((reply_input.match(/😍/g) || []).length)+ 
+	 ((reply_input.match(/😆/g) || []).length)
+	   
+	 var position = $('#reply_text').prop("selectionStart"); 
+	  chrome.storage.sync.set({emoji_focus: position-minus  });
+	});
+	
+	$(document).on('change', '.personalization', function (e) {
+		let personalization= $(this).val();
+		if(personalization!==''){
+			let reply_input = $('#reply_text').val();  
+			var length = personalization.length;
+			 chrome.storage.sync.get('emoji_focus', item => {
+				 
+				if (reply_input.length > 1 && item.emoji_focus!=0) {
+					var count = Array.from(reply_input.split(/[\ufe00-\ufe0f]/).join("")).length;
+				 
+					const usingSpread = [...reply_input]; 
+				  
+					 var output = usingSpread.slice(0, item.emoji_focus).join('') +  personalization + usingSpread.slice(item.emoji_focus, count).join('');
+						  
+					 $('#reply_text').val(output);  
+
+				}
+				 else if (reply_input.length > 1 && item.emoji_focus==0) {
+	 
+					 $('#reply_text').val(reply_input + personalization); 
+				}else{
+					 $('#reply_text').val(personalization); 
+				} 
+				 
+				chrome.storage.sync.set({emoji_focus: parseInt(item.emoji_focus) + length });
+			
+			 });
+		} 
+	});
 	$("#adf-start").on('click', function() {
     	startSendFriendRequests();  
 	});
@@ -3733,6 +3925,14 @@ function getUserData(){
 					chrome.runtime.sendMessage({action: "taggedUserfromGroupleads", taggedUserfromGroupleads:response.taggedUserfromGroupleads});
 					userId = response.data.id;	
 					accountConfig = response.planConfig;
+					is_expired= response.data.is_expired;
+					partner_url= response.data.partner_url;
+					if(is_expired == 1){
+						$('.screens').hide();
+						document.getElementById("partner_url").href = partner_url;
+						$('#expired_accounts_screen').show();						
+						return;
+					}
 					/*if(response.planConfig.id == 1){
 						$(".createCalendarEventBtn").hide();
 					}
@@ -3751,7 +3951,7 @@ function getUserData(){
 					}
 
 					isCurrentFBLinked = (linkedFbAccount.length > 0)?true:false;
-					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked});
+					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked});
 					const storageObj = {};
 					storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
 					if(response.birthdays != null)
@@ -5830,6 +6030,7 @@ function displayBulkMessgesSettings() {
 		$('.arrow_icon').hide();
 		$('#bulk-messge-text').val(messageText);
 		if(!sendall){
+			result.tags=result.tags.reverse();	
 			result.tags.forEach(function(item,index){
 				foundInSelect = selectedBulkTagIds.filter((list)=> list.tagid == item.value)
 				var unselectedLi = '';

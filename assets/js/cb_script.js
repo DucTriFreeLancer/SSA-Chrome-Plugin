@@ -1,24 +1,29 @@
 console.log('script.js Lodaed');
 const url_expression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
 const url_regex = new RegExp(url_expression);
+if(window.location.href.indexOf('lead_sniper.html') > 0 || window.location.href.indexOf('comment_blaster.html') > 0)
+{
+	//** CLEAN PREVIOUS MESSAGES */
+	chrome.storage.local.set({   
+		cb_custom_dms : [],
+        cb_custom_dms_contact : [],
+        cb_custom_dms_new_contact: false
+	},function(res){
+		console.log('cleanned dm message')
+	});
 
-//** CLEAN PREVIOUS MESSAGES */
-chrome.storage.local.set({   
-    cb_custom_dms : []
-},function(res){
-    console.log('cleanned dm message')
-});
+	chrome.storage.local.set({
+		addPeopleToFriends : false
+	},function(res){
+		console.log('cleanned add friend')
+	});
+	chrome.storage.local.set({   
+		cb_tag_people : ""
+	},function(res){
+		console.log('cleanned tag cb')
+	});
+}
 
-chrome.storage.local.set({
-    addPeopleToFriends : false
-},function(res){
-    console.log('cleanned add friend')
-});
-chrome.storage.local.set({   
-    cb_tag_people : ""
-},function(res){
-    console.log('cleanned tag cb')
-});
 $(document).ready(function () {
     //login system
     var byte = '';
@@ -107,17 +112,7 @@ $(document).ready(function () {
         $('#reply_filters').modal(300);
 
     });
-    $('#new_message_friend').click(function () {
-
-        $('#message_texts').modal(300);
-
-    });
-
-    $('#remove_message_friend').click(function () {
-        chrome.storage.sync.set({messages: []});
-		$('.saved_message_friends p').remove();
-    });
-
+    
     $('#post_id').keyup(function (ev) {
 
         let post_link = $(this).val();
@@ -182,6 +177,11 @@ $(document).ready(function () {
 	chrome.storage.sync.get('react_comment', reacts => {
 		if(reacts!= undefined){
 			$('.react-comment option[value="'+reacts.react_comment+'"]').attr("selected", "selected");
+		}
+	});
+    chrome.storage.sync.get('post_type', reacts => {
+		if(reacts!= undefined){
+			$('.post_type option[value="'+reacts.post_type+'"]').attr("selected", "selected");
 		}
 	});
 
@@ -258,9 +258,6 @@ $(document).ready(function () {
             chrome.storage.local.set({'cb_custom_dms':list},function(res){
             });
         });
-
-        
-        
     })
     //Remove all DMs
     //Storage variable : cb_custom_dms
@@ -270,6 +267,12 @@ $(document).ready(function () {
         chrome.storage.local.set({"cb_custom_dms":DMs});
         $(".saved_dms").html(null);
     });
+    //Option to only dm new contact
+    //storage variable : cb_custom_dms_new_contact
+    $(document).on('click','#sendDirectMessageToNewContact',function (e){
+        let isChecked = document.getElementById('sendDirectMessageToNewContact').checked;
+        chrome.storage.local.set({cb_custom_dms_new_contact:isChecked},function(res){});
+    })
     //DM Personalization select
     $(document).on('change','.dm_personalization',function(e){
         let val = $(".dm_personalization").val();
@@ -438,35 +441,7 @@ $(document).ready(function () {
         }
     });
 
-     /////* Add New Message Text */////
-    $(document).on('click', '#submit_message', function (e) {
-        e.preventDefault();
-
-        chrome.storage.sync.getBytesInUse(['messages'], messageBytes);
-        chrome.storage.sync.get('messages', items => {
-            let messages = [];
-            if (message_bytes != 0) {
-                messages = items.messages;
-                //console.log(replys);
-            }
-            let message_input = $('#reply_text');
-            if (message_input.val().length > 1) {
-                let message = message_input.val().replace(/\r?\n/g, '<br />');
-                messages.push(message);
-                chrome.storage.sync.set({messages: messages});
-                message_input.val('');
-                var reg = /'/g;
-                var newstr = "";
-                var datareply =  message.replace(reg,newstr);
     
-                $(".saved_message_friends").find('.nothing_text').remove();
-                $(".saved_message_friends").prepend("<p class='btn-outline-rounded saved_tags'  data-message='"+datareply+"'>"+
-                message +
-                    " <button class='btn btn-sm btn-default float-right remove_message_friend' style='padding: 1px 4px;'><small style='padding: 2px'>x</small></button>" +
-                    "</p>");
-            }
-        });
-    });
      /////* Remove Message Filter */////
      $(document).on('click', '.remove_message_friend', function (e) {
 
@@ -720,11 +695,13 @@ $(document).ready(function () {
         let lets_blast ='';
         if(window.location.href.indexOf('lead_sniper.html') > 0) {
             lets_blast ='lets_blast=0';
+            if($(".post_type").val() == "Like"){
+                post_url= "https://m.facebook.com/ufi/reaction/profile/browser/?ft_ent_identifier="+ (new URL(post_url)).pathname.replace('/', '');
+            }
         }
         else{
             lets_blast ='lets_blast=1';
-        }
-       
+        }        
         if(post_url.indexOf('?') > -1) {            
             post_url = post_url+`&${lets_blast}`;
         }else{
@@ -732,7 +709,7 @@ $(document).ready(function () {
         }
 
         //if (save_default){
-            saveDefaultSettings();
+        saveDefaultSettings();
         // }else{
         //
         // }
@@ -761,6 +738,10 @@ $(document).ready(function () {
     $(document).on('change', '.react-comment', function () {
 		var val= jQuery(this).val();
         chrome.storage.sync.set({react_comment: val});
+    });
+    $(document).on('change', '.post_type', function () {
+		var val= jQuery(this).val();
+        chrome.storage.sync.set({post_type: val});
     });
 	
 	$.fn.selectRange = function(start, end) {

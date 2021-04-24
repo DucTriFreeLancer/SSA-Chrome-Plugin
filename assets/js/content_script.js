@@ -1226,7 +1226,7 @@ $(function(){
 
 				var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") {
-					temp = result.tags;
+					result.tags = result.tags.reverse();
 					for(i=0;i<result.tags.length;i++){
 						var style ='';
 						if (result.tags[i].color !== null ) {
@@ -1301,7 +1301,7 @@ $(function(){
 			chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
 				var options = '<div class="row custom-row"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 close-model">X</div></div>'+searchHtml+'<div class="row custom-row"><div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") { 
-					temp = result.tags;
+					result.tags = result.tags.reverse();
 					for(i=0;i<result.tags.length;i++){
 						var style ='';
 						if (result.tags[i].color !== null ) {
@@ -2446,7 +2446,7 @@ function  checkFriendRequestForPostMessageNew(){
 
 
 function sendLoadedRequestNew() {
-	var newRequestids = [];
+	var newRequestidsTEMP = [];
 	var activeLogSelector = 'div[aria-label="List of activity log items"]';
 	if($(activeLogSelector).length == 0){
 		activeLogSelector = 'div[aria-label="List of Activity Log Items"]';
@@ -2460,41 +2460,82 @@ function sendLoadedRequestNew() {
 	totalTodaysFriend = 0;
 	if($('.cts-open').length > 0){
 		$('.cts-open').each(function (index) {
-			setTimeout(()=>{
+			setTimeout(()=>{				
+				// profileUrlTemp = $(this).attr('href')	
+				// var tempFriendData = {};
+				// profileUrlTemp = new URL(profileUrlTemp);
+				// var requestProfileId = profileUrlTemp.pathname.replace('/','');
+				// tempFriendData.requestProfileId = requestProfileId;
+				// tempFriendData.fullName = $(this).find('strong:eq(1)').text()
+	
+				// if (friendRequestHistory.length > 0) {
+				// 	found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId })
+				// 		if(found.length == 0){
+						
+				// 		}else{
+				// 			if (found[0].is_message_send == 1) {
+				// 				newRequestids.push(tempFriendData)
+				// 			}
+				// 			if (found[0].is_message_send == 1) {
+				// 				foundMulti = newRequestidsTEMP.filter((hisTemp)=>{return hisTemp.requestProfileId == requestProfileId })
+							   
+				// 			   if (foundMulti.length == 0) {
+				// 				   newRequestidsTEMP.push(tempFriendData);
+				// 			   }								
+							   
+				// 		   }
+				// 		}
+				// }
+				
+				// if($('.cts-open').length == 0){
+						
+				// 	chrome.runtime.sendMessage({friendRequestsFromContent: "friendRequestsFromContent", data: newRequestidsTEMP});
+				// }
 				$(this).mclick();
-
+				let thisme = $(this);							
 				setTimeout(()=>{
+
 					var LogSelector = 'div[aria-label="Activity log item"]';
 
 					if($(LogSelector).length == 0 ){
 						LogSelector = 'div[aria-label="Activity Log Item"]'
-					}
-					profileUrlTemp = $(LogSelector).find('.qzhwtbm6.knvmm38d h3 a:eq(1)').attr('href');	
+					}			
+
+					profileUrlTemp = $(thisme).attr('href')	
 					var tempFriendData = {};
-					profileUrlTemp = new URL(profileUrlTemp);
-					var requestProfileId = profileUrlTemp.pathname.replace('/','');
-					tempFriendData.requestProfileId = requestProfileId;
-					tempFriendData.fullName = $(LogSelector).find('.qzhwtbm6.knvmm38d h3 a:eq(1)').text();
-		
-					if (friendRequestHistory.length > 0) {
-						found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId })
-							if(found.length == 0){
-							
-							}else{
-								if (found[0].is_message_send == 1) {
-									newRequestids.push(tempFriendData)
-								}
-							}
-					}
+					var requestProfileId = '';
+					if (profileUrlTemp.indexOf('profile.php') > -1) {
+						requestProfileId =(new URL(profileUrlTemp)).searchParams.get('id');				
+					}else{
+						requestProfileId = (new URL(profileUrlTemp)).pathname.replace('/','');
+					}					
 					
-					if($('.cts-open').length == 0){
-						chrome.runtime.sendMessage({friendRequestsFromContent: "friendRequestsFromContent", data: newRequestids});
+					tempFriendData.requestProfileId = requestProfileId;
+					tempFriendData.fullName = $(thisme).find('strong:eq(1)').text()
+					
+				 	if (friendRequestHistory.length > 0) {
+				 		
+				 		found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId })
+				 	
+				 			if(found.length == 0){
+								
+							}else{
+								foundMulti = newRequestidsTEMP.filter((hisTemp)=>{return hisTemp.requestProfileId == requestProfileId })
+									
+								if (foundMulti.length == 0) {
+									newRequestidsTEMP.push(tempFriendData);
+								}	
+							}
+				 	}
+					if($('.cts-open').length -1 == index){						
+						chrome.runtime.sendMessage({friendRequestsFromContent: "friendRequestsFromContent", data: newRequestidsTEMP});
 					}
 
-				},7000)
+				},5000)
 			}, dealyToLoad);
-			dealyToLoad = dealyToLoad + 10000;
+			dealyToLoad = dealyToLoad + 15000;
 		});
+		// chrome.runtime.sendMessage({friendRequestsFromContent: "friendRequestsFromContent", data: newRequestidsTEMP});
 	}else{		
 		chrome.runtime.sendMessage({friendRequestsFromContentClose: "friendRequestsFromContentClose"});
 	}	
@@ -2615,7 +2656,7 @@ function showMultiTagListForMassTagging() {
 	chrome.storage.local.get(["tags"], function(result) {
 		var options = '<div class="row custom-row"><div class="leve-1 tagged-name">'+' '+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+saveBtnHtmlForMessenger+'<div class="row custom-row"> <div class="tags-container ssa-tags-container"><ul class="model-tag-list custom-scroll">';
 		if (typeof result.tags != "undefined" && result.tags != "") { 
-			temp = result.tags;
+			result.tags = result.tags.reverse();
 			for(i=0;i<result.tags.length;i++){
 				var style ='';
 				if (result.tags[i].color !== null ) {
@@ -2677,26 +2718,38 @@ function handleCB_UserWindow(){
 		
 					
 		if(url.searchParams.get('sendMessages')=="1"){
-		
-			console.log("send dm messge");	
-			var alphaNumericId = '';				
-			if (cb_current_window.indexOf('profile.php') > -1) {
-				alphaNumericId=	url.searchParams.get('id');
-			} else {
-				alphaNumericId= url.pathname.replace('/','');							
-			}
-			console.log("Fb user id:" & alphaNumericId);
-			chrome.storage.local.get(["cb_custom_dms","linkedFbAccount"],function(res){
-				if (typeof res.linkedFbAccount.location != "undefined" && res.linkedFbAccount.location != ""){
-					mylocation= res.linkedFbAccount.location;				
-				}			
-				let messages = res.cb_custom_dms;
-				let fullname = $('#cover-name-root')[0].innerText;
-				let message = messages[Math.floor(Math.random()*messages.length)];
-				message = getCBDMMessage(message, fullname, mylocation);				
-				chrome.runtime.sendMessage({'action': 'sendCBRequestDMMessage',threadId:alphaNumericId, dmMessage:message})
-			});
-				
+			if(url.searchParams.get('dm_new_contact')=="0"||(url.searchParams.get('dm_new_contact')=="1" && typeof addFriendButton != "undefined")){
+				console.log("send dm messge");	
+				var alphaNumericId = '';				
+				if (cb_current_window.indexOf('profile.php') > -1) {
+					alphaNumericId=	url.searchParams.get('id');
+				} else {
+					alphaNumericId= url.pathname.replace('/','');							
+				}
+				console.log("Fb user id:" & alphaNumericId);
+				chrome.storage.local.get(["cb_custom_dms","cb_custom_dms_contact","linkedFbAccount"],function(res){
+					if (typeof res.linkedFbAccount.location != "undefined" && res.linkedFbAccount.location != ""){
+						mylocation= res.linkedFbAccount.location;				
+					}			
+					let messages = res.cb_custom_dms;
+					let fullname = $('#cover-name-root')[0].innerText;
+					let message = messages[Math.floor(Math.random()*messages.length)];
+					message = getCBDMMessage(message, fullname, mylocation);			
+					let list = res.cb_custom_dms_contact;
+					if(!list){
+						list = [];
+					}
+					if(list.indexOf(alphaNumericId) > -1 ) {
+						console.log("user has been sent dm");
+					}
+					else{
+						list.push(alphaNumericId);
+						chrome.storage.local.set({'cb_custom_dms_contact':list},function(res){
+						});
+						chrome.runtime.sendMessage({'action': 'sendCBRequestDMMessage',threadId:alphaNumericId, dmMessage:message})
+					}
+				});
+			}	
 		}
 		
 		if(window.name=="currentUserBlaster"){

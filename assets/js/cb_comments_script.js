@@ -9,6 +9,8 @@ const post_url = new URL(window.location);
 var diff = 10 * 1000;
 var reply_btns = [];
 var reply_btns_count = 0;
+var people_like = [];
+var people_like_count = [];
 var sleep_after = 15; // sleep after replying sleep_after comments and wait for sleep_for seconds and start again
 var sleep_for = 1* 60 * 1000 ; //
 var active_status = false; // to check if commenting is working or stopped
@@ -30,7 +32,7 @@ chrome.storage.sync.get(null, items => {
     replys = items.replys;
     reply_filters = items.reply_filters;
 	react_comment = items.react_comment;
-
+    post_type = items.post_type;
     //makeReply(items)
 });
 
@@ -42,7 +44,11 @@ $(document).ready(function () {
     $("#cf_controls").draggable();
     $('.cf_stop_btn').hide();
     $('.cf_start_btn').on('click', function () {
-        startComments();
+        if(getLetBlast()=="0" && getLetBlastForLike()!= null){            
+            startLikes();
+        }
+        else        
+            startComments();
     });
     $('.cf_stop_btn').on('click', function () {
         stopComments();
@@ -100,7 +106,34 @@ function insertControlsHtml() {
 
     $(document.body).append(cont_html);
 }
+function startLikes() {
+    console.log('startLikes called');
 
+    //clear timeout in case we have set one
+    clearTimeout(scheduled_start);
+
+    $('.cf_start_btn').hide();
+    $('.cf_stop_btn').show();
+    $('.cf_text').text('Lead Sniper is replying to comments. Please wait...');
+    people_like=getPeopleLike();
+    all_people_likes = getPeopleLike(true);
+    
+    //console.log('reply_btns', reply_btns);
+    //console.log('all_reply_btns', all_reply_btns);
+    if (!people_like.length) {
+        // click load more if we have
+        loadMoreLikes();
+    }
+    people_like_count = all_people_likes.length;
+
+    // start replying to likers
+    if (people_like_count) {
+        active_status = true;
+        startAction();
+    }else{
+        active_status = false;
+    }
+}
 function startComments() {
     console.log('startComments called');
 
@@ -115,8 +148,6 @@ function startComments() {
     else{
         $('.cf_text').text('Lead Sniper is replying to comments. Please wait...');
     }
-
-
     reply_btns = getReplyButtons();
     all_reply_btns = getReplyButtons(true);
     //console.log('reply_btns', reply_btns);
@@ -156,7 +187,24 @@ function cancelComments() {
     $('#cf_controls').remove();
 
 }
+function updateStatusStringLikes(newLen) {
+    let status_string = '';
+    let main_text = '';
+    let comment_type = getLetBlast()=="1"? "Comment Blaster" :"Lead Sniper";
+    if (newLen === 0) {
+        stopComments();
+        main_text = `${comment_type} replied to all comments`;
+        status_string = "All Done!";
+    } else {
+        main_text = `${comment_type} is replying to comments. Please wait...`;
+        //status_string = (reply_btns_count - newLen) + " of " + reply_btns_count + " Done!";
+        status_string = (people_like_count - newLen) + " of " + getMaxLikes() + " Done!";
+    }
 
+    $('#cf_controls .status_string').text(status_string);
+    $('.cf_text').text(main_text);
+
+}
 function updateStatusString(newLen) {
     let status_string = '';
     let main_text = '';
@@ -175,14 +223,36 @@ function updateStatusString(newLen) {
     $('.cf_text').text(main_text);
 
 }
-
+function getMaxLikes() {
+    if (people_like_count > max_reply) {
+        return max_reply
+    }
+    return people_like_count;
+}
 function getMaxReplies() {
     if (reply_btns_count > max_reply) {
         return max_reply
     }
     return reply_btns_count;
 }
-
+function getPeopleLike(all=false){
+    let likes = [];
+    if (all){
+        let all_action_btns = $("#reaction_profile_browser").find("div.item._cs2.acw");
+        all_action_btns.each(function (ev) {
+            likes.push(this);
+        });
+        return btns;
+    }
+   
+	let all_action_btns = $("#reaction_profile_browser").find("div.item._cs2.acw:not(.gone_through)"); // Like,Comment and More buttons of all comments
+    
+	all_action_btns.each(function (ev) {
+        likes.push(this);
+    });
+    return btns;
+    
+}
 function getReplyButtons(all = false) {
     //console.log('getReplyButtons called');
 
@@ -297,16 +367,58 @@ function alreadyReplied(reply_btn) {
     return already_replied;
 }
 
-function getLoadMoreButton() {
+function getLoadMoreButton(like) {
    // console.log('getLoadMoreButton called');
-
-    let btn_prev_id = 'see_prev_' + getFbStoryId();
-    let see_prev_btn = $('#' + btn_prev_id + '>a');
-    if (see_prev_btn.length){
-        return see_prev_btn;
+    if(like =="Like"){
+        let see_more_like= $('.title.mfsm.fcl')
+        if(see_more_like.length){
+            return see_more_like;
+        }
     }
-    let btn_next_id = 'see_next_' + getFbStoryId();
-    return $('#' + btn_next_id + '>a');
+    else
+    {
+        let btn_prev_id = 'see_prev_' + getFbStoryId();
+        let see_prev_btn = $('#' + btn_prev_id + '>a');
+        if (see_prev_btn.length){
+            return see_prev_btn;
+        }
+        let btn_next_id = 'see_next_' + getFbStoryId();
+        return $('#' + btn_next_id + '>a');
+    }
+}
+async function loadMoreLikesBtns(load_btn) {
+    //console.log('loadMoreComments called', load_btn);
+
+    load_btn.get(0).click();
+
+    return new Promise(function (resolve, reject) {
+        let count = 0;
+        let interval = setInterval(function () {
+
+            people_like = getPeopleLike();
+
+			//5e7k3t start
+			loadMoreLikes();
+			//5e7k3t end
+			
+            if (people_like.length) {
+                //reply_btns_count = rep_btns.length;
+
+                //console.log('reply_btns', rep_btns);
+                resolve(people_like);
+                clearInterval(interval);
+            }
+            if (count > 60) {
+               // console.log('something web wrong ');
+                reject('could not load more like');
+                clearInterval(interval);
+                // try Again
+                loadMoreLikes()
+            }
+            count++
+        }, 500);
+    });
+
 }
 
 async function loadMoreReplyBtns(load_btn) {
@@ -353,7 +465,10 @@ function getLetBlast() {
     //console.log('getLetBlast called');
     return post_url.searchParams.get("lets_blast");
 }
-
+function getLetBlastForLike() {
+    //console.log('getLetBlast called');
+    return post_url.searchParams.get("ft_ent_identifier");
+}
 function getFbStoryId() {
     //console.log('getFbStoryId called');
 
@@ -420,9 +535,37 @@ function scheduleStart() {
 
     scheduled_start = setTimeout(function () {
         //$('.cf_stop_btn').text('Stop');
- 
-        startComments();
+        if(getLetBlast()=="0" && getLetBlastForLike()!= null)
+        {
+            startLikes();
+        }
+        else
+            startComments();
     }, sleep_for)
+}
+function loadMoreLikes() {
+    //console.log('loadMoreComments called');
+    let load_more_btn = getLoadMoreButton("Like");
+    if (load_more_btn.length) {
+        loadMoreLikesBtns(load_more_btn).then((res) => {
+            //console.log(' Loaded more comments');
+          //  console.log(' got new reps ', reply_btns);
+            // console.log('reply_btns_count ', reply_btns_count);
+
+          //  reply_btns = getReplyButtons();
+            //reply_btns_count += reply_btns.length;
+            active_status = true;
+            setTimeout(function () {
+
+                startLikes(); //
+
+            }, randomBetween(seconds + diff, seconds - diff));
+
+        });
+    }else{
+        active_status = false
+        updateStatusStringLikes(0);
+    }
 }
 function loadMoreComments() {
     //console.log('loadMoreComments called');
@@ -521,21 +664,39 @@ async function loadReplyForm(btn) {
 }
 
 async function postReply(form) {
-    //console.log('postReply called', form);
+    let submit_btn = form.find('button[type="submit"]');
+    let textarea = form.find('textarea.mentions-input');
+    let input = form.find('input[name="comment_text"]');
+    let comment = form.closest(comment_selector);
+	let like = form.parents("._2b04").find("a._2b0a:eq(0)");
+	
+	var style =like.attr("style");
+	//console.log('postReply called', form);
     let urlpath = form.closest('._2a_i._2a_l').find('._2b05').find('a')[0].getAttribute('href');
     console.log(urlpath);
     let addFriend = false;
     let messages = [];
-
+    let dm_new_contact=false; 
+    let sendMessages=false; 
     chrome.storage.local.get('addPeopleToFriends',function(res1){
         addFriend=res1.addPeopleToFriends;
-        chrome.storage.local.get('cb_custom_dms',function(res2){
+        chrome.storage.local.get(["cb_custom_dms","cb_custom_dms_new_contact"],function(res2){
             messages = res2.cb_custom_dms;
+            dm_new_contact= res2.cb_custom_dms_new_contact;
+            if(messages!=undefined && messages.length>0){
+                sendMessages= true;
+                //For lead sniper only dm people if we have not liked the comment
+                if(getLetBlast() == "0" && like.text() == "Like" && style != undefined){
+                    sendMessages = false;
+                }
+            }
+            
             if(addFriend || (messages!=null && messages!=undefined && messages.length>0)){
                 let url = new URL("https://m.facebook.com"+urlpath);
                 url.searchParams.set("lets_blast_user",1);
                 url.searchParams.set('addFriend',addFriend?1:0);
-                url.searchParams.set('sendMessages',(messages!=undefined && messages.length>0)?1:0);
+                url.searchParams.set('sendMessages',sendMessages?1:0);
+                url.searchParams.set('dm_new_contact',dm_new_contact?1:0);
                 url = url.href;
                 window.open(url,'currentUserBlaster',
                 `toolbar=no,
@@ -551,15 +712,6 @@ async function postReply(form) {
 
         })
     })
-    
-    let submit_btn = form.find('button[type="submit"]');
-    let textarea = form.find('textarea.mentions-input');
-    let input = form.find('input[name="comment_text"]');
-    let comment = form.closest(comment_selector);
-	let like = form.parents("._2b04").find("a._2b0a:eq(0)");
-	
-	var style =like.attr("style");
-	
 	if(like.text() == "Like" && style == undefined) {
 		like.get(0).click();
 	}

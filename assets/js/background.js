@@ -567,7 +567,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 							isCurrentFBLinked = (linkedFbAccount.length > 0) ? true : false;
 							linkedFbAccount = (linkedFbAccount.length > 0) ? linkedFbAccount[0] : null;
 
-							chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags, 'taggedUsers': response.taggedUsers, 'linkedFbAccount': linkedFbAccount, 'isCurrentFBLinked': isCurrentFBLinked });
+							chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers': response.taggedUsers, 'linkedFbAccount': linkedFbAccount, 'isCurrentFBLinked': isCurrentFBLinked });
 							// chrome.storage.local.set({'birthdays': response.birthdays, 'processbirthdays': response.processbirthdays});
 							getAllTagsFromGropuleads(response.taggedUserfromGroupleads);
 
@@ -1526,9 +1526,10 @@ function requestDMTabListener(tabId, changeInfo, tab) {
 		return {};;
 	}
 }
+
 setTimeout(() => {
 	startPostMessageInterval()
-}, 60000);
+}, 900000);
 
 function startPostMessageInterval() {
 	friendRequestsInterval = setInterval(() => {
@@ -1539,7 +1540,7 @@ function startPostMessageInterval() {
 				startPostMessage();
 			}
 		});
-	}, 900000);
+	}, 60000*friendRequestMessageIntervalTime);
 }
 
 
@@ -1580,7 +1581,7 @@ var activityTabId = 0;
 
 function checkForNewFriendRequestsOnActivityPage() {
 	isPreMessagingProcessing = false;
-	var activityUrl = "https://www.facebook.com/" + friendRequestSettings.account_fb_id + "/allactivity";
+	var activityUrl = "https://www.facebook.com/" + friendRequestSettings.account_fb_id + "/allactivity?category_key=FRIENDS";
 
 	chrome.windows.create({
 		url: activityUrl,
