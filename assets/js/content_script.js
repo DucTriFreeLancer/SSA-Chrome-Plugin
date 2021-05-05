@@ -422,7 +422,9 @@ async function sendMessage(message){
 					} else {
 						$nextUser.mclick();
 					}					
-					$('div[aria-label="Press Enter to send"').mclick();
+					setTimeout(() => {
+						$('div[aria-label="Press Enter to send"').mclick();
+					}, 500);	
 
 					setTimeout(()=>{
 						location.reload();
@@ -473,12 +475,12 @@ async function sendMessage(message){
 						console.log("dispatchEvent");
 					};
 			
-					$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');
-					
-					
-					$('div[aria-label="Press Enter to send"').mclick();
-
+					$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');	
+					setTimeout(() => {
+						$('div[aria-label="Press Enter to send"').mclick();
+					}, 500);					
 					setTimeout(()=>{
+						
 						location.reload();
 					},500)
 					
@@ -1222,7 +1224,7 @@ $(function(){
 				fbName = $(this).closest('.cts-message-list-item').find('span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text();
 
 			}
-			chrome.storage.local.get(["tags", "taggedUsers", "teams", "teamMembers"], function(result) {
+			chrome.storage.local.get(["tags", "taggedUsers", "teams", "teamMembers","search_tag"], function(result) {
 
 				var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 close-model">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
 				if (typeof result.tags != "undefined" && result.tags != "") {
@@ -1254,8 +1256,12 @@ $(function(){
 				}
 				options += '</ul><button style="display:none;" profilePic = "'+profilePic+'" fbName = "'+fbName+'" clikedFBUserId ="'+clikedFBUserId+'" page="'+page+'" clickedNumericFbId = "'+clickedNumericFbId+'"  newThreadMessenger = "'+newThreadMessenger+'" newMThreadId = "'+newMThreadId+'" type="button" class="update-multi-team">Update Team</button></div>';
 				
-				$('#ssa_model_content_two').html(options);
+				$('#ssa_model_content_two').html(options);				
 				$('#overlay-two').show();
+				if (typeof result.search_tag != "undefined" && result.search_tag != "") {
+					$("#search-tag-by-name").val(result.search_tag);
+					$('#search-tag-by-name').keyup();
+				}				
 				if (newThreadMessenger == 1 && clickedNumericFbId != '0') {
 					clikedFBUserId = clickedNumericFbId;
 					

@@ -69,7 +69,7 @@ postsAddSSAButton = () =>{
             newCBElement.innerHTML = prependCBElementHTML;
             
             
-            newCBElement.post_url = "https://m.facebook.com/"+pid;
+            newCBElement.post_url = "https://m.facebook.com/"+pid.replace('/','');
             newCBElement.className="custom-link";
             newCBElement.setAttribute('role','menuitem');
             newCBElement.onclick = function(){
@@ -80,7 +80,7 @@ postsAddSSAButton = () =>{
             newLSElement.innerHTML = prependLSElementHTML;
             
             
-            newLSElement.post_url = "https://m.facebook.com/"+pid;
+            newLSElement.post_url = "https://m.facebook.com/"+pid.replace('/','');
             newLSElement.className="custom-link";
             newLSElement.setAttribute('role','menuitem');
             newLSElement.onclick = function(){

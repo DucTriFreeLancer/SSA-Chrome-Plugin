@@ -43,6 +43,9 @@ var tagContactRequests=[];
 var teamRequests = [];
 var adfIsRunning = false;
 var adfTabId = false;
+var groupTabId = false;
+var groupTabUrl= false;
+var groupName = false;
 var randomMessageField = `<div class="row bulk-text-row">
 									<div class="col-11 p-0">
 										<form action="#">
@@ -227,6 +230,48 @@ function runADFFunctionality(tabId) {
     }); 
 	$('.screens').hide();	
 	$('.navbar-dark, .account, #add-friends').show();
+}
+
+function runGroupFunctionality(tabId,tabUrl,tabName) {
+	groupTabId = tabId;
+	groupTabUrl = tabUrl;
+	groupName = tabName.replace(/\(\d\) /,'');
+	groupName= groupName.substring(0, groupName.lastIndexOf('|'));
+    chrome.storage.local.get(["ssa_user"], function(result) {
+    	
+	    if (typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/groupgrowth/check_group",
+				data: { userId: result.ssa_user.id, group_url: groupTabUrl },
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function (response) {
+				if (response.status == 401) {
+					chrome.storage.local.set({ 'ssa_user': '' });
+				} else if (response.status == 404) {
+					//port.postMessage({'false': true});
+				} else if(response.status == 200 || response.result == 'success') {					
+					chrome.storage.local.set({"ssa_group":response.data});
+					$(".screens").hide();
+					$("#groups_screen").show();
+				}
+				else{
+					$('.remind_link, .account').hide();
+					$('.upgraded').show();
+					$('.arrow_icon').hide();
+					$(".screens").hide();
+					$("#linked_groups_screen").show();
+					$('.messenger').show();
+					$('.facebook').hide();
+					chrome.storage.local.set("ssa_group",'');
+				}
+			});
+		}
+		
+    }); 
 }
 
 function displayTagsListForAdf(tagsAndMessageSate=''){
@@ -573,7 +618,14 @@ $(document).ready(function(){
 		  $(this).toggle($(this).find('.tag-name-span').text().toLowerCase().indexOf(search_tag) > -1)
 		});
 	});
-
+	$(document).on('blur','#search_tag', function(e) {
+		var search_tag = $("#search_tag").val().toLowerCase();	
+		chrome.storage.local.set({
+            'search_tag': search_tag
+        }, function () {
+            console.log('Save the tag search term to session');
+        });
+	});
 	$('.screens').hide();
 	$('#loading_wheel').show();
 
@@ -3632,6 +3684,38 @@ $(document).ready(function(){
 			});
 		});
 	});
+	/*-----------------------------------group-------------------------*/
+	$("#group_integrate").click(function() {
+		$('.screens').hide();
+		$('#loading-wheel').show();
+		chrome.storage.local.get(["ssa_user"], function(result) {
+			if (typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/groupgrowth/add_group",
+					data: {userId:result.ssa_user.id, group_url: groupTabUrl,group_name: groupName },
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					//console.log(response);
+					if(response.status == 401){
+						$('#loading-wheel').hide();
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						runGroupFunctionality(groupTabId,groupTabUrl,groupName);
+						toastr["success"](response.msg);
+					}
+					else{
+						$('#linked_groups_screen').show();
+						toastr["error"](response.msg);
+					}
+				});
+			}
+		});
+	});
 
 /*-----------------------------------login-------------------------*/
 
@@ -3876,6 +3960,11 @@ function checkFBMessengerIsActive(){
 				runADFFunctionality(tab.id);
 				return false;
 			}
+			else if (tab.url && ( tab.url.indexOf('/groups/') != -1 && tab.url.indexOf('/member-requests') != -1 ) && tab.active) {
+				
+				runGroupFunctionality(tab.id,tab.url,tab.title);	
+				return false;
+			}
 			else {
 				//console.log("out");
 				
@@ -4074,10 +4163,7 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 	tags = tags.reverse();
     var newTags = [];    
 	var tagsList = '';
-	var current_fb_user_id = '';
-	chrome.storage.local.get(["fb_id"], function(result) {
-		current_fb_user_id = result.fb_id;
-	});	
+	
     tags.forEach(function(tag) {
     	var contactsPerTag = 0;
 
@@ -4153,6 +4239,12 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 
 		});
 		$('#show-tags').html(tagList);
+		chrome.storage.local.get(["search_tag"], function(result) {
+			if (typeof result.search_tag != "undefined" && result.search_tag != "") {
+				$('#search_tag').val(result.search_tag);
+				$('#search_tag').keyup();
+			}	
+		});
 		
 		$(".createCalendarEventBtn").show();
 		if(accountConfig.calendar_integration == 0){

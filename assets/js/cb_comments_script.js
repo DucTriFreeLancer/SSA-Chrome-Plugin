@@ -775,7 +775,7 @@ function startLikes() {
 
     $('.cf_start_btn').hide();
     $('.cf_stop_btn').show();
-    $('.cf_text').text('Lead Sniper is replying to comments. Please wait...');
+    $('.cf_text').text('Lead Sniper is replying to likes. Please wait...');
     people_likes=getPeopleLike();
     all_people_likes = getPeopleLike(true);
     
@@ -876,7 +876,7 @@ function getPeopleLike(all=false){
 function loadMoreLikes() {
     //console.log('loadMoreComments called');
     let load_more_btn = getSeeMoreButton();
-    if (load_more_btn.length) {
+    if (typeof load_more_btn != "undefined" && load_more_btn.length) {
         loadMoreLikesBtns(load_more_btn).then((res) => {
             //console.log(' Loaded more comments');
           //  console.log(' got new reps ', reply_btns);
