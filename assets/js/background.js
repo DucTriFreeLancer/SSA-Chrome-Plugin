@@ -2073,7 +2073,7 @@ function addFBUserForGroupMember(sender, memberRequest) {
 			chrome.storage.local.set({ 'ssa_user': '' });
 		} else if (response.status == 200 || response.result == 'success') {
 			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "add_user", status: response.result});
-			if(response.Message != null && response.Message.length ==0){
+			if(response.Message != null && response.Message.trim().length ==0){
 				clearBulkIntervals();
 				let delaySend = 0;				
 				if(response.dmmessage1 != null && response.dmmessage1.trim().length >=0){
