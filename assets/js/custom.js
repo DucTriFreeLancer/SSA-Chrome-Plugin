@@ -234,7 +234,8 @@ function runADFFunctionality(tabId) {
 
 function runGroupFunctionality(tabId,tabUrl,tabName) {
 	groupTabId = tabId;
-	groupTabUrl = tabUrl;
+	groupTabUrl =new URL(tabUrl);
+	let group_id = groupTabUrl.pathname.split('/')[2];
 	groupName = tabName.replace(/\(\d\) /,'');
 	groupName= groupName.substring(0, groupName.lastIndexOf('|'));
     chrome.storage.local.get(["ssa_user"], function(result) {
@@ -243,7 +244,7 @@ function runGroupFunctionality(tabId,tabUrl,tabName) {
 			$.ajax({
 				type: "POST",
 				url: apiBaseUrl + "/groupgrowth/check_group",
-				data: { userId: result.ssa_user.id, group_url: groupTabUrl },
+				data: { userId: result.ssa_user.id, group_url: group_id },
 				dataType: 'json',
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader('unique-hash', uniqueHash);
@@ -255,8 +256,10 @@ function runGroupFunctionality(tabId,tabUrl,tabName) {
 					//port.postMessage({'false': true});
 				} else if(response.status == 200 || response.result == 'success') {					
 					chrome.storage.local.set({"ssa_group":response.data});
+					chrome.storage.local.set({"all_groups":response.all_groups})
 					$(".screens").hide();
 					$("#groups_screen").show();
+					reloadGroupTab();
 				}
 				else{
 					$('.remind_link, .account').hide();
@@ -266,7 +269,8 @@ function runGroupFunctionality(tabId,tabUrl,tabName) {
 					$("#linked_groups_screen").show();
 					$('.messenger').show();
 					$('.facebook').hide();
-					chrome.storage.local.set("ssa_group",'');
+					chrome.storage.local.set({"ssa_group": ''});
+					chrome.storage.local.set({"all_groups": ''});
 				}
 			});
 		}
@@ -3690,10 +3694,11 @@ $(document).ready(function(){
 		$('#loading-wheel').show();
 		chrome.storage.local.get(["ssa_user"], function(result) {
 			if (typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+				let group_id = groupTabUrl.pathname.split('/')[2];
 				$.ajax({
 					type: "POST",
 					url: apiBaseUrl + "/groupgrowth/add_group",
-					data: {userId:result.ssa_user.id, group_url: groupTabUrl,group_name: groupName },
+					data: {userId:result.ssa_user.id, group_url: group_id,group_name: groupName },
 					dataType: 'json',
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader('unique-hash', uniqueHash);
@@ -3924,6 +3929,21 @@ function reloadAllTabsOnLogout() {
 			}
 		});
 	});
+}
+function reloadGroupTab() {
+	chrome.windows.getAll(function(windows) {
+	   windows.forEach(function (eachWindow) {
+		   if (eachWindow.type == "normal") {
+			   chrome.tabs.getAllInWindow(eachWindow.id, function(tabs) {
+					   for (var i = 0, tab; tab = tabs[i]; i++) {
+					   if ( tab.id == groupTabId) {
+						   chrome.tabs.reload(tab.id);
+					   }
+				   }
+			   });
+		   }
+	   });
+   });
 }
 
  /********* To Check Web Facebook Messenger is active or not *******/

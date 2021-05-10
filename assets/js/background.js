@@ -14,6 +14,8 @@ var friendRequestTabIdsADF = [];
 var dmRequestTabIds = [];
 ////////// CB direct messages /////////
 var dmCBRequestTabIds = [];
+////////// MR direct messages /////////
+var dmMRMessageTabIds =[];
 ////// friend request messages////////
 var friendRequestSettings = false;
 var friendRequestHistory = [];
@@ -77,7 +79,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
 			storageObj[HB_DATA.BDDMMSG] = {};
 			storageObj[HB_DATA.IS_WORKING] = "0";
 			storageObj[HB_DATA.LOCAL_FB] = SENDING_DATA;
-			storageObj[HB_DATA.CAN_SEND] = true;
+			storageObj[HB_DATA.CAN_SEND] = true;			
 		} else if (details.reason === 'update') {
 			if (result[HB_DATA.CAN_SEND] === undefined) {
 				storageObj[HB_DATA.CAN_SEND] = true;
@@ -87,6 +89,8 @@ chrome.runtime.onInstalled.addListener(function (details) {
 
 		chrome.storage.local.set(storageObj);
 	})
+	chrome.storage.local.set({"ssa_group": ''});
+	chrome.storage.local.set({"all_groups": ''});
 	installPageUrlLogic();
 	initialize();
 	reloadAllTabsOnLogout();
@@ -819,6 +823,19 @@ chrome.runtime.onConnect.addListener(function (port) {
 				}
 			}).done(function (response) {
 
+			});
+		}
+		if (message.type == 'addUserOnGroupMemberRequest') {
+			var memberApproved = message.memberApproved;
+			var fbUserId = memberApproved.fbUserid;
+			GetBothAphaAndNumericId(fbUserId).then(function (fbIDsObject) {
+				memberApproved.fbUserid = fbIDsObject.fb_user_id;
+				memberApproved.numeric_fb_id = fbIDsObject.numeric_fb_id;
+
+				message.memberApproved = memberApproved;
+				setTimeout(() => {
+					addFBUserForGroupMember(sender, message.memberApproved);
+				}, 3000);
 			});
 		}
 
@@ -2040,6 +2057,119 @@ function updateFBUsertagMultiUserForGroupMember(sender, multiTagdata) {
 			chrome.storage.local.set({ 'taggedUsers': response.taggedUsers });
 		}
 	});
+}
+/////////////////Add user when admin approve a member request////////////
+function addFBUserForGroupMember(sender, memberRequest) {
+	$.ajax({
+		type: "POST",
+		url: apiBaseUrl + "/groupgrowth/add_user",
+		data: memberRequest,
+		dataType: 'json',
+		beforeSend: function (xhr) {
+			xhr.setRequestHeader('unique-hash', uniqueHash);
+		}
+	}).done(function (response) {
+		if (response.status == 401) {
+			chrome.storage.local.set({ 'ssa_user': '' });
+		} else if (response.status == 200 || response.result == 'success') {
+			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "add_user", status: response.result});
+			if(response.Message != null && response.Message.length ==0){
+				clearBulkIntervals();
+				let delaySend = 0;				
+				if(response.dmmessage1 != null && response.dmmessage1.trim().length >=0){
+					let timeoutId = setTimeout(() => {
+						sendMRRequestDMMessage(memberRequest.numeric_fb_id,response.dmmessage1);
+					}, delaySend);
+					delaySend = parseInt(delaySend) + parseInt(5000);
+					bulkIntervalIds.push(timeoutId);
+						
+				}
+				if(response.dmmessage2 != null && response.dmmessage2.trim().length >=0){
+					let timeoutId = setTimeout(() => {
+						sendMRRequestDMMessage(memberRequest.numeric_fb_id,response.dmmessage2);
+					}, delaySend);
+					delaySend = parseInt(delaySend) + parseInt(5000);
+					bulkIntervalIds.push(timeoutId);						
+				}
+				if(response.dmmessage3 != null && response.dmmessage3.trim().length >=0){
+					let timeoutId = setTimeout(() => {
+						sendMRRequestDMMessage(memberRequest.numeric_fb_id,response.dmmessage3);
+					}, delaySend);
+					delaySend = parseInt(delaySend) + parseInt(5000);
+					bulkIntervalIds.push(timeoutId);						
+				}
+			}
+		}
+		else{
+			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "add_user", status: response.result });
+		}
+	});
+}
+var dmMRMessageTabId = 0;
+function sendMRRequestDMMessage(threadId, dmMessage) {/// 1 for pre // 2for post message	
+	threadId = threadId.replace('/', '');
+	if (/[a-zA-Z]/.test(threadId)) {   /// having alphabets id
+		$.ajax({
+			type: "GET",
+			url: 'https://m.facebook.com/' + threadId,
+			success: function (data, txtStatus, request) {
+				var str = $(data).text()
+				var mySubString = str.substring(
+					str.lastIndexOf('&quot;profile_id&quot;:') + 1,
+					str.lastIndexOf('&quot;profile_id&quot;:') + 50
+				);
+				tmp = mySubString.split(',');
+				var tmpUserId = tmp[0].split(':')[1];
+				var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids=' + tmpUserId;
+				chrome.windows.create({
+					url: sendWelcomeMeesageUrl,
+					focused: false,
+					type: "popup",
+					top: Math.floor(window.screen.availHeight / 4 * 3),
+					left: Math.floor(window.screen.availWidth / 4 * 3),
+					height: Math.floor(window.screen.availHeight / 4),
+					width: Math.floor(window.screen.availWidth / 4)
+				}, function (tabs) {
+					dmMRMessageTabId = tabs.tabs[0].id;
+					var temp = {};
+					temp.currentRequestId = threadId;
+					temp.dmMessage = dmMessage;
+					temp.tabId = dmMRMessageTabId;
+					dmMRMessageTabIds.push(temp);
+					chrome.tabs.onUpdated.addListener(requestMRDMTabListener);
+				});
+			}
+		});
+	} else {
+		var sendWelcomeMeesageUrl = 'https://m.facebook.com/messages/compose/?ids=' + threadId;
+		chrome.windows.create({
+			url: sendWelcomeMeesageUrl,
+			focused: false,
+			type: "popup",
+			top: Math.floor(window.screen.availHeight / 4 * 3),
+			left: Math.floor(window.screen.availWidth / 4 * 3),
+			height: Math.floor(window.screen.availHeight / 4),
+			width: Math.floor(window.screen.availWidth / 4)
+		}, function (tabs) {
+			dmMRMessageTabId = tabs.tabs[0].id;
+			var temp = {};
+			temp.currentRequestId = threadId;
+			temp.dmMessage = dmMessage;
+			temp.tabId = dmMRMessageTabId;
+
+			dmMRMessageTabIds.push(temp);
+			chrome.tabs.onUpdated.addListener(requestMRDMTabListener);
+		});
+	}
+}
+function requestMRDMTabListener(tabId, changeInfo, tab) {
+	if (changeInfo.status === "complete" && tabId === dmMRMessageTabId) {
+		chrome.tabs.onUpdated.removeListener(requestMRDMTabListener);
+		var foundTabRecord = dmMRMessageTabIds.filter((list) => { return list.tabId == dmMRMessageTabId });
+		if (foundTabRecord.length > 0) {
+			chrome.tabs.sendMessage(dmMRMessageTabId, { from: 'background', subject: 'triggerRequestMessage', welcomeMessageText: foundTabRecord[0].dmMessage });
+		}		
+	}
 }
 ///////////////// Revamp of sending bulk messages////////////////////////
 var collectionOfTabIds = [];
