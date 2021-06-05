@@ -203,7 +203,13 @@
 					<ul class="nav nav-tabs" role="tablist">
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#main"><i class="fa fa-home"></i></a>
-						</li>										
+						</li>	
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#tag_users"><i class="fa fa-tag"></i></a>
+						</li>		
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#add_existing_members"><i class="fa fa-user-plus"></i></a>
+						</li>									
 					</ul>
 				</div>				
 				<div class="tab-content p-2">
@@ -277,6 +283,59 @@
 								</div>								
 							</div>
 						</div>					 -->
+					</div>
+					<div id="tag_users" class="container tab-pane w-100 mx-auto  p-2 ">
+						<div class="row">
+							<div class="col-12">
+								<h5 class="p-2">Tagged user in a post
+								</h5>
+								<span class="status_tagged p-2">Currently X members of Y have been tagged</span>
+							</div>							
+						</div>
+						<div class="row">
+							<input readonly hidden type="text" name="post_id" id="post_id" class="input">
+						</div>	
+						<div class="row">
+							<div class="col-8">
+								<div class="inputBox p-2">
+									<label style="font-size: 12pt;"><i>How many comments</i></label>
+									<label style="font-size: 12pt; opacity: 0.7;"><i> Group Growth - Tag Post will stop once you reach these many comments.</i></label>
+									<input type="number" name="max_comment" id="max_comment" class="input" value="20">
+								</div>
+							</div>
+							<div class="col-4">
+								<div class="inputBox p-2">
+									<label style="font-size: 12pt;"><i>Delay between comments</i></label>
+									<label style="font-size: 12pt; opacity: 0.7;"><i> We recommend at least 5 seconds.</i></label>
+									<input type="number" name="delay_seconds" id="delay_seconds" min="5" class="input" value="5">
+								</div>
+							</div>
+						</div>
+						<div class="row h-50">
+							<div class="col-12">
+								<div class="p-2">
+									<button class="btn btn-success btn-lg" id="start_tag_user" style="border: 0px !important; border-radius: 50px !important;">Tag users now
+										<i class="fa fa-arrow-right"></i>
+									</button>
+								</div>
+							</div>
+						</div>				
+					</div>
+					<div id="add_existing_members" class="container tab-pane w-100 mx-auto  p-2 ">
+						<div class="row h-100">
+							<div class="col-12">
+								<h5 class="p-2">Add existing members  
+								</h5>
+								<p style="opacity: 80%;padding:2px;">Add all the existing members from a group to the database</p>
+							</div>
+							<div class="col-12 icon h-100">
+								<div class="p-2">
+									<button class="btn btn-success btn-lg" id="start_add_existing_members" style="border: 0px !important; border-radius: 50px !important;">Start now
+										<i class="fa fa-arrow-right"></i>
+									</button>
+								</div>
+							</div>							
+						</div>
 					</div>
 				</div>		
 			</div>
@@ -931,16 +990,17 @@
 									</div>
 								</div>
 								<br />								
-								<div class="card bg-light message-card friend-message-option" type="post_accept">
+								<!-- <div class="card bg-light message-card friend-message-option" type="post_accept">
 									<div class="card-body text-center">
 										<p class="card-text">
 										On friend request acceptance
 										</p>
 									</div>
-								</div>
+								</div> -->
 								<br />	
 								<div class="card">
-									<i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i>
+									<input class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow" type="checkbox" data-width="100%" data-height="41px" checked data-toggle="toggle" data-on="On" data-off="Off" data-onstyle="success" data-offstyle="danger">
+									<!-- <i class="p-2 fa fa-toggle-on btn btn-primary add-button toggle-request-flow"></i> -->
 								</div>
 							</div>
 							<div class="col-8 right-pane">

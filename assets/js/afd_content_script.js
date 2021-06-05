@@ -1,12 +1,9 @@
 var ADF_add_friend_processing = true;
 var ADF_limit = null;
-var ADF_startat = null;
-var ADF_keyword = [];
 var ADF_add_friend_delay = null; 
 var ADF_add_friend_totalSend = 0;
 var ADF_underLimit = true;
 var ADF_add_friend_stopProcess = false;
-var ADF_addfriendClick = custom_data.addFriend;
 var ADF_profileDelay = 0;
 
 
@@ -195,10 +192,6 @@ function AFD_processGroupMembersForNew(history = 0) {
 									btnText = $(this).find('div[aria-label="Add Friend"]:contains("Add Friend")');
 									if(btnText.length == 1){
 										$('.member-name').text('Sending to '+$(this).find('.qzhwtbm6.knvmm38d:eq(0) a:eq(0)').text()).css('text-align','center');
-										if (ADF_addfriendClick) {
-											$(this).find('div[aria-label="Add Friend"]:contains("Add Friend")').mclick();
-										}
-
 										var memberIdTemp = extractProfileId($(this).find('a:eq(0)').attr('href'))
 										$(this).attr('data-adf-numeric-fb-id',memberIdTemp);
 										addTagAndSendWelcomeMessage(memberIdTemp);

@@ -46,6 +46,7 @@ var adfTabId = false;
 var groupTabId = false;
 var groupTabUrl= false;
 var groupName = false;
+
 var randomMessageField = `<div class="row bulk-text-row">
 									<div class="col-11 p-0">
 										<form action="#">
@@ -169,7 +170,34 @@ function startSendFriendRequests() { ///1433
         });
     return false;
 }
+function startAddExistingMember(){
+	chrome.tabs.query({
+        active: true,
+        currentWindow: true
+        }, function (tabs) {
+            if ( tabs[0].url.indexOf('facebook.com/groups/')>-1 && tabs[0].url.indexOf('/members')>-1 ) {
+                chrome.storage.local.get(["ADG_state"], function(result) {
+				
+					tempTwo = {};
+					tempTwo.tabId = tabs[0].id;
+					tempTwo.state = 'running';
 
+					chrome.storage.local.set({"ADG_state":tempTwo}); 
+					chrome.tabs.sendMessage(tabs[0].id,{type:'startExistingMemberLoading','tabId':tabs[0].id});
+					$('.adf-process-status').hide();
+					$('#adg-stop').show();
+					$('#adg-pause').show();
+					adgIsRunning = true;
+                    
+                });
+            }else if(tabs[0].url.indexOf('facebook.com/groups/')>-1){
+              	toastr["error"]('Please open members list of group');
+            }else{
+                toastr["error"]('Please open members list of group');
+            }
+        });
+    return false;
+}
 function runADFFunctionality(tabId) {
 
 	//displayUpgradeBtnGroup();
@@ -277,7 +305,56 @@ function runGroupFunctionality(tabId,tabUrl,tabName) {
 		
     }); 
 }
-
+/* Status Tagged */
+function showstatusTagged() {
+	chrome.storage.local.get(["ssa_group"], function(result) {
+		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+			if($(".status_tagged").length==1){
+				$(".status_tagged").html(`Currently <b style="color:red">` + result.ssa_group[0].tagged_members +
+				`</b> members of <b style="color:red">`+ result.ssa_group[0].to_be_tagged + `</b> have been tagged`);				
+			}
+		}
+	});
+}
+function addExistingMembers(){
+	chrome.storage.local.get(["ssa_group"], function(result) {
+		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+			chrome.storage.local.get(["ADG_state"], function(result) {
+				if (result.ADG_state != '') {
+					
+					if (result.ADG_state.tabId != 0) {
+						$('.adf-process-status').hide();
+						chrome.tabs.get(result.ADG_state.tabId, function(tab) {
+							
+							if (tab == undefined) {
+								tempTwo = {};
+								tempTwo.tabId = 0;
+								tempTwo.state = '';
+								chrome.storage.local.set({"ADG_state":tempTwo}); 
+								$('#add_existing_members').show();
+							}else{
+								if(result.ADG_state.tabId == adfTabId){
+									if (result.ADG_state.state == 'running') {
+										$('#adg-pause, #adg-stop').show();
+									}else if(result.ADG_state.state == 'paused'){
+										$('#adg-resume, #adg-stop').show();
+									}	
+							
+								}else{
+									toastr["error"]('Already running ');
+								}
+							}
+						});
+					}
+				}
+			}); 
+			$('#add_existing_members').show();
+		}
+		else{
+			$("#add_existing_members :button").attr("disabled", true);
+		}
+	});
+}
 function displayTagsListForAdf(tagsAndMessageSate=''){
 	
 	chrome.storage.local.get(["tags","taggedUsers"], function(result) {
@@ -346,6 +423,99 @@ function displayTagsListForAdf(tagsAndMessageSate=''){
 var reminderIdsArray=[];
 
 $(document).ready(function(){
+	
+	$("#start_tag_user").click(function(){
+		chrome.storage.local.get(["ssa_group"], function(result) {
+			if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+				let post_url = result.ssa_group[0].tag_post_link;
+				if(post_url){
+					if(post_url.indexOf('m.facebook.com') < 0) {
+						toastr["error"]["Invalid post url!"];
+						return;
+					}
+					
+					let lets_taguser ='tagusers=1';
+					       
+					if(post_url.indexOf('?') > -1) {            
+						post_url = post_url+`&${lets_taguser}`;
+					}else{
+						post_url = post_url+ `?${lets_taguser}`;
+					}
+	
+					saveDefaultSettings();
+	
+					chrome.tabs.create({url: post_url}, function (tab) {
+						chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
+								if (changeInfo.status === 'complete' && tabId === tab.id) {
+									chrome.tabs.executeScript(tab.id, {file: "assets/js/cb_tag_user_post.js"},
+										function(result) {
+											// Process |result| here (or maybe do nothing at all).
+											chrome.tabs.onUpdated.removeListener((a,b)=>{
+												//console.log('mana',a,b)
+											});
+										}
+									);
+								}
+							});
+						// executeScripts(tab.id, [
+						//     {file: "js/comments_script.js"},
+						// ])
+					})
+				}
+				else
+				{
+					toastr["error"]["Please link group before start this action"];
+				}
+			}
+		});
+	});
+
+	$("#start_add_existing_members").click(function(){
+		chrome.storage.local.get(["ssa_group"], function(result) {
+			if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+				let post_url = groupTabUrl.href;
+				if(post_url){
+					if ( post_url.indexOf('facebook.com/groups/')>-1 && post_url.indexOf('/member-requests')>-1 ) {
+						post_url=post_url.replace("/member-requests","/members/things_in_common");
+						let lets_taguser ='existingmember=1';					       
+						if(post_url.indexOf('?') > -1) {            
+							post_url = post_url+`&${lets_taguser}`;
+						}else{
+							post_url = post_url+ `?${lets_taguser}`;
+						}
+		
+						chrome.tabs.create({url: post_url}, function (tab) {
+							chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
+									if (changeInfo.status === 'complete' && tabId === tab.id) {
+										chrome.tabs.executeScript(tab.id, {file: "assets/js/afg_content_script.js"},
+											function(result) {
+												// Process |result| here (or maybe do nothing at all).
+												chrome.tabs.onUpdated.removeListener((a,b)=>{
+													//console.log('mana',a,b)
+												});
+											}
+										);
+									}
+								});
+							// executeScripts(tab.id, [
+							//     {file: "js/comments_script.js"},
+							// ])
+						})
+					}
+					else{
+						toastr["error"]["Invalid post url!"];
+						return;
+					}
+					
+				}
+				else
+				{
+					toastr["error"]["Please link group before start this action"];
+				}
+			}
+		});
+	});
+
 	$('#new_message_friend').click(function () {
 
         $('#message_texts').modal(300);
@@ -539,6 +709,9 @@ $(document).ready(function(){
 	$("#adf-start").on('click', function() {
     	startSendFriendRequests();  
 	});
+	$("#adg-start").on('click', function() {
+    	startAddExistingMember();  
+	});
 
 	$(document).on('change','#adf-enable-tagging', function() {
 		if(this.checked) {
@@ -642,11 +815,9 @@ $(document).ready(function(){
 		}
 		chrome.storage.local.set({friendRequestFlow:setToggle});
 		if(setToggle == 'on') {
-			$('.toggle-request-flow').removeClass('fa fa-toggle-off');
-			$('.toggle-request-flow').addClass('fa fa-toggle-on');
+			$('.toggle-request-flow').prop('checked', true).change();
 		} else {
-			$('.toggle-request-flow').removeClass('fa fa-toggle-on');
-			$('.toggle-request-flow').addClass('fa fa-toggle-off');
+			$('.toggle-request-flow').prop('checked', false).change();
 		}
 	});
 
@@ -3295,6 +3466,12 @@ $(document).ready(function(){
 			getBdtlMessages();		
 			getBddmMessages();	
 	  	} 
+		else if(target == '#tag_users') {
+			showstatusTagged();
+	  	} 
+		else if(target == '#add_existing_members') {
+			addExistingMembers();
+	  	} 
 	});
 
 
@@ -3541,31 +3718,30 @@ $(document).ready(function(){
     $('.save-request-message').on('click', function() {
     	if($('.save-request-message').is(':disabled') == false) {
 			chrome.storage.local.set({friendRequestFlow:'on'});
-			$('.toggle-request-flow').removeClass('fa fa-toggle-off');
-			$('.toggle-request-flow').addClass('fa fa-toggle-on');    		
+			$('.toggle-request-flow').prop('checked', true).change();
+			// $('.toggle-request-flow').removeClass('fa fa-toggle-off');
+			// $('.toggle-request-flow').addClass('fa fa-toggle-on');    		
     		updateRequestMessages();
     	} else {
     		toastr["error"]("Previous request in progress or failed!");
     	}
 	});
 
-	$('.toggle-request-flow').on('click', function() {
+	$('.toggle-request-flow').change(function() {
+		var setToggle =  $(this).prop('checked') === true? "on":"off";
 		chrome.storage.local.get(["friendRequestFlow"], function(result) {
-			var setToggle = 'on';
-			if (typeof result.friendRequestFlow != "undefined" &&
-				result.friendRequestFlow != "") {
-				var toggle = result.friendRequestFlow;
-				setToggle = toggle == 'on' ? 'off' : 
-								(toggle == 'off' ? 'on' : 'off' );
-			}
+			// if (typeof result.friendRequestFlow != "undefined" &&
+			// 	result.friendRequestFlow != "") {
+			// 	var toggle = result.friendRequestFlow;
+			// 	setToggle = toggle == 'on' ? 'off' : 
+			// 					(toggle == 'off' ? 'on' : 'off' );
+			// }
 			chrome.storage.local.set({friendRequestFlow:setToggle});
-			if(setToggle == 'on') {
-				$('.toggle-request-flow').removeClass('fa fa-toggle-off');
-				$('.toggle-request-flow').addClass('fa fa-toggle-on');
-			} else {
-				$('.toggle-request-flow').removeClass('fa fa-toggle-on');
-				$('.toggle-request-flow').addClass('fa fa-toggle-off');
-			}
+			// if(setToggle == 'on') {
+			// 	$('.toggle-request-flow').prop('checked', true).change();
+			// } else {
+			// 	$('.toggle-request-flow').prop('checked', false).change();
+			// }
 		});
 	});
 
@@ -3830,6 +4006,18 @@ $(document).ready(function(){
 		})
 	});
 });
+
+////*  Save default settings *////
+function saveDefaultSettings() {
+	var max_comment = $('#max_comment').val();
+	var delay_seconds = $('#delay_seconds').val();
+	chrome.storage.sync.set({
+		'max_comment': max_comment,
+		'delay_seconds': delay_seconds,
+	}, function () {
+		console.log('Default Settings saved');
+	});
+}
 
 function loadMoreReminder(){
 	reminderLoaderRunning = true;
@@ -4685,6 +4873,7 @@ function showTeams(isSearch = false) {
 
 	$('#team-list').show();
 }
+
 
 function saveTeam(team, team_id = 0,loggedInFbId) {	
 	if(userId != ''){

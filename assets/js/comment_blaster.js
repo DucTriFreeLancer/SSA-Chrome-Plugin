@@ -1,4 +1,6 @@
 console.log('content.js Lodaed');
+var port = chrome.runtime.connect({'name': 'formfiller'})
+port.postMessage({'type': 'get-form-data'});
 processed_posts_count = 0;
 CBIngerval = null;
 $(document).ready(function () {
@@ -63,6 +65,8 @@ postsAddSSAButton = () =>{
     for (let dropdownAnc of ancestorOfDropdownOptions) {
         let prependCBElementHTML = '<img class="_2yaw img" src="'+chrome.extension.getURL("assets/images/64.png")+'"/> Use Comment Blaster™ ';
         let prependLSElementHTML = '<img class="_2yaw img" src="'+chrome.extension.getURL("assets/images/64.png")+'"/> Use Leads Sniper™ ';
+        let prependGGElementHTML = '<img class="_2yaw img" src="'+chrome.extension.getURL("assets/images/64.png")+'"/> Group Growth - Tag Post ';
+        
         let firstItem = dropdownAnc.querySelectorAll('[role="menuitem"]')[0];
         if(firstItem!=undefined && firstItem!=null && firstItem.className!="custom-link"){
             let newCBElement = document.createElement('div');
@@ -87,7 +91,33 @@ postsAddSSAButton = () =>{
                 window.open("chrome-extension://"+chrome.runtime.id+"/lead_sniper.html?post_id="+newLSElement.post_url,"_blank");
             }
             firstItem.parentNode.insertBefore(newLSElement,firstItem);
-        }
+            let admin_group = $(dropdownAnc.querySelectorAll('[role="menuitem"]')).find("span:contains('Mark as announcement')");
+            if($(admin_group).length==1){
+                let newTPElement = document.createElement('div');
+                newTPElement.innerHTML = prependGGElementHTML;
+                
+                
+                newTPElement.post_url = "https://m.facebook.com/"+pid.replace('/','');
+                newTPElement.className="custom-link";
+                newTPElement.setAttribute('role','menuitem');
+                newTPElement.onclick = function(){
+                    chrome.storage.local.get(["ssa_user"], function (result) {
+                        if (typeof result.ssa_user != "undefined" && result.ssa_user != "") {
+                            tagPostLink = {}; 
+                            tagPostLink.userId = result.ssa_user.id;
+                            tagPostLink.url = "https://m.facebook.com/"+pid.replace('/','');;
+                            port.postMessage({'type': 'setTagPostLinkForGroup','tagPostLink': tagPostLink});		
+    
+                           
+                        }
+                        else {
+                            toastr["warning"]('Please click on SSA icon to to login');
+                        }
+                    });
+                }
+                firstItem.parentNode.insertBefore(newTPElement,firstItem);
+            }
+        }        
     }
 
 }
@@ -221,7 +251,16 @@ function onElementHeightChange(elm, callback){
     })();
 }
 
-
+chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
+    if(message.from === 'background' && message.subject === 'tag_post_link'){
+        if(message.status =='success'){
+            toastr["success"]("The tag post link is setted successfully.");
+        }
+        else{
+            toastr["error"]("Something went wrong.");
+        }
+	}
+})
 
 
 // $('body').on('click', '.oajrlxb2', function() {
