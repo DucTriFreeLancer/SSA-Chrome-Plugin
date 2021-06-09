@@ -20,7 +20,7 @@
          "/assets/js/profile_content_script.js","/assets/js/comment_blaster.js","/assets/js/bd_content_script.js",
          "/assets/js/afd_content_script.js","/assets/js/friends_list_script.js","/assets/js/common.js","/assets/js/constant.js"],
       "matches": [ "*://*.facebook.com/*" ],
-      "exclude_matches":["*://*.facebook.com/groups/*/member-requests*","*://*.facebook.com/groups/*/*tagusers=1","*://*.facebook.com/groups/*/*existingmember=1"]
+      "exclude_matches":["*://*.facebook.com/groups/*/member-requests*","*://*.facebook.com/groups/*/*tagusers=1","*://*.facebook.com/groups/*/*existingmember=1","https://www.facebook.com/groups/*/*stealmembers=1"]
    },
    {
       "css": [ "/assets/css/content_script.css" ,"assets/css/toastr.min.css","/assets/css/jquery-ui.min.css" ],
@@ -36,6 +36,11 @@
       "css": ["/assets/css/adf.css","assets/css/toastr.min.css","/assets/css/jquery-ui.min.css" ],
       "js": [ "/assets/js/jquery.min.js","/assets/js/jquery-ui.min.js","assets/js/toastr.min.js", "config.js","/assets/js/afg_content_script.js"],
       "matches": [ "https://www.facebook.com/groups/*/*existingmember=1" ]
+   },
+   {
+      "css": ["/assets/css/adf.css","assets/css/toastr.min.css","/assets/css/jquery-ui.min.css" ],
+      "js": [ "/assets/js/jquery.min.js","/assets/js/jquery-ui.min.js","assets/js/toastr.min.js", "config.js","/assets/js/steal_member_script.js"],
+      "matches": [ "https://www.facebook.com/groups/*/*stealmembers=1" ]
    }],
    
    "content_security_policy": "script-src 'self' https://apis.google.com https://db.onlinewebfonts.com 'unsafe-eval'; object-src 'self'",

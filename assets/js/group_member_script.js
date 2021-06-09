@@ -26,6 +26,10 @@ function attachClickEvent() {
                     var fullName = $(member_request).find('span.nc684nl6').first().text();
                     var pathname = $(member_request).find('span.nc684nl6').find("a")[0].getAttribute('href');
                     var clikedFBUserId = false;
+                    var lastChar = pathname.substr(pathname.length - 1);
+                    if(lastChar =="/"){
+                        pathname = pathname.slice(0,-1);
+                    }
                     pathname=pathname.substring(pathname.lastIndexOf('/')+1, pathname.length);
                     if (pathname.indexOf('?') > -1) {
                         clikedFBUserId = pathname.split('?')[0];

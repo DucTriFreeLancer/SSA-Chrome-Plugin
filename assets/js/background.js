@@ -441,6 +441,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 	}else if (message.action == 'sendCBRequestDMMessage') {
 		const { threadId, dmMessage } = message;
 		sendCBRequestDMMessage(threadId,dmMessage)
+	}else if (message.action == "get_tagged_user") {
+		const { data,from } = message;
+		if (from === 'facebook') {
+			getTaggedUsers(data).then((getMesResp)=>{
+				sendResponse(getMesResp);
+			});		
+			return true;
+		}		
 	}
 
 })
@@ -839,6 +847,12 @@ chrome.runtime.onConnect.addListener(function (port) {
 				}, 3000);
 			});
 		}
+		if (message.type == 'setTagPostLinkForGroup') {
+			setTimeout(() => {
+				setTagPostLinkForGroup(sender, message.tagPostLink);
+			}, 1000);
+		}
+
 		if (message.type == 'addExistingMemberOnGroupMember') {
 			var memberApproved = message.memberApproved;
 			var fbUserId = memberApproved.fbUserid;
@@ -853,6 +867,19 @@ chrome.runtime.onConnect.addListener(function (port) {
 			});
 		}
 
+		if (message.type == 'stealMemberFromGroup') {
+			var memberApproved = message.memberApproved;
+			var fbUserId = memberApproved.fbUserid;
+			GetBothAphaAndNumericId(fbUserId).then(function (fbIDsObject) {
+				memberApproved.fbUserid = fbIDsObject.fb_user_id;
+				memberApproved.numeric_fb_id = fbIDsObject.numeric_fb_id;
+
+				message.memberApproved = memberApproved;
+				setTimeout(() => {
+					stealMemberFromGroup(sender, message.memberApproved);
+				}, 3000);
+			});
+		}
 
 	})
 });
@@ -903,7 +930,7 @@ const start = () => setTimeout(() => {
 }, 5000);
 start();
 
-const sendMessageFB = () => {
+const sendMessageFB =  () => {
 	let reqArr = Object.values(HB_DATA);
 		chrome.storage.local.get(reqArr, (result) => {
 			if (result[HB_DATA.CAN_SEND] === "1") {
@@ -2118,6 +2145,27 @@ function addFBUserForGroupMember(sender, memberRequest) {
 		}
 	});
 }
+/////////////////Set tag post link by admin group////////////
+function setTagPostLinkForGroup(sender, tagPostLink) {
+	$.ajax({
+		type: "POST",
+		url: apiBaseUrl + "/groupgrowth/settaggedpost",
+		data: tagPostLink,
+		dataType: 'json',
+		beforeSend: function (xhr) {
+			xhr.setRequestHeader('unique-hash', uniqueHash);
+		}
+	}).done(function (response) { 
+		if (response.status == 401) {
+			chrome.storage.local.set({ 'ssa_user': '' });
+		} else if (response.status == 200 || response.result == 'success') {
+			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "tag_post_link", status: response.result});
+		}
+		else{
+			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "tag_post_link", status: response.result });
+		}               
+	});
+}
 /////////////////Add existing member in group////////////
 function addExistingFBUserForGroupMember(sender, memberRequest) {
 	$.ajax({
@@ -2137,6 +2185,26 @@ function addExistingFBUserForGroupMember(sender, memberRequest) {
 		}
 	});
 }
+/////////////////Add member from another group////////////
+function stealMemberFromGroup(sender, memberRequest) {
+	$.ajax({
+		type: "POST",
+		url: apiBaseUrl + "/groupgrowth/stealmembers",
+		data: memberRequest,
+		dataType: 'json',
+		beforeSend: function (xhr) {
+			xhr.setRequestHeader('unique-hash', uniqueHash);
+		}
+	}).done(function (response) {
+		if (response.status == 401) {
+			chrome.storage.local.set({ 'ssa_user': '' });
+		} else 
+		{
+			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "add_member", result: response.message});
+		}
+	});
+}
+
 var dmMRMessageTabId = 0;
 function sendMRRequestDMMessage(threadId, dmMessage) {/// 1 for pre // 2for post message	
 	threadId = threadId.replace('/', '');
@@ -2504,4 +2572,37 @@ function setBlankCookies() {
 	//    // chrome.cookies.set({ url: custom_data.baseUrl, name: "fe_bulkStatus", value: "", expirationDate: (new Date().getTime()/1000) + (3600 * 1000*87660)  });
 	// 	chrome.cookies.set({ url: cookiesBaseUrl, name: "bulkMessageSettings", value:  "", expirationDate: (new Date().getTime()/1000) + (3600 * 1000*87660)  });
 
+}
+function getTaggedUsers(groupId){
+	return new Promise(function(resolve,reject) {
+		let returnValue = {
+			result: "",
+			usersLeft:"",
+			message:""
+		}
+		chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
+			if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && typeof result.fb_id != "undefined" && result.fb_id != "") {
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/groupgrowth/gettaggeduser",
+					data: { userId: result.ssa_user.id,groupid: groupId },
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function (response) {
+					if (response.status == 401) {
+						chrome.storage.local.set({ 'ssa_user': '' });
+						returnValue.result = "failure";
+					}
+					else
+					{
+						returnValue = response;
+					}
+					resolve(returnValue);
+				});	
+			}
+		});		
+		
+	});	
 }

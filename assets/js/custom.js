@@ -310,7 +310,7 @@ function showstatusTagged() {
 	chrome.storage.local.get(["ssa_group"], function(result) {
 		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
 			if($(".status_tagged").length==1){
-				$(".status_tagged").html(`Currently <b style="color:red">` + result.ssa_group[0].tagged_members +
+				$(".status_tagged").html(`Currently <b style="color:red">` + result.ssa_group[0].post_tagged +
 				`</b> members of <b style="color:red">`+ result.ssa_group[0].to_be_tagged + `</b> have been tagged`);				
 			}
 		}
@@ -919,6 +919,30 @@ $(document).ready(function(){
 		var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
 		chrome.storage.local.set({ssaPopupStates:ssaPopupStates});
 		triggerLogout();
+	});
+	$(document).on('click','#stealMembers', function() {
+		var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
+		chrome.storage.local.set({ssaPopupStates:ssaPopupStates});
+		chrome.tabs.getSelected(null, function (tab){
+			let post_url = tab.url +"/?stealmembers=1";
+			chrome.tabs.create({url: post_url}, function (tab) {
+				chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
+						if (changeInfo.status === 'complete' && tabId === tab.id) {
+							chrome.tabs.executeScript(tab.id, {file: "assets/js/steal_member_script.js"},
+								function(result) {
+									// Process |result| here (or maybe do nothing at all).
+									chrome.tabs.onUpdated.removeListener((a,b)=>{
+										//console.log('mana',a,b)
+									});
+								}
+							);
+						}
+					});
+				// executeScripts(tab.id, [
+				//     {file: "js/comments_script.js"},
+				// ])
+			})
+		});
 	});
 	$(document).on('click','.setting', function() {		
 		triggerSettings();
