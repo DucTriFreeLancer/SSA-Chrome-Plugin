@@ -476,7 +476,7 @@ $(document).ready(function(){
 				let post_url = groupTabUrl.href;
 				if(post_url){
 					if ( post_url.indexOf('facebook.com/groups/')>-1 && post_url.indexOf('/member-requests')>-1 ) {
-						post_url=post_url.replace("/member-requests","/members/things_in_common");
+						post_url=post_url.replace("/member-requests","/members");
 						let lets_taguser ='existingmember=1';					       
 						if(post_url.indexOf('?') > -1) {            
 							post_url = post_url+`&${lets_taguser}`;
