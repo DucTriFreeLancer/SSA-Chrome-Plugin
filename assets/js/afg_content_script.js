@@ -180,6 +180,7 @@ async function startAction(history = 0) {
 							ADG_add_friend_processingStatus = 'limitexceeded';
 							ADG_profileDelay = 0;
 							$('#ssa-msgs').text('Limit exceeded..');
+							$('.member-name').text('');
 							adgClearAutomaticIntervals();
 						}
 					},ADG_profileDelay);
