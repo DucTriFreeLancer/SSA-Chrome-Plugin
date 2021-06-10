@@ -82,7 +82,7 @@ function insertControlsHtml() {
     </div> 
     <hr style="border-top-color: #ff0000; border-bottom-color: #ff0000;">
     <div class="cf_hint">Any members borrowed from another group will be added to your message pipeline … so to edit how they are tagged and what messages are sent, please visit the current pipeline settings 
-    <a href="https://members.socialsalesaccelerator.app/import" target="_blank">here</a></div>
+    <a href="https://members.socialsalesaccelerator.app/users/pipeline" target="_blank">here</a></div>
 	<div class="text">
 		<h2>
 		<span id="processed-members">0</span> 
