@@ -110,6 +110,20 @@
     line-height: 50px;
 }
 
+.cf_hint{
+    font-size: 16px;
+    margin-top: 25px;
+    line-height: 40px;
+}
+.cf_hint>a{
+    text-decoration: blink;
+    font-size: x-large;
+    color: #2b7d2b;
+}
+.cf_hint>a:hover{
+    color:#bf0000;
+}
+
 
 .cf_stop{
     font-family: inherit;

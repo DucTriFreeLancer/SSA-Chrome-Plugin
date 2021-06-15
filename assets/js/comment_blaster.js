@@ -101,11 +101,12 @@ postsAddSSAButton = () =>{
                 newTPElement.className="custom-link";
                 newTPElement.setAttribute('role','menuitem');
                 newTPElement.onclick = function(){
-                    chrome.storage.local.get(["ssa_user"], function (result) {
+                    chrome.storage.local.get(["ssa_user","ssa_group"], function (result) {
                         if (typeof result.ssa_user != "undefined" && result.ssa_user != "") {
                             tagPostLink = {}; 
                             tagPostLink.userId = result.ssa_user.id;
-                            tagPostLink.url = "https://m.facebook.com/"+pid.replace('/','');;
+                            tagPostLink.groupid = result.ssa_group[0].fb_account_id;
+                            tagPostLink.url = "https://m.facebook.com/"+ post_url;
                             port.postMessage({'type': 'setTagPostLinkForGroup','tagPostLink': tagPostLink});		
                         }
                         else {

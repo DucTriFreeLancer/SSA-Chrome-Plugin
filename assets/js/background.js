@@ -427,8 +427,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 		let storageObj = {};
 		if (fromTab === 'fb') {
 			storageObj[HB_DATA.FB_TAB_ID] = 0;
+			chrome.storage.local.set(storageObj);
 		}
-		chrome.storage.local.set(storageObj);
 	} else if (message.action == ACTIONS.CAN_SEND) {
 		const tabId = sender.tab.id;
 		const { threadId,from } = message;
@@ -448,7 +448,16 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 				sendResponse(getMesResp);
 			});		
 			return true;
-		}		
+		}
+	}		
+	else if (message.action == ACTIONS.GET_PIPE_STATUS) {
+		const { from, userId } = message;		
+		if (from === 'facebook') {
+			processPipeStatus(userId).then((getMesResp)=>{
+				sendResponse(getMesResp);
+			});		
+			return true;
+		}	
 	}
 
 })
@@ -867,6 +876,19 @@ chrome.runtime.onConnect.addListener(function (port) {
 			});
 		}
 
+		if (message.type == 'stealMemberFromGroup') {
+			var memberApproved = message.memberApproved;
+			var fbUserId = memberApproved.fbUserid;
+			GetBothAphaAndNumericId(fbUserId).then(function (fbIDsObject) {
+				memberApproved.fbUserid = fbIDsObject.fb_user_id;
+				memberApproved.numeric_fb_id = fbIDsObject.numeric_fb_id;
+
+				message.memberApproved = memberApproved;
+				setTimeout(() => {
+					stealMemberFromGroup(sender, message.memberApproved);
+				}, 3000);
+			});
+		}
 
 	})
 });
@@ -1434,6 +1456,68 @@ function processBdayMessage(threadId){
 				});
 			}
 		});		
+	});	
+}
+function processPipeStatus(threadId){
+	return new Promise(function(resolve,reject) {
+		let returnValue = {
+			error: true
+		};
+		$.ajax({
+			type: "POST",
+			url: apiBaseUrl + "/pipeline/getmessage",
+			data: { userId:threadId },
+			dataType: 'json',
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('unique-hash', uniqueHash);
+			}
+		}).done(function (response) {
+			if (response.status == 401) {
+				chrome.storage.local.set({ 'ssa_user': '' });
+				returnValue.error = true;
+			}
+			else
+			{
+				if (response.result === "success")
+				{
+					returnValue.error = false;
+					returnValue.fb_name = response.fb_name;
+					returnValue.message = response.pipeline_message;
+					returnValue.add_friend= response.friend;
+					returnValue.add_fbuserid= response.fbuserid;
+					clearBulkIntervals();
+					let delaySend = 0;	
+					let numeric_fb_id = new URL(response.fbuserid).pathname.replace(/\//g, '');		
+					if(response.message1 != null && response.message1.trim().length >=0){
+						let timeoutId = setTimeout(() => {
+							sendMRRequestDMMessage(numeric_fb_id,response.message1);
+						}, delaySend);
+						delaySend = parseInt(delaySend) + parseInt(5000);
+						bulkIntervalIds.push(timeoutId);
+							
+					}
+					if(response.message2 != null && response.message2.trim().length >=0){
+						let timeoutId = setTimeout(() => {
+							sendMRRequestDMMessage(numeric_fb_id,response.message2);
+						}, delaySend);
+						delaySend = parseInt(delaySend) + parseInt(5000);
+						bulkIntervalIds.push(timeoutId);						
+					}
+					if(response.message3 != null && response.message3.trim().length >=0){
+						let timeoutId = setTimeout(() => {
+							sendMRRequestDMMessage(numeric_fb_id,response.message3);
+						}, delaySend);
+						delaySend = parseInt(delaySend) + parseInt(5000);
+						bulkIntervalIds.push(timeoutId);						
+					}
+				}
+				else{
+					returnValue.error = true;
+					returnValue.message = response.message;
+				}
+			}
+			resolve(returnValue);
+		});	
 	});	
 }
 var dmCBMessageTabId = 0;
@@ -2172,6 +2256,26 @@ function addExistingFBUserForGroupMember(sender, memberRequest) {
 		}
 	});
 }
+/////////////////Add member from another group////////////
+function stealMemberFromGroup(sender, memberRequest) {
+	$.ajax({
+		type: "POST",
+		url: apiBaseUrl + "/groupgrowth/stealmembers",
+		data: memberRequest,
+		dataType: 'json',
+		beforeSend: function (xhr) {
+			xhr.setRequestHeader('unique-hash', uniqueHash);
+		}
+	}).done(function (response) {
+		if (response.status == 401) {
+			chrome.storage.local.set({ 'ssa_user': '' });
+		} else 
+		{
+			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "add_member", result: response.message});
+		}
+	});
+}
+
 var dmMRMessageTabId = 0;
 function sendMRRequestDMMessage(threadId, dmMessage) {/// 1 for pre // 2for post message	
 	threadId = threadId.replace('/', '');

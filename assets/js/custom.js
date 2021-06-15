@@ -316,6 +316,41 @@ function showstatusTagged() {
 		}
 	});
 }
+function showStatusPipe(){
+	chrome.storage.local.get(["ssa_user"], function(result) {
+		if (typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+			$('.status_piped').html('');
+			$('#start_pipeline').hide();
+			$('#pipe_loader').show();
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/pipeline/getstatus",
+				data: {userId:userId},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					triggerLogout();
+					return false;
+				}else if (response.status == 404) {
+					$('#start_pipeline').show();
+					$('#pipe_loader').hide();
+				} else if (response.status == 200 || response.result == 'success') {			
+					if($(".status_piped").length==1){
+						let pipe_status= `<br><b style="color:red">` + response.done_total + `</b> of <b style="color:red">` + response.done_total + `</b>  messages sent </br>`;
+						pipe_status += `<b style="color:red">` + response.done_hour + `</b> sent in the last hour </br>`;
+						pipe_status += `<b style="color:red">` + response.done_24hours + `</b> sent in the last 24 hours `;
+						$(".status_piped").html(pipe_status);				
+					}
+				}
+				$('#pipe_loader').hide();
+				$('#start_pipeline').show();
+			});
+		}
+	});
+}
 function addExistingMembers(){
 	chrome.storage.local.get(["ssa_group"], function(result) {
 		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
@@ -470,13 +505,38 @@ $(document).ready(function(){
 		});
 	});
 
+		
+	$("#start_pipeline").click(function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+				let post_url = "https://www.facebook.com/?dopipeline=1";
+
+				chrome.tabs.create({url: post_url}, function (tab) {
+					chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
+							if (changeInfo.status === 'complete' && tabId === tab.id) {
+								chrome.tabs.executeScript(tab.id, {file: "assets/js/pipeline_message.js"},
+									function(result) {
+										// Process |result| here (or maybe do nothing at all).
+										chrome.tabs.onUpdated.removeListener((a,b)=>{
+											//console.log('mana',a,b)
+										});
+									}
+								);
+							}
+						});
+				})
+				
+			}
+		});
+	});
+
 	$("#start_add_existing_members").click(function(){
 		chrome.storage.local.get(["ssa_group"], function(result) {
 			if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
 				let post_url = groupTabUrl.href;
 				if(post_url){
 					if ( post_url.indexOf('facebook.com/groups/')>-1 && post_url.indexOf('/member-requests')>-1 ) {
-						post_url=post_url.replace("/member-requests","/members/things_in_common");
+						post_url=post_url.replace("/member-requests","/members");
 						let lets_taguser ='existingmember=1';					       
 						if(post_url.indexOf('?') > -1) {            
 							post_url = post_url+`&${lets_taguser}`;
@@ -919,6 +979,30 @@ $(document).ready(function(){
 		var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
 		chrome.storage.local.set({ssaPopupStates:ssaPopupStates});
 		triggerLogout();
+	});
+	$(document).on('click','#stealMembers', function() {
+		var ssaPopupStates = {selected_tag :'' ,selected_template:'',last_screen:''};
+		chrome.storage.local.set({ssaPopupStates:ssaPopupStates});
+		chrome.tabs.getSelected(null, function (tab){
+			let post_url = tab.url +"/?stealmembers=1";
+			chrome.tabs.create({url: post_url}, function (tab) {
+				chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
+						if (changeInfo.status === 'complete' && tabId === tab.id) {
+							chrome.tabs.executeScript(tab.id, {file: "assets/js/steal_member_script.js"},
+								function(result) {
+									// Process |result| here (or maybe do nothing at all).
+									chrome.tabs.onUpdated.removeListener((a,b)=>{
+										//console.log('mana',a,b)
+									});
+								}
+							);
+						}
+					});
+				// executeScripts(tab.id, [
+				//     {file: "js/comments_script.js"},
+				// ])
+			})
+		});
 	});
 	$(document).on('click','.setting', function() {		
 		triggerSettings();
@@ -3469,6 +3553,9 @@ $(document).ready(function(){
 		else if(target == '#tag_users') {
 			showstatusTagged();
 	  	} 
+		else if(target=="#pipeline"){
+			showStatusPipe();
+		}
 		else if(target == '#add_existing_members') {
 			addExistingMembers();
 	  	} 

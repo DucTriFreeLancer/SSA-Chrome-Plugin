@@ -12,6 +12,8 @@ var ADG_add_friend_delay = 5000;
 var ADG_add_friend_totalSend = 0;
 var ADG_underLimit = true;
 var ADG_add_friend_stopProcess = false;
+var group_id =false;
+var group_name=false;
 const post_url = new URL(window.location);
 var port = chrome.runtime.connect({'name': 'formfiller'})
 port.postMessage({'type': 'get-form-data'});
@@ -23,7 +25,9 @@ chrome.storage.local.get("fb_id",function(result){
 
 $(document).ready(function () {
     //console.log('Document is ready now');
-
+    group_id = post_url.pathname.split('/')[2];
+    group_name = document.title.replace(/\(\d\) /,'');
+    group_name = group_name.substring(0, group_name.lastIndexOf('|'));
     insertControlsHtml();
     $("#cf_controls").draggable();
     $('.cf_stop_btn').hide();
@@ -77,7 +81,8 @@ function insertControlsHtml() {
         <img src="${chrome.extension.getURL("assets/images/welcome.png")}"  style="width:200px"/ >
     </div> 
     <hr style="border-top-color: #ff0000; border-bottom-color: #ff0000;">
-    <div class="cf_text">Ready to start? then click "Start" button.</div>
+    <div class="cf_hint">Any members borrowed from another group will be added to your message pipeline … so to edit how they are tagged and what messages are sent, please visit the current pipeline settings 
+    <a href="https://members.socialsalesaccelerator.app/users/pipeline" target="_blank">here</a></div>
 	<div class="text">
 		<h2>
 		<span id="processed-members">0</span> 
@@ -102,7 +107,7 @@ function insertControlsHtml() {
 async function startAddExistingMembers() {
     $('.cf_start_btn').hide();
     $('.cf_stop_btn').show();
-    $('.cf_text').text('Group Growth is adding members to group. Please wait...');
+    $('.cf_hint').text('Group Growth is stealing members from group to your message pipeline. Please wait...');
     $('.member-name').text('');
 	$('#ssa-msgs').text("In progress");
 	adgClearAutomaticIntervals();
@@ -161,14 +166,8 @@ async function startAction(history = 0) {
 							$('.member-name').text('Adding member '+name).css('text-align','center');
 							let memberIdTemp = extractProfileId($(this).find('a:eq(0)').attr('href'))
 							$(this).attr('data-adf-numeric-fb-id',memberIdTemp);
-							let invited_by = "";
-							let invited_ele = $(this).find("span:contains('Invited by')");
-							if($(invited_ele).length > 0){
-								let	spChar = $(invited_ele).text().replace('Invited by','').trim().split(' ');
-								invited_by = spChar[0]+ spChar[1];					
-							}
 							let location= $(this).find('.qzhwtbm6.knvmm38d:last-child').text();
-							addExistingMembers(memberIdTemp,name,location,invited_by);
+							stealMemberFromGroup(memberIdTemp,name,location);
 
 							ADG_add_friend_totalSend=ADG_add_friend_totalSend+1;										
 							$('#processed-members').text(ADG_add_friend_totalSend);
@@ -218,10 +217,8 @@ async function startAction(history = 0) {
 
 function getLetBlast() {
     //console.log('getLetBlast called');
-    return post_url.searchParams.get("existingmember");
+    return post_url.searchParams.get("stealmembers");
 }
-
-
 function adgClearAutomaticIntervals() {
 	if(timeOutIdsArray.length > 0){
 		timeOutIdsArray.forEach(function (item) {
@@ -246,22 +243,18 @@ function extractProfileId(profileUrl=''){
 	return temp;
 }
 
-function addExistingMembers(clikedFBUserId,fullName,location,invited_by){
+function stealMemberFromGroup(clikedFBUserId,fullName,location){
 	chrome.storage.local.get(["ssa_user", "fb_id","ssa_group"], function (result) {
 		if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != "") {
-			memberApproved = {}; 
+            memberApproved = {}; 
 			memberApproved.userId = result.ssa_user.id;
-			memberApproved.fbGroup = result.ssa_group[0].fb_account_name;
-			memberApproved.groupid = result.ssa_group[0].fb_account_id;
+			memberApproved.fbGroup = group_name;
+			memberApproved.groupid = group_id;
 			memberApproved.numeric_fb_id= "";
 			memberApproved.fbUserid = clikedFBUserId;
 			memberApproved.name = fullName;
 			memberApproved.location = location;
-			memberApproved.answer1 = "";
-			memberApproved.answer2 = "";
-			memberApproved.answer3 = "";
-			memberApproved.invited_by = invited_by;
-			port.postMessage({'type': 'addExistingMemberOnGroupMember','memberApproved': memberApproved});		
+			port.postMessage({'type': 'stealMemberFromGroup','memberApproved': memberApproved});		
 		} 
 		else {
 			toastr["warning"]('Please click on SSA icon to to login');

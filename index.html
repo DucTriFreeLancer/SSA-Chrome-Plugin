@@ -12,6 +12,7 @@
 		<link rel="stylesheet" href="assets/css/style.css">
 		<!-- <link rel="stylesheet" href= "assets/css/cb_style.css"> -->
 		<link rel="stylesheet" href="assets/css/toastr.min.css">
+		<link rel="stylesheet" href="assets/css/jquery.scrolling-tabs.css">
     </head>
     <body>
     	<div class="screens" id="login_screen">
@@ -377,10 +378,15 @@
 				<div class="col-2 mx-auto my-auto">
 					<img src="assets/images/64.png">
 				</div>
-				<div class="col-8 mx-auto my-auto">
-					<span class="header-title">
+				<div class="col-6 mx-auto my-auto">
+					<span class="header-title" style="font-size:36px !important;">
 						Add Targeted Friends
 					</span>
+				</div>
+				<div class="col-2 p-0 float-right mr-4 my-auto">
+					<button class="btn btn-outline-primary" id="stealMembers">
+						Steal Members
+					</button>
 				</div>
 				<div class="col-1 p-0 float-right mr-4 my-auto">
 					<button class="btn btn-primary action-button logout" id="logout">
@@ -592,7 +598,7 @@
 			</div>
 			<div class="row h-75 w-100 mx-auto my-auto p-1">
 				<div class="col-12 ">
-					<ul class="nav nav-tabs" role="tablist">
+					<ul class="nav nav-tabs" role="tablist" id="ssa_tab">
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#home"><i class="fa fa-home"></i></a>
 						</li>
@@ -604,6 +610,9 @@
 						</li>
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#send_messages"><i class="fa fa-comments"></i></a>
+						</li>
+						<li class="nav-item nav-item-tabs">
+							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#pipeline"><i class="fa fa-pied-piper"></i></a>
 						</li>
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friendmanagement"><i class="fa fa-users"></i></a>
@@ -856,6 +865,31 @@
 							</div>
 						</div>
 					</div>
+					<div id="pipeline" class="container tab-pane w-100 mx-auto fade p-2">
+						<div class="row">
+							<div class="col-12">
+								<h5 class="p-2">Pipeline
+								</h5>
+							</div>
+							<div class="row h-100 w-100 mx-auto my-auto hide-element" id="pipe_loader">
+								<div class="spinner-border mx-auto loading-wheel" role="status">
+									<span class="sr-only">Loading...</span>
+								</div>
+							</div>
+							<div class="col-12 ml-2">								
+								<span class="status_piped p-2"></span>
+							</div>							
+						</div>						
+						<div class="row h-50">
+							<div class="col-12">
+								<div class="p-2">
+									<button class="btn btn-success btn-lg" id="start_pipeline" style="border: 0px !important; border-radius: 50px !important;">Start now
+										<i class="fa fa-arrow-right"></i>
+									</button>
+								</div>
+							</div>
+						</div>			
+					</div>
 					<div id="friendmanagement" class="container tab-pane w-100 mx-auto fade p-2">
 					
 						<div class="row h-100">
@@ -881,13 +915,11 @@
 						
 						
 					</div>
-					
 					<div id="favgroups" class="container tab-pane w-100 mx-auto fade p-2">
 					
 					this is on the todo list ... you will be able to bookmark favorite groups and setup reminders to go visit them 
 					
 					</div>
-					
 					<div id="favposts" class="container tab-pane w-100 mx-auto fade p-2">
 					
 					this is on the todo list ... you will be able to bookmark favorite posts (yours or others) and set reminders to go back and reply to comments so keep it high in the group 
@@ -895,7 +927,7 @@
 					</div>
 					<div id="birthday" class="container tab-pane w-100 mx-auto fade p-2">
 						<div class="checkbox text-right">
-							<a class="btn btn-secondary fb-primary send_hb_btn action-button float-left">Send HB message</a>
+							<a class="btn btn-secondary send_hb_btn action-button float-left">Send HB message</a>
 							<input id="chkDoBDay" type="checkbox" data-width="124.828px" data-height="41px" checked data-toggle="toggle" data-on="Active" data-off="Not Running" data-onstyle="success" data-offstyle="danger">
 						</div>
 						<div class="row h-100">
@@ -976,7 +1008,6 @@
 								</div>
 						</div>
 					</div>
-					
 					<div id="friend_messages" class="container tab-pane w-100 mx-auto fade p-2">
 						<div class="row">
 							<div class="col-4 left-pane">
@@ -1526,6 +1557,7 @@ I have accepted your friend request.</textarea>
 		<script src="background/authorize.js"></script>
 		<script src="assets/js/script.js"></script>
 		<script src="assets/js/constant.js"></script>
+		<script src="assets/js/jquery.scrolling-tabs.js"></script>
 		<!-- <script src="commentblaster/js/script.js"></script> -->
     </body>
 </html>
