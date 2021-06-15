@@ -310,7 +310,7 @@ function showstatusTagged() {
 	chrome.storage.local.get(["ssa_group"], function(result) {
 		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
 			if($(".status_tagged").length==1){
-				$(".status_tagged").html(`Currently <b style="color:red">` + result.ssa_group[0].tagged_members +
+				$(".status_tagged").html(`Currently <b style="color:red">` + result.ssa_group[0].post_tagged +
 				`</b> members of <b style="color:red">`+ result.ssa_group[0].to_be_tagged + `</b> have been tagged`);				
 			}
 		}

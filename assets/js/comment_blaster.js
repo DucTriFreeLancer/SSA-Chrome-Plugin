@@ -107,8 +107,6 @@ postsAddSSAButton = () =>{
                             tagPostLink.userId = result.ssa_user.id;
                             tagPostLink.url = "https://m.facebook.com/"+pid.replace('/','');;
                             port.postMessage({'type': 'setTagPostLinkForGroup','tagPostLink': tagPostLink});		
-    
-                           
                         }
                         else {
                             toastr["warning"]('Please click on SSA icon to to login');
