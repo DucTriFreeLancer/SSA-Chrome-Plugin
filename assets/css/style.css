@@ -7,6 +7,12 @@ body{
 	overflow-x: hidden !important;
 	color: #03384f;
 }
+#ssa_tab{
+	white-space: nowrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
 img{
 	max-width:100%;
 }
@@ -721,6 +727,13 @@ section form .request-input {
 }
 
 #reminder_loader {
+	padding-top: 25%;
+	padding-left: 35%;
+	height: 62%;
+	opacity: 0.5;	
+}
+
+#pipe_loader {
 	padding-top: 25%;
 	padding-left: 35%;
 	height: 62%;

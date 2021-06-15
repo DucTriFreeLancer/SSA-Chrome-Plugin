@@ -2765,6 +2765,33 @@ function handleCB_UserWindow(){
 		}
 	}, 1000);
 }
+handlePL_UserWindow();
+function handlePL_UserWindow(){
+	setTimeout(() => {
+		let cb_current_window = window.location.href;
+		let url = new URL(cb_current_window);
+		
+		
+		if(url.searchParams.get('lets_pipe_user')!="1"){
+			return;
+		}
+
+		let addFriendButton = $('div[aria-label="Add Friend"]:contains("Add Friend")').get(0);
+		
+		if(url.searchParams.get('addFriend')=="1"){
+			if(typeof addFriendButton != "undefined" ){
+				$(addFriendButton).mclick();
+			}		
+		}					
+		
+		
+		if(window.name=="currentUserPipe"){
+			setTimeout(() => {
+				window.close();
+			}, 3000);		
+		}
+	}, 1000);
+}
 async function GetBothAphaAndNumericId(numericFBid) {
 
 	if (/[a-zA-Z]/.test(numericFBid)) {   /////// send alpha get numeric////
