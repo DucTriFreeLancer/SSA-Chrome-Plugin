@@ -425,4 +425,3 @@ function triggerDMRequestSendMessage(bulkMsgText) {
         resolve();
     })	
 }
-console.log(window)

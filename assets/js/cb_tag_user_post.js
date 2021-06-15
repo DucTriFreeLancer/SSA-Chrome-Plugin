@@ -182,7 +182,7 @@ async function tagUsers(form) {
             }
         }
         else{
-            stopComments();
+            stopTagUsers();
         }
         //rememberComment
         rememberComment();

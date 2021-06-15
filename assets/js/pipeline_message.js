@@ -10,8 +10,6 @@ var ADG_add_friend_delay = 5000;
 var ADG_add_friend_totalSend = 0;
 var ADG_add_friend_stopProcess = false;
 const post_url = new URL(window.location);
-var port = chrome.runtime.connect({'name': 'formfiller'})
-port.postMessage({'type': 'get-form-data'});
 chrome.storage.local.get("fb_id",function(result){
     if( typeof result.fb_id != "undefined" && result.fb_id != "" ){
         fb_user_id = result.fb_id;
@@ -142,6 +140,7 @@ async function startAction() {
                 let url = new URL(resp.add_fbuserid);
                 url.searchParams.set("lets_pipe_user",1);
                 url.searchParams.set('addFriend',1);
+                url.searchParams.set('close',1);
                 url = url.href;
                 window.open(url,'currentUserPipe',
                 `toolbar=no,

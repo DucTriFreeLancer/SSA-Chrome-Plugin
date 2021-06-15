@@ -2042,39 +2042,74 @@ $(document).ready(function(){
 		var bulkDelay = $('#bulk-delay option:selected').val();
 		sendToAll = false;
 		selectedBulkTagIds = [];
-		if ($('#send-to-all-tagged-user').prop('checked')) {
-			sendToAll = true;
-			sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit,removeFromTag);
-		}else{
-			selectedBulkTagIds = [];
-			
-			chrome.storage.local.get(["currentSelTag"], function(result) {
+		if ($('#add-to-pipeline').is(':checked')) {
+			chrome.storage.local.get(["currentSelTag","ssa_user"], function(result) {
 				if(result.currentSelTag != undefined) {
-					temp = {};
-					temp.tagname = result.currentSelTag;
-					temp.tagid = result.currentSelTag;
-					selectedBulkTagIds.push(temp);
-					sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay,sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit,removeFromTag);
+					let inputMessage='';
+					$('.bulk-messge-text').each(function (index) {
+						if ($.trim($(this).val()) != '') {
+							inputMessage= $.trim($(this).val());
+						}
+					});
+					$.ajax({
+						type: "POST",
+						url: apiBaseUrl + "/pipeline/addbulkmessages",
+						data: {userId:result.ssa_user.id,tagId:result.currentSelTag,toremove:removeFromTag?1:0,message:inputMessage,messagesequence:templateId},
+						dataType: 'json',
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+						}
+					}).done(function(response) {
+						//$('.new_template_sec').hide();
+						//$('#new_template_messages').show();
+						
+						if(response.status == 401){
+							triggerLogout();					
+							return false;
+						}
+						if (response.status == 200 || response.result == 'success') {
+							toastr['success']('Message added to pipe line');
+						}
+						
+					});	 
 				} else {
 					toastr['error']('Please select tag to send bulk');
 				}
 			});
-			/*if ($('#bulk-tag-list .selected').length > 0){
-				$('#bulk-tag-list-selected .row').each(function (index) {
-					
-					temp = {};
-					temp.tagname = $(this).find('.bulk-tag-li').text();
-					temp.tagid = $(this).find('.bulk-tag-li').attr('tag-id');
-					selectedBulkTagIds.push(temp);
-				});
-				sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay,sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit);
+		} 
+		else{
+			if ($('#send-to-all-tagged-user').prop('checked')) {
+				sendToAll = true;
+				sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay, sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit,removeFromTag);
 			}else{
-				$('.bulkmsg').addClass('alert alert-danger').text('Select atleast one tag').show().fadeOut(2000);;
-				return false;
-			}*/
+				selectedBulkTagIds = [];
+				
+				chrome.storage.local.get(["currentSelTag"], function(result) {
+					if(result.currentSelTag != undefined) {
+						temp = {};
+						temp.tagname = result.currentSelTag;
+						temp.tagid = result.currentSelTag;
+						selectedBulkTagIds.push(temp);
+						sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay,sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit,removeFromTag);
+					} else {
+						toastr['error']('Please select tag to send bulk');
+					}
+				});
+				/*if ($('#bulk-tag-list .selected').length > 0){
+					$('#bulk-tag-list-selected .row').each(function (index) {
+						
+						temp = {};
+						temp.tagname = $(this).find('.bulk-tag-li').text();
+						temp.tagid = $(this).find('.bulk-tag-li').attr('tag-id');
+						selectedBulkTagIds.push(temp);
+					});
+					sendBulkMessage(selectedBulkTagIds,bulkMessageTextArray,bulkDelay,sendToAll,sendRandomMessage,sendLimit,useRandomDelay,useSendLimit);
+				}else{
+					$('.bulkmsg').addClass('alert alert-danger').text('Select atleast one tag').show().fadeOut(2000);;
+					return false;
+				}*/
+			}
 		}
-
-		
 	});
 
 

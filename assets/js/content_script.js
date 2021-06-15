@@ -2785,7 +2785,7 @@ function handlePL_UserWindow(){
 		}					
 		
 		
-		if(window.name=="currentUserPipe"){
+		if(url.searchParams.get('close')==="1"){
 			setTimeout(() => {
 				window.close();
 			}, 3000);		
