@@ -963,7 +963,7 @@ function openFbWindow() {
 	chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, function (response) {
 		chrome.tabs.create(
 			{
-				url: 'https://www.facebook.com/',
+				url: 'https://www.facebook.com/events/birthdays/',
 				active: true
 			},
 			function (resp) {

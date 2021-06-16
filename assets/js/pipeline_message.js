@@ -113,12 +113,7 @@ function stopPipeLine() {
 }
 
 function cancelPipeLine() {
-	$('.member-name').text('');
-	ADF_profileDelay = 0;
-    $('.cf_overlay').remove();
-    $('#cf_controls').remove();
-	ADF_add_friend_stopProcess = true;
-	ADG_add_friend_processingStatus = 'stopped';
+    window.close();
 }
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
