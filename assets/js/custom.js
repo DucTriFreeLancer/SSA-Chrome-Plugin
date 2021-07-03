@@ -3588,6 +3588,9 @@ $(document).ready(function(){
 		else if(target == '#tag_users') {
 			showstatusTagged();
 	  	} 
+		else if(target == '#friendmanagement') {
+			getFriendRanking();
+	  	} 
 		else if(target=="#pipeline"){
 			showStatusPipe();
 		}

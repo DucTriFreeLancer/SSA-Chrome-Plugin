@@ -9,6 +9,7 @@
 		<link rel="stylesheet" href="assets/css/baloo_font.css">
 		<link href="dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
 		<link href="dist/css/bootstrap-colorpicker-plus.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.21/b-1.6.3/b-html5-1.6.3/sl-1.3.1/datatables.min.css" />
 		<link rel="stylesheet" href="assets/css/style.css">
 		<!-- <link rel="stylesheet" href= "assets/css/cb_style.css"> -->
 		<link rel="stylesheet" href="assets/css/toastr.min.css">
@@ -614,9 +615,9 @@
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab" href="#pipeline"><i class="fa fa-pied-piper"></i></a>
 						</li>
-						<!-- <li class="nav-item nav-item-tabs">
+						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friendmanagement"><i class="fa fa-users"></i></a>
-						</li> -->
+						</li>
 						<li class="nav-item nav-item-tabs">
 							<a class="nav-link nav-link-tabs" data-toggle="tab"id="friend_messages_nav" href="#friend_messages"><i class="fa fa-user"></i></a>
 						</li>
@@ -894,30 +895,37 @@
 							</div>
 						</div>			
 					</div>
-					<div id="friendmanagement" class="container tab-pane w-100 mx-auto fade p-2">
-					
+					<div id="friendmanagement" class="container tab-pane w-100 mx-auto fade p-2">					
 						<div class="row h-100">
-					
-					
-							<div class="col-6 left-pane">
-								
-								<h5 class="p-2">Remove inactive friends 
-								</h5>
-								<div class="row team new_team_sec">
-								coming soon...	
+							<div class="d-block mx-auto">
+								<div class="card border-primary mb-3" id="ls-friends">
+									<div class="card-header"><img id='avt' width="30" height="30" />&nbsp;<span id="name" class="card-title">Friend Ranking</span></div>
+									<div class="card-body">
+										<div id="group-start-buttons" class="text-center mx-auto pb-3" style="display: block;"><button class="btn btn-primary mr-1" id="btn-scan" type="button">Scan</button></div>
+										<div class="table-responsive">
+											<div class="alert alert-info" id="result-msg" style="display: none;"></div>
+											<table class="table table-bordered" width="100%" id="table-friends"></table>
+										</div>
+										<div class="group-b-control">
+											<div class="row el-padding text-center">
+												<div class="col"><span id="rows-status"></span></div>
+											</div>
+											<div class="row">
+												<div class="d-block mx-auto">
+													<div class="form-group row" id="btn-group" style="display: none;">
+														<div class="col-xs-3 el-padding"><label for="sum-lte" class="col-form-label">Select sum &le; </label></div>
+														<div class="col-xs-3 el-padding"><input class="form-control" type="number" min="0" max="99" size="2" id="sum-lte" value="0"></div>
+														<div class=	"col-xs-3 el-padding"><button class="btn btn-info" type="button" id="select-fr" disabled>Select</button></div>
+														<div class="col-xs-3 el-padding"><button class="btn btn-info" type="button" id="deselect-fr" disabled>Deselect all</button></div>
+														<div class="col-xs-3 el-padding"><button class="btn btn-danger" type="button" id="unfr-selected" disabled>Unfriend selected</button></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
-							<div class="col-6 right-pane">
-								<h5 class="p-2">Whitelisted Friends			</h5>
-								<div class="row team_member new_team_member_sec">	
-									coming soon...
-								</div>
-							</div>
-						</div>
-						
-						
-						
-						
+						</div>	
 					</div>
 					<div id="favgroups" class="container tab-pane w-100 mx-auto fade p-2">
 					
@@ -1557,11 +1565,14 @@ I have accepted your friend request.</textarea>
 		<script src="dist/js/bootstrap-colorpicker-plus.js"></script>
 		<script src="config.js"></script>
 		<script src="dist/bootstrap-tagsinput.js"></script>
+		<script src="assets/js/friend_ranking.js" defer></script>
 		<script src="assets/js/custom.js"></script>	
 		<script src="background/authorize.js"></script>
 		<script src="assets/js/script.js"></script>
 		<script src="assets/js/constant.js"></script>
 		<script src="assets/js/jquery.scrolling-tabs.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.21/b-1.6.3/b-html5-1.6.3/sl-1.3.1/datatables.min.js"></script>
 		<!-- <script src="commentblaster/js/script.js"></script> -->
     </body>
 </html>
