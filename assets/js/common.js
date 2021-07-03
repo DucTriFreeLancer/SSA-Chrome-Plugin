@@ -252,3 +252,6 @@ function replaceNamePattern (facebookVersion, card, cardPrefix, HBMessage,myloca
 	return HBMessage.replace(/\[full_name]/g,first_name);
     //resolve(HBMessage.replace(new RegExp(NAME_PATTERN, 'g'), personName));
 };
+function randomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}

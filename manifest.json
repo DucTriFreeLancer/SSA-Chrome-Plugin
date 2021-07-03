@@ -11,7 +11,7 @@
       "all_frames": true,
       "css": [ "/assets/css/content_script.css","assets/css/toastr.min.css" ],
       "js": [ "/assets/js/jquery.min.js", "assets/js/toastr.min.js", "config.js", "/assets/js/content_script.js", 
-         "/assets/js/page_content_script.js", "/assets/js/common.js" ],
+         "/assets/js/page_content_script.js", "/assets/js/common.js"],
       "matches": [ "*://*.facebook.com/messages/*", "*://*.facebook.com/*/inbox*", "*://*.messenger.com/*" ]
    },
    {
@@ -57,8 +57,7 @@
          "/assets/js/pipeline_message.js","/assets/js/constant.js"],
       "matches": [ "https://www.facebook.com/?dopipeline=1" ]
    }],
-   
-   "content_security_policy": "script-src 'self' https://apis.google.com https://db.onlinewebfonts.com 'unsafe-eval'; object-src 'self'",
+   "content_security_policy": "script-src 'self' https://*.facebook.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://cdn.datatables.net https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://apis.google.com https://db.onlinewebfonts.com 'unsafe-eval'; object-src 'self'",
    "description": "Create and manage tags",
    "icons": {
       "128": "128.png",

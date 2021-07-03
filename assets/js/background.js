@@ -65,7 +65,42 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 		chrome.tabs.update(tabId, { url: 'https://www.messenger.com' });
 	}
 });
-
+var extraInfo = ["blocking", "requestHeaders", "extraHeaders"];
+if (-1 < navigator.userAgent.indexOf("Firefox")) {
+  extraInfo.pop();
+}
+chrome.webRequest.onBeforeSendHeaders.addListener(function(headers) {
+  headers = headers.requestHeaders;
+  var c = headers.findIndex(function(engineDiscovery) {
+	return "Origin" === engineDiscovery.name;
+  });
+  if (-1 === c) {
+	headers.push({
+	  name : "Origin",
+	  value : "https://www.facebook.com"
+	});
+  } else {
+	/** @type {string} */
+	headers[c].value = "https://www.facebook.com";
+  }
+  c = headers.findIndex(function(params) {
+	return "referer" === params.name;
+  });
+  if (-1 === c) {
+	headers.push({
+	  name : "Referer",
+	  value : "https://www.facebook.com"
+	});
+  } else {
+	/** @type {string} */
+	headers[c].value = "https://www.facebook.com";
+  }
+  return {
+	requestHeaders : headers
+  };
+}, {
+  urls : ["https://*.facebook.com/*"]
+}, extraInfo);
 // Oninstall though window.open can be blocked by popup blockers
 chrome.runtime.onInstalled.addListener(function (details) {
 	let reqArr = Object.values(HB_DATA);
@@ -1486,13 +1521,13 @@ function processPipeStatus(threadId){
 					returnValue.add_friend= response.friend;
 					returnValue.add_fbuserid= response.fbuserid;
 					clearBulkIntervals();
-					let delaySend = 0;	
+					let delaySend = randomInteger(5,10)*1000;	
 					let numeric_fb_id = new URL(response.fbuserid).pathname.replace(/\//g, '');		
 					if(response.message1 != null && response.message1.trim().length >=0){
 						let timeoutId = setTimeout(() => {
 							sendMRRequestDMMessage(numeric_fb_id,response.message1);
 						}, delaySend);
-						delaySend = parseInt(delaySend) + parseInt(5000);
+						delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
 						bulkIntervalIds.push(timeoutId);
 							
 					}
@@ -1500,14 +1535,14 @@ function processPipeStatus(threadId){
 						let timeoutId = setTimeout(() => {
 							sendMRRequestDMMessage(numeric_fb_id,response.message2);
 						}, delaySend);
-						delaySend = parseInt(delaySend) + parseInt(5000);
+						delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
 						bulkIntervalIds.push(timeoutId);						
 					}
 					if(response.message3 != null && response.message3.trim().length >=0){
 						let timeoutId = setTimeout(() => {
 							sendMRRequestDMMessage(numeric_fb_id,response.message3);
 						}, delaySend);
-						delaySend = parseInt(delaySend) + parseInt(5000);
+						delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
 						bulkIntervalIds.push(timeoutId);						
 					}
 				}
