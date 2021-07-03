@@ -3,13 +3,16 @@ port.postMessage({'type': 'get-form-data'});
 
 chrome.runtime.sendMessage({setFbIdForAll: "setFbIdForAll"});
 CBIngerval = null;
+processed_member_request_count = 0;
 $(document).ready(function () {
     chrome.storage.local.get(["ssa_group"], function(result) {
 		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
-		    if (CBIngerval){
-                clearInterval(CBIngerval);
-            }
-            CBIngerval = setInterval(attachClickEvent, 1000);
+            doInit();
+
+            onElementHeightChange(document.body, function(){
+                doInit();
+            });
+		    
     
 		}
         else{
@@ -17,8 +20,27 @@ $(document).ready(function () {
         }
 	});
 });
+function doInit() {
+    let member_request_count = $('div[aria-label="Approve"]').length;
+
+    if (!member_request_count) {
+        processed_member_request_count = 0;
+        //console.log('waiting because posts are '+posts_count);
+        setTimeout(doInit,1500);
+        return;
+    }
+    if (member_request_count > processed_member_request_count) {
+        //console.log('attaching events because got some posts ==>' + posts_count);
+        console.log("Attached click events");
+        if (CBIngerval){
+            clearInterval(CBIngerval);
+        }
+        CBIngerval = setInterval(attachClickEvent, 1000);
+        processed_member_request_count = member_request_count;
+    }
+}
 function attachClickEvent() {    
-    $('div[aria-label="Approve"]').click(function () {
+    $('div[aria-label="Approve"]:not(.gm_event_attached)').click(function () {
         var member_request=$(this).parent().parent().parent().parent().parent();
         if(member_request){
             chrome.storage.local.get(["ssa_user", "fb_id","ssa_group"], function (result) {
@@ -82,8 +104,24 @@ function attachClickEvent() {
             });
         }
     });
+    $('div[aria-label="Approve"]').addClass('gm_event_attached');
     clearInterval(CBIngerval);
 }
+function onElementHeightChange(elm, callback){
+    var lastHeight = elm.clientHeight, newHeight;
+    (function run(){
+        newHeight = elm.clientHeight;
+        if( lastHeight != newHeight )
+            callback();
+        lastHeight = newHeight;
+
+        if( elm.onElementHeightChangeTimer )
+            clearTimeout(elm.onElementHeightChangeTimer);
+
+        elm.onElementHeightChangeTimer = setTimeout(run, 200);
+    })();
+}
+
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
     if(message.from === 'background' && message.subject === 'add_user'){
         if(message.status =='success'){
