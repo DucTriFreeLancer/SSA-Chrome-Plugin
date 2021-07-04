@@ -529,7 +529,9 @@ $(document).ready(function(){
 			}
 		});
 	});
-
+	$("#start_friend_cleaner").click(function(){
+		window.open("chrome-extension://"+chrome.runtime.id+"/friend_ranking.html","_blank");
+	});
 	$("#start_add_existing_members").click(function(){
 		chrome.storage.local.get(["ssa_group"], function(result) {
 			if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
@@ -3589,7 +3591,7 @@ $(document).ready(function(){
 			showstatusTagged();
 	  	} 
 		else if(target == '#friendmanagement') {
-			getFriendRanking();
+			// getFriendRanking();
 	  	} 
 		else if(target=="#pipeline"){
 			showStatusPipe();
