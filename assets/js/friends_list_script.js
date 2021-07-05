@@ -45,88 +45,90 @@ jQuery.fn.extend({
 
 
 $(function(){
-	setInterval(function(){
-		integratetagfriendList();
-	},4000);
-
-	$(document).on('click','.ssa-tags-container span', function() {
-
-		var pathname = window.location.href.toString();	
-		if(pathname.indexOf("/lists") > -1){
-			$('.profileBrowserDialog').hide();	
-			var clickedFbUserId = $(this).closest('.viewProfile').attr('fb_user_id');
-			var clickednumericfbid = $(this).closest('.viewProfile').attr('numeric_fb_id');
-			var fbName = $(this).parent().parent().parent().next('span').text();
-
-			chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
-				var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 model-close">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
-				if (typeof result.tags != "undefined" && result.tags != "") { 
-					result.tags = result.tags.reverse();
-					for(i=0;i<result.tags.length;i++){
-						var style ='';
-						if (result.tags[i].color !== null ) {
-							style = 'style = "background:'+result.tags[i].color+' !important"';
-							options += "<li "+style+" color-code= '"+result.tags[i].color+"' class='tag-text-color multi-tag-click'  tag-id='"+result.tags[i].value+"'";
-							options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result.  tags[i].text+"</li>";
-						}else{
-							options += "<li class='bg-"+result.tags[i].class+" tag-text-color multi-tag-click' color-code= '0' li-class='"+result.tags[i].class+"' tag-id='"+result.tags[i].value+"'";
-							options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result. tags[i].text+"</li>";
-						}
-					}					
-				}
-				options += '</ul><button style="display:none;" fbName = "'+fbName+'" clickedFBUserId ="'+clickedFbUserId+'"  clickednumericfbid ="'+clickednumericfbid+'" type="button" class="update-multi-tag">Update Tag</button></div>';
-				$('#ssa_model_content_two').html(options);
-				$('#overlay-two').show();
-				var temp = result.taggedUsers.filter(function (item) { return (item.fb_user_id == clickedFbUserId  || item.numeric_fb_id == clickedFbUserId)});
-				if( temp.length > 0 ){
-					var $tagIds = [];
-					if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
-						$tagIds = temp[0].tag_id.split(',');
-					} else {
-						if(temp[0].tag_id.length > 0) {
-							$tagIds = temp[0].tag_id;
-						}
-					}	
-					$tagIds.forEach(function(tagid){
-						eachTagIdOne = tagid.replace(/\#/g,'');
-						$('.model-tag-list li[tag-id="'+eachTagIdOne+'"] .multi-tag-checkbox').prop('checked',true);
-					});	
-				}
-			});
-		}
-	})
+	if (window.location.href.indexOf('/friends') > -1) {
+		setInterval(function(){
+			integratetagfriendList();
+		},4000);
 	
-	$(document).on('click','.model-close', function() {
-		$('#overlay-two').hide();
-		if($('a:contains(See all)').length>0){
-	 		$('a:contains(See all)').mclick();
-	 	}else if($('a[rel="dialog"]:contains(See All)').length>0){
-	 		$('a[rel="dialog"]:contains(See All)').mclick();
-	 	}
-	})
-
-	$(document).on('click','.multi-tag-click', function() {
-	 	var pathname = window.location.href.toString();
-	 	if(pathname.indexOf("/lists") > -1){
-	 		var multiTagChecked = $(this).find('.multi-tag-checkbox').is(':checked');
-			if(multiTagChecked){
-				$(this).find('.multi-tag-checkbox').prop('checked',false);
-			}else{
-				$(this).find('.multi-tag-checkbox').prop('checked',true);	
+		$(document).on('click','.ssa-tags-container span', function() {
+	
+			var pathname = window.location.href.toString();	
+			if(pathname.indexOf("/lists") > -1){
+				$('.profileBrowserDialog').hide();	
+				var clickedFbUserId = $(this).closest('.viewProfile').attr('fb_user_id');
+				var clickednumericfbid = $(this).closest('.viewProfile').attr('numeric_fb_id');
+				var fbName = $(this).parent().parent().parent().next('span').text();
+	
+				chrome.storage.local.get(["tags", "taggedUsers"], function(result) {
+					var options = '<div class="row custom-row modal-heading"><div class="leve-1 tagged-name">'+fbName+'</div><div class="leve-1 model-close">X</div></div> '+searchHtml+'<div class="row custom-row"> <div class="tags-container ssa-tags-container cts-messenger"><ul class="model-tag-list custom-scroll">';
+					if (typeof result.tags != "undefined" && result.tags != "") { 
+						result.tags = result.tags.reverse();
+						for(i=0;i<result.tags.length;i++){
+							var style ='';
+							if (result.tags[i].color !== null ) {
+								style = 'style = "background:'+result.tags[i].color+' !important"';
+								options += "<li "+style+" color-code= '"+result.tags[i].color+"' class='tag-text-color multi-tag-click'  tag-id='"+result.tags[i].value+"'";
+								options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result.  tags[i].text+"</li>";
+							}else{
+								options += "<li class='bg-"+result.tags[i].class+" tag-text-color multi-tag-click' color-code= '0' li-class='"+result.tags[i].class+"' tag-id='"+result.tags[i].value+"'";
+								options += "><input class = 'multi-tag-checkbox' type='checkbox'>"+result. tags[i].text+"</li>";
+							}
+						}					
+					}
+					options += '</ul><button style="display:none;" fbName = "'+fbName+'" clickedFBUserId ="'+clickedFbUserId+'"  clickednumericfbid ="'+clickednumericfbid+'" type="button" class="update-multi-tag">Update Tag</button></div>';
+					$('#ssa_model_content_two').html(options);
+					$('#overlay-two').show();
+					var temp = result.taggedUsers.filter(function (item) { return (item.fb_user_id == clickedFbUserId  || item.numeric_fb_id == clickedFbUserId)});
+					if( temp.length > 0 ){
+						var $tagIds = [];
+						if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+							$tagIds = temp[0].tag_id.split(',');
+						} else {
+							if(temp[0].tag_id.length > 0) {
+								$tagIds = temp[0].tag_id;
+							}
+						}	
+						$tagIds.forEach(function(tagid){
+							eachTagIdOne = tagid.replace(/\#/g,'');
+							$('.model-tag-list li[tag-id="'+eachTagIdOne+'"] .multi-tag-checkbox').prop('checked',true);
+						});	
+					}
+				});
 			}
-		 	$checkedTags = [];
-			$('.model-tag-list li').each(function(index){
-				if ($(this).find('.multi-tag-checkbox').is(':checked')) {
-					$checkedTags.push($(this).attr('tag-id'));
+		})
+		
+		$(document).on('click','.model-close', function() {
+			$('#overlay-two').hide();
+			if($('a:contains(See all)').length>0){
+				 $('a:contains(See all)').mclick();
+			 }else if($('a[rel="dialog"]:contains(See All)').length>0){
+				 $('a[rel="dialog"]:contains(See All)').mclick();
+			 }
+		})
+	
+		$(document).on('click','.multi-tag-click', function() {
+			 var pathname = window.location.href.toString();
+			 if(pathname.indexOf("/lists") > -1){
+				 var multiTagChecked = $(this).find('.multi-tag-checkbox').is(':checked');
+				if(multiTagChecked){
+					$(this).find('.multi-tag-checkbox').prop('checked',false);
+				}else{
+					$(this).find('.multi-tag-checkbox').prop('checked',true);	
 				}
-			});
-			clickedFBUserId = $('.update-multi-tag').attr('clickedFBUserId');
-			clickedNumericFBId = $('.update-multi-tag').attr('clickednumericfbid');
-			fbName = $('.update-multi-tag').attr('fbName');
-			isPage = '0';
-			updateFBFriendListUsertag(JSON.stringify($checkedTags),clickedFBUserId,clickedNumericFBId,fbName,isPage);
-		}
-	});
+				 $checkedTags = [];
+				$('.model-tag-list li').each(function(index){
+					if ($(this).find('.multi-tag-checkbox').is(':checked')) {
+						$checkedTags.push($(this).attr('tag-id'));
+					}
+				});
+				clickedFBUserId = $('.update-multi-tag').attr('clickedFBUserId');
+				clickedNumericFBId = $('.update-multi-tag').attr('clickednumericfbid');
+				fbName = $('.update-multi-tag').attr('fbName');
+				isPage = '0';
+				updateFBFriendListUsertag(JSON.stringify($checkedTags),clickedFBUserId,clickedNumericFBId,fbName,isPage);
+			}
+		});
+	}
 });
 
 

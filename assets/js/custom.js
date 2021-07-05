@@ -4100,9 +4100,43 @@ $(document).ready(function(){
 			if (result[HB_DATA.CAN_SEND] === "0") {
 				toastr["info"]("You must set HB to active before sending");
 			} else {
-				chrome.runtime.sendMessage({action: 'startHBProcess'});
+				if (result[HB_DATA.IS_WORKING] === "1") {
+					const lastDateSendFB = result[HB_DATA.LAST_DATE];
+					if (lastDateSendFB === undefined || new Date(lastDateSendFB).getDate() != new Date().getDate()) {
+						chrome.runtime.sendMessage({action: 'startHBProcess'});
+					} else {
+						$('#hbModal').modal('show');
+					}
+				}
 			}
 		});
+	});
+	$('.reset_hb_btn').click(function() {
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/birthdays/resetDate ",
+					data: {userId:result.ssa_user.id},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						chrome.storage.local.set({'ssa_user':''});	
+					}else if (response.status == 404) {
+						//port.postMessage({'false': true});
+						toastr["error"](response.message);
+					} else {
+						const storageObj = {};					
+						storageObj[HB_DATA.LAST_DATE] = response.lastbdaydate;
+						chrome.storage.local.set(storageObj); 
+						toastr["success"](response.message);					            
+					}				  
+				});	
+			}
+		})
 	});
 	$('#chkDoBDay').change(function() {
 		console.log('Toggle: ' + $(this).prop('checked'));		
