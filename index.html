@@ -955,6 +955,7 @@
 					<div id="birthday" class="container tab-pane w-100 mx-auto fade p-2">
 						<div class="checkbox text-right">
 							<a class="btn btn-secondary send_hb_btn action-button float-left">Send HB message</a>
+							<a class="btn btn-secondary reset_hb_btn action-button float-left ml-3">Reset</a>
 							<input id="chkDoBDay" type="checkbox" data-width="124.828px" data-height="41px" checked data-toggle="toggle" data-on="Active" data-off="Not Running" data-onstyle="success" data-offstyle="danger">
 						</div>
 						<div class="row h-100">
@@ -1568,6 +1569,25 @@ I have accepted your friend request.</textarea>
 				</div>
 			</div>
 		</div>
+		<!-- Modal -->
+		<div class="modal fade" id="hbModal" role="dialog" style="display: none;" >
+			<div class="modal-dialog">
+			  <!-- Modal content-->
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <p class="modal-title">Happy birthday</p>
+				  <button type="button" class="close " data-dismiss="modal">&times;</button>		
+				</div>
+				<div class="modal-body">
+				  <p>Happy birthday is already processed today - if this is not the case please press “Reset” and then start process again</p>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			  </div>
+			  
+			</div>
+		  </div>
 		<script src="assets/js/jquery.min.js"></script>
 		<script src="assets/js/popper.min.js"></script>
 		<script src="assets/js/bootstrap.min.js"></script>

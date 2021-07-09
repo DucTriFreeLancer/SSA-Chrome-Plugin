@@ -112,14 +112,14 @@ chrome.runtime.onInstalled.addListener(function (details) {
 
 			storageObj[HB_DATA.BDTLMSG] = {};
 			storageObj[HB_DATA.BDDMMSG] = {};
-			storageObj[HB_DATA.IS_WORKING] = "0";
+			storageObj[HB_DATA.IS_WORKING] = "1";
 			storageObj[HB_DATA.LOCAL_FB] = SENDING_DATA;
 			storageObj[HB_DATA.CAN_SEND] = true;			
 		} else if (details.reason === 'update') {
 			if (result[HB_DATA.CAN_SEND] === undefined) {
 				storageObj[HB_DATA.CAN_SEND] = true;
 			}
-			storageObj[HB_DATA.IS_WORKING] = "0";
+			storageObj[HB_DATA.IS_WORKING] = "1";
 		}
 
 		chrome.storage.local.set(storageObj);
@@ -976,22 +976,22 @@ start();
 
 const sendMessageFB =  () => {
 	let reqArr = Object.values(HB_DATA);
-		chrome.storage.local.get(reqArr, (result) => {
-			if (result[HB_DATA.CAN_SEND] === "1") {
-				if (result[HB_DATA.IS_WORKING] === "1") {
-					const lastDateSendFB = result[HB_DATA.LAST_DATE];
-					if (lastDateSendFB === undefined || new Date(lastDateSendFB).getDate() != new Date().getDate()) {
-						console.log('Messages for FB were not sent today');
-						console.log('Trying to send a message FB');
-						// Open FB tab
-						openFbWindow();
-						console.log('Open FB window');
-					} else {
-						console.log('Messages for FB were sent today. Waiting for an hour for a new check');
-					}
+	chrome.storage.local.get(reqArr, (result) => {
+		if (result[HB_DATA.CAN_SEND] === "1") {
+			if (result[HB_DATA.IS_WORKING] === "1") {
+				const lastDateSendFB = result[HB_DATA.LAST_DATE];
+				if (lastDateSendFB === undefined || new Date(lastDateSendFB).getDate() != new Date().getDate()) {
+					console.log('Messages for FB were not sent today');
+					console.log('Trying to send a message FB');
+					// Open FB tab
+					openFbWindow();
+					console.log('Open FB window');
+				} else {
+					console.log('Messages for FB were sent today. Waiting for an hour for a new check');
 				}
 			}
-		});
+		}
+	});
 }
 
 function openFbWindow() {

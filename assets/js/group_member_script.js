@@ -16,7 +16,9 @@ $(document).ready(function () {
     
 		}
         else{
-            toastr["warning"]('Please click on SSA icon to check group');
+            toastr.options.timeOut = 0;
+            toastr.options.extendedTimeOut = 0;
+            toastr["warning"]('Please click SSA to activate');
         }
 	});
 });
@@ -37,6 +39,9 @@ function doInit() {
         }
         CBIngerval = setInterval(attachClickEvent, 1000);
         processed_member_request_count = member_request_count;
+        toastr.options.timeOut = 0;
+        toastr.options.extendedTimeOut = 0;
+        toastr["success"]('SSA is Ready');
     }
 }
 function attachClickEvent() {    
