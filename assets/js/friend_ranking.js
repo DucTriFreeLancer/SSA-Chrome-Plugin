@@ -20,6 +20,10 @@ $(document).ready(function() {
     var row = [];
     /** @type {number} */
     var y = -1;
+    $("#table-friends").on("click", "tr", function() {
+        $(this).toggleClass("selected");
+        highlight();
+    });
     var d3url = "https://m.facebook.com/composer/ocelot/async_loader/?publisher=feed";
     $.ajax({
         type: "GET",
@@ -83,6 +87,24 @@ $(document).ready(function() {
             });
         }
     }
+    /**
+     * @return {undefined}
+     */
+    function open() {
+        if (me) {
+            $("#unfr-selected").unbind("click");
+            $("#unfr-selected").click(function() {
+                var count = me.rows(".selected").data().length;
+                if (0 == count) {
+                    alert("No friend selected!");
+                } else {
+                    if (confirm(`Are you sure to unfriend ${count} selected friends?\n\nCaution: Just unfriend from 200 - 300 friends / 24 hours to avoid FB block feature!`)) {
+                        handler();
+                    }
+                }
+            });
+        }
+    }
     $("#btn-scan").click(function() {
         $("#result-msg").fadeIn("slow", function() {
         $("#group-start-buttons").hide();
@@ -110,8 +132,9 @@ $(document).ready(function() {
         }
         unlockButtons(false);
         if (id) {
-            render(`https://graph.facebook.com/v11.0/me/friends?fields=id,name,picture&limit=500&access_token=${token}`, function() {
+            render(`https://graph.facebook.com/v11.0/me/friends?fields=id,name,picture,mutual_friends{count}&limit=500&access_token=${token}`, function() {
                 run();
+                open();
                 initialize(function() {
                     elapseTimer();
                     test("", function() {
@@ -124,22 +147,22 @@ $(document).ready(function() {
                             $("#unfr-selected").attr("disabled", false);
                             $("body").removeClass("disabled");
                             $("#select-fr").click(function() {
-                            /** @type {number} */
-                            var whiteRating = parseInt($("#sum-lte").val());
-                            me.rows().deselect();
-                            var crossfilterable_layers = me.rows().data();
-                            /** @type {number} */
-                            var layer_i = 0;
-                            for (; layer_i < crossfilterable_layers.length; layer_i++) {
-                                if (crossfilterable_layers[layer_i][7] <= whiteRating) {
-                                me.row("#" + crossfilterable_layers[layer_i][2]).select();
+                                /** @type {number} */
+                                var whiteRating = parseInt($("#sum-lte").val());
+                                me.rows().deselect();
+                                var crossfilterable_layers = me.rows().data();
+                                /** @type {number} */
+                                var layer_i = 0;
+                                for (; layer_i < crossfilterable_layers.length; layer_i++) {
+                                    if (crossfilterable_layers[layer_i][6] <= whiteRating) {
+                                    me.row("#" + crossfilterable_layers[layer_i][2]).select();
+                                    }
                                 }
-                            }
-                            highlight();
+                                highlight();
                             });
                             $("#deselect-fr").click(function() {
-                            me.rows().deselect();
-                            highlight();
+                                me.rows().deselect();
+                                highlight();
                             });
                             unlockButtons(true);
                         });
@@ -207,11 +230,11 @@ $(document).ready(function() {
         /** @type {null} */
         var e = null;
         fetch("https://www.facebook.com/api/graphql/", {
-        body : form,
-        headers : {
-            accept : "application/json, text/plain, */*"
-        },
-        method : "POST"
+            body : form,
+            headers : {
+                accept : "application/json, text/plain, */*"
+            },
+            method : "POST"
         }).then(function(d) {
             return d.text();
         }).then(function(d) {
@@ -250,18 +273,18 @@ $(document).ready(function() {
                     var sRow = me.row("[id=" + o.i + "]").index();
                     me.cell({
                         row : sRow,
-                        column : 3
+                        column : 4
                     }).data(o.r);
                     me.cell({
                         row : sRow,
-                        column : 4
+                        column : 5
                     }).data(o.c);
                     me.cell({
                         row : sRow,
-                        column : 6
+                        column : 7
                     }).data(o.s);
                 });
-                me.order([6, "desc"]).draw();
+                me.order([7, "desc"]).draw();
                 fn();
             }
         })["catch"](function(searchDefinition) {
@@ -346,14 +369,14 @@ $(document).ready(function() {
                         var sRow = me.row("[id=" + a.i + "]").index();
                         me.cell({
                         row : sRow,
-                        column : 5
+                        column : 6
                         }).data(a.m);
                         me.cell({
                         row : sRow,
-                        column : 6
+                        column : 7
                         }).data(a.s);
                     });
-                    me.order([6, "desc"]).draw();
+                    me.order([7, "desc"]).draw();
                     SettingsProxy();
                 })
             }
@@ -380,6 +403,8 @@ $(document).ready(function() {
             }, {
                 title : "Name"
             }, {
+                title : "ID"
+            }, {
                 title : "Mutual friends"
             }, {
                 title : "Like/React"
@@ -395,7 +420,7 @@ $(document).ready(function() {
                 visible : false,
                 searchable : false
             }],
-            order : [[6, "desc"]],
+            order : [[7, "desc"]],
             language : {
                 search : "Search",
                 paginate : {
@@ -414,17 +439,108 @@ $(document).ready(function() {
         }
         res.forEach(function(p) {
             p.s = p.f + p.r + p.c + p.m;
-            me.row.add(['<a href="https://fb.com/' + p.i + '" target="_blank"><img src="' + p.p + '" width="30" height="30" /></a>', '<a href="https://fb.com/' + p.i + '" target="_blank">' + p.n + "</a>", p.f, p.r, p.c, p.m, p.s]).draw(false).node().id = p.i;
+            me.row.add(['<a href="https://fb.com/' + p.i + '" target="_blank"><img src="' + p.p + '" width="30" height="30" /></a>', '<a href="https://fb.com/' + p.i + '" target="_blank">' + p.n + "</a>",p.i, p.f, p.r, p.c, p.m, p.s]).draw(false).node().id = p.i;
         });
-        me.order([6, "desc"]).draw();
+        me.order([7, "desc"]).draw();
+    }
+    /**
+     * @param {string} fr_id
+     * @param {string} parent
+     * @param {!Function} onPreComplete
+     * @return {undefined}
+     */
+    function callback(fr_id, parent, onPreComplete) {
+        $("#result-msg").html('<div class="spinner-border text-primary"></div><span> ' + "Unfriending " + parent + "</span>").fadeIn("slow");
+        fetch("https://m.facebook.com/removefriend.php?friend_id=" + fr_id, {
+            method : "GET"
+        }).then(function(d) {
+            if (200 !== d.status) {
+                show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 11, false);
+            } else {
+                d.text().then(function(a) {
+                /** @type {string} */
+                string = a;
+                /** @type {string} */
+                var i = string.match(/<form method="post" (.*?)<\/form>/)[0];
+                /** @type {(Array<string>|null)} */
+                a = i.match(/<input(.*?)\/>/g);
+                /** @type {!FormData} */
+                var form = new FormData;
+                if (i && a && 2 <= a.length) {
+                /** @type {number} */
+                i = 0;
+                for (; i < a.length; i++) {
+                    /** @type {string} */
+                    var e = a[i];
+                    /** @type {string} */
+                    var p = e.match(/name="(.*?)"/)[1];
+                    /** @type {string} */
+                    e = e.match(/value="(.*?)"/)[1];
+                    form.append(p, e);
+                }
+                fetch("https://m.facebook.com/a/removefriend.php", {
+                    method : "POST",
+                    body : form
+                }).then(function(e) {
+                    /** @type {number} */
+                    e = e.status;
+                    if (200 === e) {
+                    me.row("#" + id).remove().draw(true);
+                    highlight();
+                    onPreComplete();
+                    } else {
+                        show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 11, false);
+                    }
+                })["catch"](function(searchDefinition) {
+                    show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 10, false);
+                });
+                } else {
+                    show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 9, false);
+                }
+            });
+            }
+        })["catch"](function(searchDefinition) {
+            show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 8, false);
+        });
     }
     /**
      * @return {undefined}
      */
     function highlight() {
         var number = me.rows(".selected").data().length;
-        number = 0 === number ? get("tbl_select_rows_0") : 1 === number ? get("tbl_select_rows_1") : get("tbl_select_rows").replace("%d", number);
+        number = 0 === number ? "No friends are selected" : 1 === number ? "Selected 1 friend" : `Selected ${number} friends`;
         $("#rows-status").text(number);
+    }
+    /**
+     * @param {string} a
+     * @return {undefined}
+     */
+    function handler(a) {
+        a = void 0 === a ? 0 : a;
+        if (0 == a) {
+            $("#select-fr").attr("disabled", true);
+            $("#deselect-fr").attr("disabled", true);
+            $("#unfr-selected").attr("disabled", true);
+            $("body").addClass("disabled");
+            show("Loading! Please wait ...", "info");
+        }
+        if (5E3 > a) {
+            var parsedResponse = me.row(".selected").data();
+            if (void 0 == parsedResponse) {
+                show("Done!", "success");
+                $("#select-fr").attr("disabled", false);
+                $("#deselect-fr").attr("disabled", false);
+                $("#unfr-selected").attr("disabled", false);
+                $("body").removeClass("disabled");
+            } else {
+                callback(parsedResponse[2], parsedResponse[1], function() {
+                    setTimeout(function() {
+                        a++;
+                        handler(a);
+                    }, Math.floor(4095 * Math.random() + 4095));
+                });
+            }
+        }
     }
     /**
      * @param {!Array} src
