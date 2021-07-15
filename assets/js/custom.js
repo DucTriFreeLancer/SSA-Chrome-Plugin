@@ -91,7 +91,9 @@ chrome.cookies.get({url: baseUrl,name: "cts_unique_hash"}, function(result) {
        uniqueHash = result.value;
     }
 });
-
+window.addEventListener("load", function () {
+	Sentry.init({ dsn: 'https://68cd9829dc3944b3a6e0e14f81538821@o916249.ingest.sentry.io/5857548' });
+});
 function handleError() {
 	this.src = "/assets/images/default-user.jpg";
 }

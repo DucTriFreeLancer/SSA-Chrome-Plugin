@@ -6,7 +6,7 @@ var opt = {
 	message: "",
 	iconUrl: "assets/images/64.png"
 }
-
+Sentry.init({ dsn: 'https://68cd9829dc3944b3a6e0e14f81538821@o916249.ingest.sentry.io/5857548' });
 var baseUrl = custom_data.baseUrl;
 ////////// ADF welcome messages /////////
 var friendRequestTabIdsADF = [];
@@ -47,7 +47,6 @@ var sendLimitOfBulkMessage = 0;
 var bulkParentTabId = 0;
 
 var totalBulkArrayContacts = 0;
-
 ///////////end re bulk messages////////////
 
 var ssaPopupStates = { selected_tag: '', selected_template: '', last_screen: '' };
@@ -967,13 +966,11 @@ const everyHoursSendMsgTimer = () => {
 	}, HOUR);
 };
 
-
 const start = () => setTimeout(() => {
 	clearInterval(timerOneHour);
 	everyHoursSendMsgTimer();
 }, 5000);
 start();
-
 const sendMessageFB =  () => {
 	let reqArr = Object.values(HB_DATA);
 	chrome.storage.local.get(reqArr, (result) => {

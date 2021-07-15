@@ -23,7 +23,7 @@ const parseElement = {
         'HBSendMsgBtn': 'input[type="submit"]'
     }
 }
-
+Sentry.init({ dsn: 'https://68cd9829dc3944b3a6e0e14f81538821@o916249.ingest.sentry.io/5857548' });
 const getHBCards = (pageElements) => new Promise(resolve => {
     const waitHBCards = setInterval(()=>{
         const HBBlockPopup = $(pageElements['HBBlockPopup']);
@@ -51,15 +51,13 @@ async function sendBDMessages() {
         const facebookVersion = $('#globalContainer').length ? FACEBOOK_VERSION.OLD : FACEBOOK_VERSION.NEW;
         printInfo(facebookVersion + ' version facebook');
 
-    
         const pageElements = parseElement[facebookVersion];
-    
+        pageElements = undefined;
         const HBBLockPage = $(pageElements['HBBLockPage']).first();
         if (!HBBLockPage.length) {
             printInfo('There are no birthdays today');
         } else {
             printInfo('There are birthdays today');
-    
             const HBCards = await getHBCards(pageElements);
             if (!HBCards) {
                 printInfo('Happy Birthday cards not found');
@@ -87,7 +85,7 @@ async function sendBDMessages() {
 
                     i++;
                     let can_send = await checkProcessHBFbId(alphaNumericId,'facebook');
-                    //if(can_send.error){
+                    if(can_send.error){
                         await pending(2000 * i);                   
 
                         let resp = await getTLMessageToSend('facebook');                   
@@ -247,13 +245,14 @@ async function sendBDMessages() {
                             }
                             await sleep(5000);
                         }   
-                    //}                                    
+                    }                                    
                 }                
             }
         }
     
         await sleep(5000);
     } catch(err) {
+        Sentry.captureException(err);
         closeFbTab();
     }
     
@@ -323,7 +322,6 @@ function checkTab() {
         
     })
 }
-
 function closeFbTab() {
     chrome.runtime.sendMessage({
         action: ACTIONS.CLOSE_LI_TAB,
