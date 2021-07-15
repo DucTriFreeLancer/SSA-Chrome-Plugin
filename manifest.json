@@ -57,7 +57,7 @@
          "/assets/js/pipeline_message.js","/assets/js/constant.js"],
       "matches": [ "https://www.facebook.com/?dopipeline=1" ]
    }],
-   "content_security_policy": "script-src 'self' https://*.facebook.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://cdn.datatables.net https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://apis.google.com https://db.onlinewebfonts.com 'unsafe-eval'; object-src 'self'",
+   "content_security_policy": "script-src 'self' https://*.facebook.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://cdn.datatables.net https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://apis.google.com https://db.onlinewebfonts.com https://js.sentry-cdn.com https://browser.sentry-cdn.com 'unsafe-eval'; object-src 'self'",
    "description": "Create and manage tags",
    "icons": {
       "128": "128.png",
@@ -80,5 +80,5 @@
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "1.0.0",
    "web_accessible_resources": [ "comment_blaster.html","lead_sniper.html","friend_ranking.html", "assets/images/64.png", "assets/images/welcome.png",
-      "assets/css/cb_main.css","assets/js/t.js" ]
+      "assets/css/cb_main.css"]
 }

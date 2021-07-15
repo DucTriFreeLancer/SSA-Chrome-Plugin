@@ -87,7 +87,7 @@ async function sendBDMessages() {
 
                     i++;
                     let can_send = await checkProcessHBFbId(alphaNumericId,'facebook');
-                    if(can_send.error){
+                    //if(can_send.error){
                         await pending(2000 * i);                   
 
                         let resp = await getTLMessageToSend('facebook');                   
@@ -247,7 +247,7 @@ async function sendBDMessages() {
                             }
                             await sleep(5000);
                         }   
-                    }                                    
+                    //}                                    
                 }                
             }
         }

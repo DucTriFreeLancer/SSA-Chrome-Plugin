@@ -4,6 +4,7 @@ $(document).ready(function() {
     var fn = void 0;
     var id = void 0;
     var token = null;
+    var docid='4016522891723092';
     /** @type {boolean} */
     var uFields = true;
     /** @type {string} */
@@ -451,53 +452,33 @@ $(document).ready(function() {
      */
     function callback(fr_id, parent, onPreComplete) {
         $("#result-msg").html('<div class="spinner-border text-primary"></div><span> ' + "Unfriending " + parent + "</span>").fadeIn("slow");
-        fetch("https://m.facebook.com/removefriend.php?friend_id=" + fr_id, {
-            method : "GET"
+        var form = new FormData;
+        form.append("fb_dtsg", id);
+        form.append("doc_id",docid);
+        form.append("variables", `{"input":{"source":"bd_profile_button","unfriended_user_id":"${fr_id}","actor_id":"${userId}","client_mutation_id":"1"},"scale":3}`);
+        /** @type {null} */
+        var e = null;
+        fetch("https://www.facebook.com/api/graphql/", {
+            body : form,
+            headers : {
+                accept : "application/json, text/plain, */*"
+            },
+            method : "POST"
         }).then(function(d) {
-            if (200 !== d.status) {
-                show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 11, false);
-            } else {
-                d.text().then(function(a) {
-                /** @type {string} */
-                string = a;
-                /** @type {string} */
-                var i = string.match(/<form method="post" (.*?)<\/form>/)[0];
-                /** @type {(Array<string>|null)} */
-                a = i.match(/<input(.*?)\/>/g);
-                /** @type {!FormData} */
-                var form = new FormData;
-                if (i && a && 2 <= a.length) {
-                /** @type {number} */
-                i = 0;
-                for (; i < a.length; i++) {
-                    /** @type {string} */
-                    var e = a[i];
-                    /** @type {string} */
-                    var p = e.match(/name="(.*?)"/)[1];
-                    /** @type {string} */
-                    e = e.match(/value="(.*?)"/)[1];
-                    form.append(p, e);
-                }
-                fetch("https://m.facebook.com/a/removefriend.php", {
-                    method : "POST",
-                    body : form
-                }).then(function(e) {
-                    /** @type {number} */
-                    e = e.status;
-                    if (200 === e) {
-                    me.row("#" + id).remove().draw(true);
-                    highlight();
-                    onPreComplete();
-                    } else {
+            if(d.ok){
+                d.json().then(function(aj){
+                    if(aj.data.friend_remove != null){
+                        me.row("#" + fr_id).remove().draw(true);
+                        highlight();
+                        onPreComplete();   
+                    }
+                    else{
                         show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 11, false);
                     }
-                })["catch"](function(searchDefinition) {
-                    show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 10, false);
-                });
-                } else {
-                    show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 9, false);
-                }
-            });
+                })
+            }
+            else{
+                show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 11, false);
             }
         })["catch"](function(searchDefinition) {
             show("Unfriend failed. Make sure your account is logged in and you are not blocked from unfriending on Facebook.", "danger", 8, false);

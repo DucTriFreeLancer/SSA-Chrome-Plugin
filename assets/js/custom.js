@@ -6704,7 +6704,6 @@ function getBdtlMessages(){
 				$('.bdtl-message-list').html('');
 				let messages = [];	
 				if (response.status == 200 || response.result == 'success') {
-							
 					response.data.forEach(function(message){
 						//console.log(message.id);
 						messages.push(message);
