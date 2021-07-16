@@ -14,16 +14,23 @@ const parseElement = {
         'HBSendMsgBtn': 'button[type="submit"]'
     },
     'New': {
-        'HBBLockPage': 'div[aria-label="Event dashboard"][role="main"] > div >div>div> div.oh7imozk.bjjx79mm>div.sjgh65i0>div.l9j0dhe7>div>div.discj3wi.ihqw7lf3:eq(0)>' +
+        'HBBLockPage': 'div[role="main"] > div >div>div> div.oh7imozk.bjjx79mm>div.sjgh65i0>div.l9j0dhe7>div>div.discj3wi.ihqw7lf3:eq(0)>' +
             'div.dati1w0a.ihqw7lf3.hv4rvrfc>div>div.w0hvl6rk.qjjbsfad>h2>span:contains("Today")',
-        'HBBlockPopup': 'div[aria-label="Event dashboard"][role="main"] > div >div>div> div.oh7imozk.bjjx79mm>div.sjgh65i0>div.l9j0dhe7>div>div.discj3wi.ihqw7lf3:eq(0)>' +
+        'HBBlockPopup': 'div[role="main"] > div >div>div> div.oh7imozk.bjjx79mm>div.sjgh65i0>div.l9j0dhe7>div>div.discj3wi.ihqw7lf3:eq(0)>' +
             'div.dati1w0a.qt6c0cv9.hv4rvrfc.jb3vyjys.b20td4e0',
         'HBCards': 'div > div.j83agx80.pybr56ya.rz4wbd8a.a8nywdso',
         'HBPlaceOfMessage': 'form div._5rp7 > div._5rpb > div[role="textbox"]',
         'HBSendMsgBtn': 'input[type="submit"]'
     }
 }
-Sentry.init({ dsn: 'https://68cd9829dc3944b3a6e0e14f81538821@o916249.ingest.sentry.io/5857548' });
+Sentry.init({ dsn: 'https://68cd9829dc3944b3a6e0e14f81538821@o916249.ingest.sentry.io/5857548',
+            debug: false,
+            integrations: [
+                new Sentry.Integrations.CaptureConsole({
+                    levels: ['error']
+                })
+            ]
+});
 const getHBCards = (pageElements) => new Promise(resolve => {
     const waitHBCards = setInterval(()=>{
         const HBBlockPopup = $(pageElements['HBBlockPopup']);
@@ -52,7 +59,6 @@ async function sendBDMessages() {
         printInfo(facebookVersion + ' version facebook');
 
         const pageElements = parseElement[facebookVersion];
-        pageElements = undefined;
         const HBBLockPage = $(pageElements['HBBLockPage']).first();
         if (!HBBLockPage.length) {
             printInfo('There are no birthdays today');
@@ -169,7 +175,7 @@ async function sendBDMessages() {
                                         for (var i=0; i<split.length; i++) {
                                             char = split[i]
                                             if (char !== "") {
-                                            arr.push(char);
+                                                arr.push(char);
                                             }
                                         }
                                         return arr;
@@ -252,7 +258,7 @@ async function sendBDMessages() {
     
         await sleep(5000);
     } catch(err) {
-        Sentry.captureException(err);
+        Sentry.captureException(new Error(err));
         closeFbTab();
     }
     

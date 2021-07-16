@@ -25,8 +25,8 @@
    }, 
    {
       "css": [ "/assets/css/content_script.css" ,"/assets/css/adf.css","assets/css/toastr.min.css","/assets/css/jquery-ui.min.css" ],
-      "js": [ "/assets/js/jquery.min.js","/assets/js/jquery-ui.min.js","assets/js/toastr.min.js", "config.js","/assets/js/message_func.js", 
-        "/assets/js/bd_content_script.js","/assets/js/common.js","/assets/js/constant.js","/assets/js/sentry_bundle.min.js"],
+      "js": [ "/assets/js/jquery.min.js","/assets/js/jquery-ui.min.js","assets/js/toastr.min.js","/assets/js/captureconsole.min.js","/assets/js/sentry_bundle.min.js", "config.js","/assets/js/message_func.js", 
+        "/assets/js/bd_content_script.js","/assets/js/common.js","/assets/js/constant.js"],
       "matches": [ "https://www.facebook.com/events/birthdays*" ],
       "exclude_matches":["*://*.facebook.com/groups/*/member-requests*","*://*.facebook.com/groups/*/*tagusers=1","*://*.facebook.com/groups/*/*existingmember=1",
          "https://www.facebook.com/groups/*/*stealmembers=1","https://www.facebook.com/?dopipeline=1"]
