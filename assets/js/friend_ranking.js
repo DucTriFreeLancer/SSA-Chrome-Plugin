@@ -398,13 +398,26 @@ $(document).ready(function() {
             processing : true,
             destroy : true,
             dom : '<"row"<"col-md-4"l><"col-md-4"B>f>rt<"row"<"col-md-6"i><"col-md-6"p>>',
-            buttons : ["copy", "csv", "excel"],
+            buttons : ["copy", 
+            {
+                extend: 'csv',
+                charset: 'UTF-8',
+                exportOptions: {
+                    columns: [ 0, 2, 3, 4, 5, 6,7 ] //Your Column value those you want
+                }
+            }, 
+            {
+                extend: 'excel',
+                exportOptions: {
+                    columns: [ 0, 2, 3, 4, 5, 6,7 ] //Your Column value those you want
+                }
+            }],
             columns : [{
+                title : "UID"
+            }, {
                 title : "Avatar"
             }, {
                 title : "Name"
-            }, {
-                title : "ID"
             }, {
                 title : "Mutual friends"
             }, {
@@ -417,7 +430,7 @@ $(document).ready(function() {
                 title : "Sum"
             }],
             columnDefs : [{
-                targets : [2],
+                targets : [0],
                 visible : false,
                 searchable : false
             }],
@@ -440,7 +453,7 @@ $(document).ready(function() {
         }
         res.forEach(function(p) {
             p.s = p.f + p.r + p.c + p.m;
-            me.row.add(['<a href="https://fb.com/' + p.i + '" target="_blank"><img src="' + p.p + '" width="30" height="30" /></a>', '<a href="https://fb.com/' + p.i + '" target="_blank">' + p.n + "</a>",p.i, p.f, p.r, p.c, p.m, p.s]).draw(false).node().id = p.i;
+            me.row.add([p.i,'<a href="https://fb.com/' + p.i + '" target="_blank"><img src="' + p.p + '" width="30" height="30" /></a>', '<a href="https://fb.com/' + p.i + '" target="_blank">' + p.n + "</a>", p.f, p.r, p.c, p.m, p.s]).draw(false).node().id = p.i;
         });
         me.order([7, "desc"]).draw();
     }
