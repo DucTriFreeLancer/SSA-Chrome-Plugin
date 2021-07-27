@@ -493,6 +493,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 			return true;
 		}	
 	}
+	else if (message.action == "addSelectedFriendToPipe") {
+		addSelectedFriendToPipe(message.data).then((getMesResp)=>{
+			sendResponse(getMesResp);
+		});		
+		return true;
+	}
+	
 
 })
 async function updateBdDate(){
@@ -1488,6 +1495,54 @@ function processBdayMessage(threadId){
 				});
 			}
 		});		
+	});	
+}
+function addSelectedFriendToPipe(data){
+
+	return new Promise(function(resolve,reject) {
+		let returnValue = {
+			error: true
+		};
+		var checkedUsersForFriend = data;
+		checkedUsersForFriend.forEach(function (item, i) {
+			var numeric_fb_id = item.numeric_fb_id;
+			GetBothAphaAndNumericId(numeric_fb_id).then(function (fbIDsObject) {
+				item.fbUserid = fbIDsObject.fb_user_id;
+				item.numeric_fb_id = fbIDsObject.numeric_fb_id
+
+				if (i == checkedUsersForFriend.length - 1) {
+					data = checkedUsersForFriend;
+					$.ajax({
+						type: "POST",
+						url: apiBaseUrl + "/pipeline/addSelectedFriend",
+						data: data,
+						dataType: 'json',
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+						}
+					}).done(function (response) {
+						if (response.status == 401) {
+							chrome.storage.local.set({ 'ssa_user': '' });
+							returnValue.error = true;
+						}
+						else
+						{
+							if (response.result === "success")
+							{
+								returnValue.error = false;
+								returnValue.message = response.pipeline_message;
+							}
+							else{
+								returnValue.error = true;
+								returnValue.message = response.message;
+							}
+						}
+						resolve(returnValue);
+					});	
+				}
+			});
+		})
+		
 	});	
 }
 function processPipeStatus(threadId){

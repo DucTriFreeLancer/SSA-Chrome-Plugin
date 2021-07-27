@@ -104,6 +104,17 @@ $(document).ready(function() {
                     }
                 }
             });
+            $("#pipe-selected").unbind("click");
+            $("#pipe-selected").click(function() {
+                var count = me.rows(".selected").data().length;
+                if (0 == count) {
+                    alert("No friend selected!");
+                } else {
+                    if (confirm(`Are you sure to add ${count} selected friends to pipeline?`)) {
+                        handlerPipe(count);
+                    }
+                }
+            });
         }
     }
     $("#btn-scan").click(function() {
@@ -146,6 +157,7 @@ $(document).ready(function() {
                             $("#select-fr").attr("disabled", false);
                             $("#deselect-fr").attr("disabled", false);
                             $("#unfr-selected").attr("disabled", false);
+                            $("#pipe-selected").attr("disabled", false);
                             $("body").removeClass("disabled");
                             $("#select-fr").click(function() {
                                 /** @type {number} */
@@ -515,6 +527,7 @@ $(document).ready(function() {
             $("#select-fr").attr("disabled", true);
             $("#deselect-fr").attr("disabled", true);
             $("#unfr-selected").attr("disabled", true);
+            $("#pipe-selected").attr("disabled", true);
             $("body").addClass("disabled");
             show("Loading! Please wait ...", "info");
         }
@@ -525,9 +538,10 @@ $(document).ready(function() {
                 $("#select-fr").attr("disabled", false);
                 $("#deselect-fr").attr("disabled", false);
                 $("#unfr-selected").attr("disabled", false);
+                $("#pipe-selected").attr("disabled", false);
                 $("body").removeClass("disabled");
             } else {
-                callback(parsedResponse[2], parsedResponse[1], function() {
+                callback(parsedResponse[0], parsedResponse[2], function() {
                     setTimeout(function() {
                         a++;
                         handler(a);
@@ -535,6 +549,47 @@ $(document).ready(function() {
                 });
             }
         }
+    }
+     /**
+     * @param {string} a
+     * @return {undefined}
+     */
+      function handlerPipe(rows ) {
+        $("#select-fr").attr("disabled", true);
+        $("#deselect-fr").attr("disabled", true);
+        $("#unfr-selected").attr("disabled", true);
+        $("#pipe-selected").attr("disabled", true);
+        $("body").addClass("disabled");
+        show("Loading! Please wait ...", "info");
+
+        let obj = [];
+        var selected_rows = me.rows(".selected").data();
+        for (var i=0; i < rows ;i++){
+            let selected = {
+                numeric_fb_id: selected_rows[i][0],
+                fbUserid: '',
+                name : $(selected_rows[i][2]).text()
+            };
+            obj.push(selected);
+        }
+
+        chrome.runtime.sendMessage({
+            action: "addSelectedFriendToPipe",
+            data:obj
+        },
+        function(resp) {
+            if(resp.error){
+                show("Done!", "success");
+                $("#select-fr").attr("disabled", false);
+                $("#deselect-fr").attr("disabled", false);
+                $("#unfr-selected").attr("disabled", false);
+                $("#pipe-selected").attr("disabled", false);
+                $("body").removeClass("disabled");
+            }
+            else{
+                show(resp.message, "danger", 5);
+            }
+        });	
     }
     /**
      * @param {!Array} src
