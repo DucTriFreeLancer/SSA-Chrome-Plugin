@@ -5,20 +5,27 @@ chrome.runtime.sendMessage({setFbIdForAll: "setFbIdForAll"});
 CBIngerval = null;
 processed_member_request_count = 0;
 $(document).ready(function () {
-    chrome.storage.local.get(["ssa_group"], function(result) {
-		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
-            doInit();
-
-            onElementHeightChange(document.body, function(){
+    chrome.storage.local.get(["ssa_user", "fb_id","ssa_group"], function(result) {
+        if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != "") {
+            if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
                 doInit();
-            });
-		    
     
-		}
-        else{
+                onElementHeightChange(document.body, function(){
+                    doInit();
+                });
+                
+        
+            }
+            else{
+                toastr.options.timeOut = 0;
+                toastr.options.extendedTimeOut = 0;
+                toastr["warning"]('Please click SSA to activate');
+            }
+        }
+        else {
             toastr.options.timeOut = 0;
             toastr.options.extendedTimeOut = 0;
-            toastr["warning"]('Please click SSA to activate');
+            toastr["warning"]('Please click on SSA icon on messenger page to login');
         }
 	});
 });
