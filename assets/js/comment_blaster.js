@@ -91,7 +91,7 @@ postsAddSSAButton = () =>{
                 window.open("chrome-extension://"+chrome.runtime.id+"/lead_sniper.html?post_id="+newLSElement.post_url,"_blank");
             }
             firstItem.parentNode.insertBefore(newLSElement,firstItem);
-            let admin_group = $(dropdownAnc.querySelectorAll('[role="menuitem"]')).find("span:contains('Mark as announcement')");
+            let admin_group = $(dropdownAnc.querySelectorAll('[role="menuitem"]')).find("span").filter(function(){ return $(this).text().toLowerCase().indexOf('announcement')>=0;});
             if($(admin_group).length==1){
                 let newTPElement = document.createElement('div');
                 newTPElement.innerHTML = prependGGElementHTML;
