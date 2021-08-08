@@ -1054,6 +1054,9 @@ $(function(){
 	$(document).on('click','.get-gl-notes', function() {
 		var cliked_Fb_Id =''
 		if($(this).closest('div[data-testid="mwthreadlist-item"]').length >0){
+			if(!$(this).closest('div[data-testid="mwthreadlist-item"]').hasClass('l9j0dhe7')){
+				return false;
+			}
 			cliked_Fb_Id=$(this).closest('div[data-testid="mwthreadlist-item"]').attr('fb_user_id');
 			fbNameForNotes=$(this).closest('div[data-testid="mwthreadlist-item"]').find('a[role="link"]:eq(0)').find('span').first().text();
 		}else{
@@ -1472,14 +1475,21 @@ $(function(){
 	   }
 	   if ($('.select-multi-user-messenger:checkbox:checked').length <= 9) {
 		   $('div[data-testid="mwthreadlist-item"]').each(function(index){
-			   if ($('.select-multi-user-messenger:checkbox:checked').length <= 9 ) {
-				   $(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
+			   if ($(this).hasClass('l9j0dhe7'))
+			   {
+					if ($('.select-multi-user-messenger:checkbox:checked').length <= 9 ) {
+						$(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
+					}
 			   }
+			  
 		   });
 	   }
 	   else{
 		   $('div[data-testid="mwthreadlist-item"]').each(function(index){
-			   $(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
+				if ($(this).hasClass('l9j0dhe7'))
+				{
+					$(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
+				}
 		   });
 	   }
    });
@@ -1583,9 +1593,10 @@ function addCheckBoxMessenger() {
 					if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0 && result.isCurrentFBLinked) { 
 
 						$('div[data-testid="mwthreadlist-item"]').each(function(index) {
-
-							if ($(this).find('.add-tag-from-messenger').length == 0 && window.location.origin.indexOf('messenger') >-1) {
-								$(this).prepend(mCHeckBoxHtml); 
+							if($(this).hasClass('l9j0dhe7')){
+								if ($(this).find('.add-tag-from-messenger').length == 0 && window.location.origin.indexOf('messenger') >-1) {
+									$(this).prepend(mCHeckBoxHtml); 
+								}
 							}
 						});
 
@@ -1626,37 +1637,40 @@ function integrateSSAFeatureWM(){
 				
 					/********** Create Tags Drop Down for each chat thread ********/
 					$('div[data-testid="mwthreadlist-item"]').each(function(index) {
-						$(this).addClass('cts-message-list-item')
-						$(this).addClass('cts-message-list-item-processed')
-						
-						var fbUser =  ''; 
-						currentWindowUrl = window.location.origin;
-						if (currentWindowUrl.indexOf('messenger') > -1) {
-							fbUser = $(this).find('a:eq(0)').attr('href').split('/t/')[1];
+						if ($(this).hasClass('l9j0dhe7'))
+						{
+							$(this).addClass('cts-message-list-item')
+							$(this).addClass('cts-message-list-item-processed')
+							
+							var fbUser =  ''; 
+							currentWindowUrl = window.location.origin;
+							if (currentWindowUrl.indexOf('messenger') > -1) {
+								fbUser = $(this).find('a:eq(0)').attr('href').split('/t/')[1];
 
-							if (fbUser.indexOf('?') > -1) {
-								fbUser = fbUser.split('?')[0];
+								if (fbUser.indexOf('?') > -1) {
+									fbUser = fbUser.split('?')[0];
+								}
 							}
-						}
 
-						fbUser = fbUser.replace('/', '')
+							fbUser = fbUser.replace('/', '')
 
-											
-						
-						if($(this).find('div.tags-container').length > 0 ){
-							$(this).find('div.tags-container').remove();
-											
-							$(this).attr('fb_user_id',fbUser);
-							$(this).attr('numeric_fb_id',fbUser);
-							$(this).attr('thread_fb_id',fbUser); 
-							$(this).append(spanTagPerChat);
-						} else {
-							$(this).attr('numeric_fb_id',fbUser);
-							$(this).attr('fb_user_id',fbUser);
-							$(this).attr('thread_fb_id',fbUser); 
-							$(this).append(spanTagPerChat);
+												
+							
+							if($(this).find('div.tags-container').length > 0 ){
+								$(this).find('div.tags-container').remove();
+												
+								$(this).attr('fb_user_id',fbUser);
+								$(this).attr('numeric_fb_id',fbUser);
+								$(this).attr('thread_fb_id',fbUser); 
+								$(this).append(spanTagPerChat);
+							} else {
+								$(this).attr('numeric_fb_id',fbUser);
+								$(this).attr('fb_user_id',fbUser);
+								$(this).attr('thread_fb_id',fbUser); 
+								$(this).append(spanTagPerChat);
+							}
+							$(this).addClass('cts-message-thread-id-1');
 						}
-						$(this).addClass('cts-message-thread-id-1');
 					});
 															
 					if(result.isCurrentFBLinked){
@@ -1679,94 +1693,96 @@ function integrateSSAFeatureWM(){
 function tagUsersWM(taggedUsers,tags){
 	if (window.location.origin.indexOf('messenger') > -1) {
 		$('div[data-testid="mwthreadlist-item"]').each(function() {
+			if ($(this).hasClass('l9j0dhe7'))
+			{
+				var li_fb_user_id = $(this).attr('fb_user_id');
+				if ($(this).hasClass('cts-message-thread-id-1')) {
+					li_fb_user_id = $(this).attr('numeric_fb_id');
+				}
+				
+				var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id)});
+				
+				if( temp.length > 0 ){
+					$liClass = '';
+					$colorCode = '';
+					var $tagIds = [];
+					if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
+						$tagIds = temp[0].tag_id.split(',');
+					} else {
+						if(temp[0].tag_id.length > 0) {
+							$tagIds = temp[0].tag_id;
+						}
+					}			
+					var title = '';
+					var spanText = '';
+					var numeric= temp[0].numeric_fb_id;
+					$tagIds.forEach(function(eachTagId){
 
-			var li_fb_user_id = $(this).attr('fb_user_id');
-			if ($(this).hasClass('cts-message-thread-id-1')) {
-				li_fb_user_id = $(this).attr('numeric_fb_id');
-			}
-			
-			var temp = taggedUsers.filter(function (item) { return (item.fb_user_id == li_fb_user_id || item.numeric_fb_id == li_fb_user_id)});
-			
-			if( temp.length > 0 ){
-				$liClass = '';
-				$colorCode = '';
-				var $tagIds = [];
-				if(temp[0].tag_id != null && typeof temp[0].tag_id == 'string') {
-					$tagIds = temp[0].tag_id.split(',');
-				} else {
-					if(temp[0].tag_id.length > 0) {
-						$tagIds = temp[0].tag_id;
-					}
-				}			
-				var title = '';
-				var spanText = '';
-				var numeric= temp[0].numeric_fb_id;
-				$tagIds.forEach(function(eachTagId){
+						eachTagIdOne = eachTagId.replace(/\#/g,'');
+						var foundTag = tags.filter(function (item) { return item.value == eachTagIdOne});
+						if (foundTag.length > 0) {
+							title += foundTag[0].text+', ';
+							$liClass = foundTag[0].class;
+							$colorCode = foundTag[0].color;
+							spanText = foundTag[0].text;
+						}
+					})
 
-					eachTagIdOne = eachTagId.replace(/\#/g,'');
-					var foundTag = tags.filter(function (item) { return item.value == eachTagIdOne});
-					if (foundTag.length > 0) {
-						title += foundTag[0].text+', ';
-						$liClass = foundTag[0].class;
-						$colorCode = foundTag[0].color;
-						spanText = foundTag[0].text;
-					}
-				})
+					if (title != '') {
+						$(this).find('.tags-container span').text(spanText);
+						$(this).find('.tags-container span').prop('title',title.slice(0, -1));
+						$(this).find('.tags-container span').removeClass('bg-primary bg-danger bg-success bg-warning bg-dark bg-info');
+						if(numeric == null){
+							$(this).attr('numeric_fb_id','0');
+						}else{
+							$(this).attr('numeric_fb_id',numeric);
+						}
 
-				if (title != '') {
-					$(this).find('.tags-container span').text(spanText);
-					$(this).find('.tags-container span').prop('title',title.slice(0, -1));
-					$(this).find('.tags-container span').removeClass('bg-primary bg-danger bg-success bg-warning bg-dark bg-info');
-					if(numeric == null){
-						$(this).attr('numeric_fb_id','0');
+						if ($colorCode == null) {
+							$(this).find('.tags-container span').addClass('bg-'+$liClass);
+						}else{
+							$(this).find('.tags-container span').removeClass('bg-muted');
+							$(this).find('.tags-container span').css('background',$colorCode);
+							$(this).find('.tags-container span').addClass('tag-text-color');
+						}
+						
 					}else{
-						$(this).attr('numeric_fb_id',numeric);
+						
+						var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+						options += '<div class="get-gl-notes">Add Notes</div>';
+						if($(this).find('div.tags-container').length > 0 ){
+							$(this).find('div.tags-container').remove();
+							$(this).append(options);
+							// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+						} else {
+							$(this).append(options);
+							// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+						}
+						
 					}
-
-					if ($colorCode == null) {
-						$(this).find('.tags-container span').addClass('bg-'+$liClass);
-					}else{
-						$(this).find('.tags-container span').removeClass('bg-muted');
-						$(this).find('.tags-container span').css('background',$colorCode);
-						$(this).find('.tags-container span').addClass('tag-text-color');
-					}
-					
 				}else{
-					
-					var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-					options += '<div class="get-gl-notes">Add Notes</div>';
+					var options = '<div class="tags-container ssa-tags-container cts-messenger "><span class="bg-muted ssa-selected-tag">+</span>';
+					options += '<div class="get-gl-notes">Add Notes</div> </div> ';
+
 					if($(this).find('div.tags-container').length > 0 ){
 						$(this).find('div.tags-container').remove();
 						$(this).append(options);
-						// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+						
 					} else {
 						$(this).append(options);
-						// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-					}
-					
-				}
-			}else{
-				var options = '<div class="tags-container ssa-tags-container cts-messenger "><span class="bg-muted ssa-selected-tag">+</span>';
-				options += '<div class="get-gl-notes">Add Notes</div> </div> ';
-
-				if($(this).find('div.tags-container').length > 0 ){
-					$(this).find('div.tags-container').remove();
-					$(this).append(options);
-					
-				} else {
-					$(this).append(options);
-				}		
-				// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
-				// options += '<div class="get-gl-notes">Notes</div>';
-				// if($(this).find('div.tags-container').length > 0 ){
-				// 	$(this).find('div.tags-container').remove();
-				// 	$(this).prepend(options);
-				// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);					
-				// } else {
-				// 	$(this).prepend(options);
-				// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
-				// }
-			}				
+					}		
+					// var options = '<div class="tags-container ssa-tags-container cts-messenger"><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
+					// options += '<div class="get-gl-notes">Notes</div>';
+					// if($(this).find('div.tags-container').length > 0 ){
+					// 	$(this).find('div.tags-container').remove();
+					// 	$(this).prepend(options);
+					// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);					
+					// } else {
+					// 	$(this).prepend(options);
+					// 	// $(this).find('a[role="link"]:eq(0)').find('.scb9dxdr').append(options);
+					// }
+				}	
+			}			
 		});
 	}
 	chrome.storage.local.get(["isCurrentFBLinked"], function(result) {
