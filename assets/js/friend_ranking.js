@@ -111,12 +111,16 @@ $(document).ready(function() {
                     alert("No friend selected!");
                 } else {
                     if (confirm(`Are you sure to add ${count} selected friends to pipeline?`)) {
-                        handlerPipe(count);
+                        $("#msg-modal").modal("show")
                     }
                 }
             });
         }
     }
+    $("#bt-send-message").click(function(){
+        let count = me.rows(".selected").data().length;
+        handlerPipe(count);
+    })
     $("#btn-scan").click(function() {
         $("#result-msg").fadeIn("slow", function() {
         $("#group-start-buttons").hide();
@@ -150,6 +154,46 @@ $(document).ready(function() {
                 initialize(function() {
                     elapseTimer();
                     test("", function() {
+                        // var form = new FormData;
+                        // form.append("av", userId);
+                        // form.append("fb_dtsg",id);
+                        // form.append("dpr", "1");
+                        // form.append("fb_api_caller_class", "RelayModern");
+                        // form.append("fb_api_req_friendly_name", "FriendingCometMutualFriendsSocialContextTooltipContentQuery");
+                        // form.append("variables", `{"count":10,"ordering":["importance"],"userIDs":["100005042167308"]}`);
+                        // form.append("doc_id", "2711024122289792");
+                        // fetch("https://www.facebook.com/api/graphql/", {
+                        //     body : form,
+                        //     headers : {
+                        //         accept : "application/json, text/plain, */*"
+                        //     },
+                        //     method : "POST"
+                        // }).then(function(d) {
+                        //     if(d.ok){
+                        //         d.json().then(function(aj){
+                        //             console.log(aj);
+                        //             var sRow = me.row("[id=" + a.i + "]").index();
+                        //             me.cell({
+                        //             row : sRow,
+                        //             column : 6
+                        //             }).data(a.m);
+                        //             // res.forEach(function(a) {
+                        //             //     a.m = row[a.i] ? row[a.i] : 0;
+                        //             //     a.s = a.f + a.r + a.c + a.m;
+                        //             //     var sRow = me.row("[id=" + a.i + "]").index();
+                        //             //     me.cell({
+                        //             //     row : sRow,
+                        //             //     column : 6
+                        //             //     }).data(a.m);
+                        //             //     me.cell({
+                        //             //     row : sRow,
+                        //             //     column : 7
+                        //             //     }).data(a.s);
+                        //             // });
+                        //             // me.order([7, "desc"]).draw();
+                        //         })
+                        //     }
+                        // });
                         $("#btn-group").show("slow", function() {
                             $("[type='number']").keypress(function(event) {
                             event.preventDefault();
@@ -555,6 +599,7 @@ $(document).ready(function() {
      * @return {undefined}
      */
       function handlerPipe(rows ) {
+        $("#msg-modal").modal("hide");
         $("#select-fr").attr("disabled", true);
         $("#deselect-fr").attr("disabled", true);
         $("#unfr-selected").attr("disabled", true);
@@ -572,24 +617,32 @@ $(document).ready(function() {
             };
             obj.push(selected);
         }
-
-        chrome.runtime.sendMessage({
-            action: "addSelectedFriendToPipe",
-            data:obj
-        },
-        function(resp) {
-            if(resp.error){
-                show("Done!", "success");
-                $("#select-fr").attr("disabled", false);
-                $("#deselect-fr").attr("disabled", false);
-                $("#unfr-selected").attr("disabled", false);
-                $("#pipe-selected").attr("disabled", false);
-                $("body").removeClass("disabled");
+        let msg1 = $("#msg1").val();
+        let msg2 = $("#msg2").val();
+        let msg3 = $("#msg3").val();
+        
+        chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
+            if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+                
+                chrome.runtime.sendMessage({
+                    action: "addSelectedFriendToPipe",
+                    data:{userid:result.ssa_user.id,message1:msg1,message2:msg2,message3:msg3,checkedUsers:obj}
+                },
+                function(resp) {
+                    if(resp.error){
+                        show("Done!", "success");
+                        $("#select-fr").attr("disabled", false);
+                        $("#deselect-fr").attr("disabled", false);
+                        $("#unfr-selected").attr("disabled", false);
+                        $("#pipe-selected").attr("disabled", false);
+                        $("body").removeClass("disabled");
+                    }
+                    else{
+                        show(resp.message, "danger", 5);
+                    }
+                });
             }
-            else{
-                show(resp.message, "danger", 5);
-            }
-        });	
+        });
     }
     /**
      * @param {!Array} src

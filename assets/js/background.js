@@ -1503,7 +1503,7 @@ function addSelectedFriendToPipe(data){
 		let returnValue = {
 			error: true
 		};
-		var checkedUsersForFriend = data;
+		var checkedUsersForFriend = data.checkedUsers;
 		checkedUsersForFriend.forEach(function (item, i) {
 			var numeric_fb_id = item.numeric_fb_id;
 			GetBothAphaAndNumericId(numeric_fb_id).then(function (fbIDsObject) {
@@ -1511,7 +1511,7 @@ function addSelectedFriendToPipe(data){
 				item.numeric_fb_id = fbIDsObject.numeric_fb_id
 
 				if (i == checkedUsersForFriend.length - 1) {
-					data = checkedUsersForFriend;
+					data.checkedUsers = checkedUsersForFriend;
 					$.ajax({
 						type: "POST",
 						url: apiBaseUrl + "/pipeline/addSelectedFriend",
