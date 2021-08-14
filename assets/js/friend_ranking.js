@@ -154,76 +154,38 @@ $(document).ready(function() {
                 initialize(function() {
                     elapseTimer();
                     test("", function() {
-                        // var form = new FormData;
-                        // form.append("av", userId);
-                        // form.append("fb_dtsg",id);
-                        // form.append("dpr", "1");
-                        // form.append("fb_api_caller_class", "RelayModern");
-                        // form.append("fb_api_req_friendly_name", "FriendingCometMutualFriendsSocialContextTooltipContentQuery");
-                        // form.append("variables", `{"count":10,"ordering":["importance"],"userIDs":["100005042167308"]}`);
-                        // form.append("doc_id", "2711024122289792");
-                        // fetch("https://www.facebook.com/api/graphql/", {
-                        //     body : form,
-                        //     headers : {
-                        //         accept : "application/json, text/plain, */*"
-                        //     },
-                        //     method : "POST"
-                        // }).then(function(d) {
-                        //     if(d.ok){
-                        //         d.json().then(function(aj){
-                        //             console.log(aj);
-                        //             var sRow = me.row("[id=" + a.i + "]").index();
-                        //             me.cell({
-                        //             row : sRow,
-                        //             column : 6
-                        //             }).data(a.m);
-                        //             // res.forEach(function(a) {
-                        //             //     a.m = row[a.i] ? row[a.i] : 0;
-                        //             //     a.s = a.f + a.r + a.c + a.m;
-                        //             //     var sRow = me.row("[id=" + a.i + "]").index();
-                        //             //     me.cell({
-                        //             //     row : sRow,
-                        //             //     column : 6
-                        //             //     }).data(a.m);
-                        //             //     me.cell({
-                        //             //     row : sRow,
-                        //             //     column : 7
-                        //             //     }).data(a.s);
-                        //             // });
-                        //             // me.order([7, "desc"]).draw();
-                        //         })
-                        //     }
-                        // });
-                        $("#btn-group").show("slow", function() {
-                            $("[type='number']").keypress(function(event) {
-                            event.preventDefault();
-                            });
-                            $("#select-fr").attr("disabled", false);
-                            $("#deselect-fr").attr("disabled", false);
-                            $("#unfr-selected").attr("disabled", false);
-                            $("#pipe-selected").attr("disabled", false);
-                            $("body").removeClass("disabled");
-                            $("#select-fr").click(function() {
-                                /** @type {number} */
-                                var whiteRating = parseInt($("#sum-lte").val());
-                                me.rows().deselect();
-                                var crossfilterable_layers = me.rows().data();
-                                /** @type {number} */
-                                var layer_i = 0;
-                                for (; layer_i < crossfilterable_layers.length; layer_i++) {
-                                    if (crossfilterable_layers[layer_i][6] <= whiteRating) {
-                                    me.row("#" + crossfilterable_layers[layer_i][2]).select();
+                        mutual_friend(function(){
+                            $("#btn-group").show("slow", function() {
+                                $("[type='number']").keypress(function(event) {
+                                event.preventDefault();
+                                });
+                                $("#select-fr").attr("disabled", false);
+                                $("#deselect-fr").attr("disabled", false);
+                                $("#unfr-selected").attr("disabled", false);
+                                $("#pipe-selected").attr("disabled", false);
+                                $("body").removeClass("disabled");
+                                $("#select-fr").click(function() {
+                                    /** @type {number} */
+                                    var whiteRating = parseInt($("#sum-lte").val());
+                                    me.rows().deselect();
+                                    var crossfilterable_layers = me.rows().data();
+                                    /** @type {number} */
+                                    var layer_i = 0;
+                                    for (; layer_i < crossfilterable_layers.length; layer_i++) {
+                                        if (crossfilterable_layers[layer_i][6] <= whiteRating) {
+                                        me.row("#" + crossfilterable_layers[layer_i][2]).select();
+                                        }
                                     }
-                                }
-                                highlight();
+                                    highlight();
+                                });
+                                $("#deselect-fr").click(function() {
+                                    me.rows().deselect();
+                                    highlight();
+                                });
+                                unlockButtons(true);
                             });
-                            $("#deselect-fr").click(function() {
-                                me.rows().deselect();
-                                highlight();
-                            });
-                            unlockButtons(true);
-                        });
-                        show("Done!", "success");
+                            show("Done!", "success");
+                        })
                     });
                 });
             })
@@ -347,6 +309,53 @@ $(document).ready(function() {
         })["catch"](function(searchDefinition) {
             show("An error occurred, please try again later.", "danger", 5);
         });
+    }
+    /**
+     * @param {!Function} fn
+     * @return {undefined}
+     */
+    function mutual_friend(fn) {
+        // res.forEach(function(a) {
+        //     /** @type {!FormData} */
+        //     var form = new FormData;
+        //     form.append("av", userId);
+        //     form.append("fb_dtsg",id);
+        //     form.append("dpr", "1");
+        //     form.append("fb_api_caller_class", "RelayModern");
+        //     form.append("fb_api_req_friendly_name", "FriendingCometMutualFriendsSocialContextTooltipContentQuery");
+        //     form.append("variables", `{"count":10,"ordering":["importance"],"userIDs":["${a.i}"]}`);
+        //     form.append("doc_id", "2711024122289792");
+        //     fetch("https://www.facebook.com/api/graphql/", {
+        //         body : form,
+        //         headers : {
+        //             accept : "application/json, text/plain, */*"
+        //         },
+        //         method : "POST"
+        //     }).then(function(d) {
+        //         if(d.ok){
+        //             d.json().then(function(aj){
+        //                 if(aj.data.nodes[0].mutual_friends != undefined){
+        //                     a.f = aj.data.nodes[0].mutual_friends.count;
+        //                     a.s = a.f + a.r + a.c + a.m;
+        //                     var sRow = me.row("[id=" + a.i + "]").index();
+        //                     me.cell({
+        //                     row : sRow,
+        //                     column : 3
+        //                     }).data(a.f);
+        //                     me.cell({
+        //                         row : sRow,
+        //                         column : 7
+        //                     }).data(a.s);
+
+        //                 }
+        //             })
+        //         }
+        //     })["catch"](function(searchDefinition) {
+        //         show("An error occurred, please try again later.", "danger", 5);
+        //     });
+        // })
+        // me.order([7, "desc"]).draw();
+        fn();
     }
     /**
      * @param {boolean} updatingSelf
@@ -617,16 +626,16 @@ $(document).ready(function() {
             };
             obj.push(selected);
         }
-        let msg1 = $("#msg1").val();
-        let msg2 = $("#msg2").val();
-        let msg3 = $("#msg3").val();
+        let pipeline1  = $("#msg1").val();
+        let pipeline2 = $("#msg2").val();
+        let pipeline3 = $("#msg3").val();
         
         chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
             if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
                 
                 chrome.runtime.sendMessage({
                     action: "addSelectedFriendToPipe",
-                    data:{userid:result.ssa_user.id,message1:msg1,message2:msg2,message3:msg3,checkedUsers:obj}
+                    data:{userid:result.ssa_user.id,pipeline1:pipeline1,pipeline2:pipeline2,pipeline3:pipeline3,checkedUsers:obj}
                 },
                 function(resp) {
                     if(resp.error){
