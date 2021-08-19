@@ -2,7 +2,7 @@ var diff = 5 * 1000;
 var start_index = 0;
 var active_status = false; // to check if commenting is working or stopped
 var scheduled_start = null;
-var fb_user_id = null;
+var ssa_user = null;
 var ADG_memberListSelectorNew =  'div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
 var ADG_limitExceeded = false;
 var ADG_add_friend_processingStatus = false;
@@ -17,9 +17,9 @@ var group_name=false;
 const post_url = new URL(window.location);
 var port = chrome.runtime.connect({'name': 'formfiller'})
 port.postMessage({'type': 'get-form-data'});
-chrome.storage.local.get("fb_id",function(result){
-    if( typeof result.fb_id != "undefined" && result.fb_id != "" ){
-        fb_user_id = result.fb_id;
+chrome.storage.local.get("ssa_user",function(result){
+	if (typeof result.ssa_user != "undefined" && result.ssa_user != "") {
+        ssa_user = result.ssa_user;
     }
 });
 
@@ -46,6 +46,7 @@ $(document).ready(function () {
 
 
 function insertControlsHtml() {
+
     let cont_html =
         `<!--<style>-->
 <!--                        #cf_controls{-->
@@ -76,16 +77,18 @@ function insertControlsHtml() {
 <!--                    </div>-->
 
   <link rel="stylesheet" href="${chrome.extension.getURL("assets/css/cb_main.css")}">
-  <div id="cf_controls" class="cf_progressBar">
+  <div id="cf_controls" class="cf_progressBar" style="height:400px">
     <div class="cf_finished">
         <img src="${chrome.extension.getURL("assets/images/welcome.png")}"  style="width:200px"/ >
     </div> 
     <hr style="border-top-color: #ff0000; border-bottom-color: #ff0000;">
-    <div class="cf_hint">Any members borrowed from another group will be added to your message pipeline … so to edit how they are tagged and what messages are sent, please visit the current pipeline settings 
-    <a href="https://members.socialsalesaccelerator.app/users/pipeline" target="_blank">here</a></div>
+    <div class="cf_hint" style="margin-top: 5px;">Tweak your pipeline messages before you steal members</div>
+	<textarea  id="msg1" placeholder="input message 1">${ssa_user.pipeline_message1}</textarea>
+	<textarea  id="msg2" placeholder="input message 2">${ssa_user.pipeline_message2}</textarea>
+	<textarea  id="msg3" placeholder="input message 3">${ssa_user.pipeline_message3}</textarea>
 	<div class="text">
 		<h2>
-		<span id="processed-members">0</span> 
+		<span id="processed-members" style="font-size: 40px !important;">0</span> 
 		<span id="subdivision">/</span>
 		<span class="total-friends" id="limit" style="font-size: 20px;">0</span>
 		</h2>
@@ -254,6 +257,9 @@ function stealMemberFromGroup(clikedFBUserId,fullName,location){
 			memberApproved.fbUserid = clikedFBUserId;
 			memberApproved.name = fullName;
 			memberApproved.location = location;
+			memberApproved.pipeline_message1= ssa_user.pipeline_message1;
+			memberApproved.pipeline_message2=ssa_user.pipeline_message2;
+			memberApproved.pipeline_message3=ssa_user.pipeline_message3;
 			port.postMessage({'type': 'stealMemberFromGroup','memberApproved': memberApproved});		
 		} 
 		else {

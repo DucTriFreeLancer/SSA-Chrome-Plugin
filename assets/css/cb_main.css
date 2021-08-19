@@ -245,3 +245,12 @@
 .cf_cancel_btn{
     background: #bf0000;
 }
+input[type=text], select, textarea {
+    width: 100%;
+    margin: auto;
+    padding: 0 2px;
+    /* margin-bottom: 0px; */
+    height: 40px;
+    text-align: justify;
+    font-size: medium;
+  }
