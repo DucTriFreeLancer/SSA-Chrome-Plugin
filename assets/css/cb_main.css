@@ -254,3 +254,14 @@ input[type=text], select, textarea {
     text-align: justify;
     font-size: medium;
   }
+.cf_progressBar .purple-border textarea {
+    border: 1px solid #ba68c8;
+}
+.cf_progressBar .purple-border .form-control:focus {
+    border: 1px solid #ba68c8;
+    box-shadow: 0 0 0 0.2rem rgba(186, 104, 200, .25);
+}
+.cf_progressBar input, select, textarea {
+    border: 1px solid #ba68c8;
+    color: #1c1e21;
+}

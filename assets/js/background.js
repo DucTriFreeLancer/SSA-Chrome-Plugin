@@ -485,9 +485,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 		}
 	}		
 	else if (message.action == ACTIONS.GET_PIPE_STATUS) {
-		const { from, userId } = message;		
+		const { from, userId,messageType,tagId } = message;		
 		if (from === 'facebook') {
-			processPipeStatus(userId).then((getMesResp)=>{
+			processPipeStatus(userId,messageType,tagId).then((getMesResp)=>{
 				sendResponse(getMesResp);
 			});		
 			return true;
@@ -629,7 +629,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 							isCurrentFBLinked = (linkedFbAccount.length > 0) ? true : false;
 							linkedFbAccount = (linkedFbAccount.length > 0) ? linkedFbAccount[0] : null;
 
-							chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers': response.taggedUsers, 'linkedFbAccount': linkedFbAccount, 'isCurrentFBLinked': isCurrentFBLinked });
+							chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers': response.taggedUsers, 'linkedFbAccount': linkedFbAccount, 'isCurrentFBLinked': isCurrentFBLinked, 'messagetypes': response.messagetypes });
 							// chrome.storage.local.set({'birthdays': response.birthdays, 'processbirthdays': response.processbirthdays});
 							getAllTagsFromGropuleads(response.taggedUserfromGroupleads);
 
@@ -1545,7 +1545,7 @@ function addSelectedFriendToPipe(data){
 		
 	});	
 }
-function processPipeStatus(threadId){
+function processPipeStatus(threadId,messageType,tagId){
 	return new Promise(function(resolve,reject) {
 		let returnValue = {
 			error: true
@@ -1553,7 +1553,7 @@ function processPipeStatus(threadId){
 		$.ajax({
 			type: "POST",
 			url: apiBaseUrl + "/pipeline/getmessage",
-			data: { userId:threadId },
+			data: { userId:threadId,messageType:messageType,tagId:tagId },
 			dataType: 'json',
 			beforeSend: function (xhr) {
 				xhr.setRequestHeader('unique-hash', uniqueHash);
@@ -1972,7 +1972,7 @@ function currentFBLogin(activeTabId) {
 								linkedFbAccount = response.linkedFbAccounts.filter((item) => item.fb_account_id == result.fb_id);
 								isCurrentFBLinked = (linkedFbAccount.length > 0) ? true : false;
 
-								chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags, 'taggedUsers': response.taggedUsers, 'linkedFbAccount': (linkedFbAccount.length > 0) ? linkedFbAccount[0] : null, 'isCurrentFBLinked': isCurrentFBLinked });
+								chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags, 'taggedUsers': response.taggedUsers, 'linkedFbAccount': (linkedFbAccount.length > 0) ? linkedFbAccount[0] : null, 'isCurrentFBLinked': isCurrentFBLinked, 'messagetypes': response.messagetypes });
 								// const storageObj = {};
 								// storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
 								// if(response.birthdays != null)

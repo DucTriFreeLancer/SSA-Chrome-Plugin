@@ -2,7 +2,9 @@ var diff = 5 * 1000;
 var start_index = 0;
 var active_status = false; // to check if commenting is working or stopped
 var scheduled_start = null;
-var fb_user_id = null;
+var ssa_user = null;
+var messagetypes = null;
+var tags = null; 
 var ADG_add_friend_processingStatus = false;
 var ADG_add_friend_processing = true;
 var ADG_profileDelay = 0;
@@ -10,9 +12,13 @@ var ADG_add_friend_delay = 5000;
 var ADG_add_friend_totalSend = 0;
 var ADG_add_friend_stopProcess = false;
 const post_url = new URL(window.location);
-chrome.storage.local.get("fb_id",function(result){
-    if( typeof result.fb_id != "undefined" && result.fb_id != "" ){
-        fb_user_id = result.fb_id;
+chrome.storage.local.get(["ssa_user","tags","messagetypes"],function(result){
+	if (typeof result.ssa_user != "undefined" && result.ssa_user != "") {
+        ssa_user = result.ssa_user;
+		messagetypes = result.messagetypes.sort(function(a, b) {
+            return a.messagetype.localeCompare(b.messagetype);
+         });
+        tags = result.tags.reverse();
     }
 });
 
@@ -66,13 +72,30 @@ function insertControlsHtml() {
 <!--                    </div>-->
 
   <link rel="stylesheet" href="${chrome.extension.getURL("assets/css/cb_main.css")}">
-  <div id="cf_controls" class="cf_progressBar">
+  <div id="cf_controls" class="cf_progressBar" style="height:400px;">
     <div class="cf_finished">
         <img src="${chrome.extension.getURL("assets/images/welcome.png")}"  style="width:200px"/ >
     </div> 
     <hr style="border-top-color: #ff0000; border-bottom-color: #ff0000;">
-    <div class="cf_hint">PipeLine allows us to switch on and off a a process that sends a certain amount of DMs per hour.</div>
-	<div class="block">
+    <div class="cf_hint">PipeLine allows us to switch on and off a a process that sends a certain amount of DMs per hour.</div>`;
+	
+    var option= '<div class="form-group purple-border">'+
+        '<label class="col-form-label" for="pipeline_do">Only do: </label>' +
+        '<select class="form-control" name="pipeline_do" id="pipeline_do">';
+    messagetypes.forEach(function(item) {
+        option += '<option value="'+item.messagetype+'">' + item.messagetype + '</option>';
+    });
+    option += '</select> </div>';
+    cont_html += option;
+    option= '<div class="form-group purple-border">'+
+    '<label class="col-form-label" for="pipeline_tag">Pipeline Tag: </label>' +
+    '<select class="form-control" name="pipeline_tag" id="pipeline_tag">';
+    tags.forEach(function(item) {
+        option += '<option value='+item.value+'>' + item.text + '</option>';
+    });
+    option += '</select> </div>';
+    cont_html += option+
+    `<div class="block">
 		<span id="ssa-msgs"></span>
 	</div>
     <div class="sendRequestName" >
@@ -177,7 +200,9 @@ function getPipeStatus(from) {
                 chrome.runtime.sendMessage({
                     action: ACTIONS.GET_PIPE_STATUS,
                     from: from,
-                    userId: result.ssa_user.id
+                    userId: result.ssa_user.id,
+                    messageType: $("#pipeline_do").val(),
+                    tagId: $("#pipeline_tag").val()
                 }, function(res) {
                     console.log('Result from get pipe status from back:', res);
                     returnValue = res;

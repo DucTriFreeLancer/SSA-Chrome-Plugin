@@ -266,8 +266,10 @@ function runGroupFunctionality(tabId,tabUrl,tabName) {
 	groupTabId = tabId;
 	groupTabUrl =new URL(tabUrl);
 	let group_id = groupTabUrl.pathname.split('/')[2];
-	groupName = tabName.replace(/\(\d\) /,'');
-	groupName= groupName.substring(0, groupName.lastIndexOf('|'));
+	groupName = tabName.replace(/ *\([^)]*\) */g, "");
+	if(groupName.lastIndexOf('|')>-1){
+		groupName = groupName.substring(0, groupName.lastIndexOf('|'));
+	}
     chrome.storage.local.get(["ssa_user"], function(result) {
     	
 	    if (typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
@@ -4411,7 +4413,7 @@ function getUserData(){
 					}
 
 					isCurrentFBLinked = (linkedFbAccount.length > 0)?true:false;
-					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked});
+					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked, 'messagetypes': response.messagetypes});
 					const storageObj = {};
 					storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
 					if(response.birthdays != null)

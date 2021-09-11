@@ -3,6 +3,7 @@ var start_index = 0;
 var active_status = false; // to check if commenting is working or stopped
 var scheduled_start = null;
 var ssa_user = null;
+var messagetypes = null; 
 var ADG_memberListSelectorNew =  'div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
 var ADG_limitExceeded = false;
 var ADG_add_friend_processingStatus = false;
@@ -20,14 +21,17 @@ port.postMessage({'type': 'get-form-data'});
 chrome.storage.local.get("ssa_user",function(result){
 	if (typeof result.ssa_user != "undefined" && result.ssa_user != "") {
         ssa_user = result.ssa_user;
+		messagetypes = result.messagetypes;
     }
 });
 
 $(document).ready(function () {
     //console.log('Document is ready now');
     group_id = post_url.pathname.split('/')[2];
-    group_name = document.title.replace(/\(\d\) /,'');
-    group_name = group_name.substring(0, group_name.lastIndexOf('|'));
+    group_name = document.title.replace(/ *\([^)]*\) */g, "");
+	if(group_name.lastIndexOf('|')>-1){
+		group_name = group_name.substring(0, group_name.lastIndexOf('|'));
+	}
     insertControlsHtml();
     $("#cf_controls").draggable();
     $('.cf_stop_btn').hide();
@@ -77,15 +81,28 @@ function insertControlsHtml() {
 <!--                    </div>-->
 
   <link rel="stylesheet" href="${chrome.extension.getURL("assets/css/cb_main.css")}">
-  <div id="cf_controls" class="cf_progressBar" style="height:400px">
+  <div id="cf_controls" class="cf_progressBar" style="width: 45%;height:400px;margin-left: 25%;height: 520px;top:10%;  ">
     <div class="cf_finished">
         <img src="${chrome.extension.getURL("assets/images/welcome.png")}"  style="width:200px"/ >
     </div> 
     <hr style="border-top-color: #ff0000; border-bottom-color: #ff0000;">
     <div class="cf_hint" style="margin-top: 5px;">Tweak your pipeline messages before you steal members</div>
-	<textarea  id="msg1" placeholder="input message 1">${ssa_user.pipeline_message1}</textarea>
-	<textarea  id="msg2" placeholder="input message 2">${ssa_user.pipeline_message2}</textarea>
-	<textarea  id="msg3" placeholder="input message 3">${ssa_user.pipeline_message3}</textarea>
+	<div class="form-group purple-border">
+		<label for="msg1">Pipeline Message 1:</label>
+		<textarea class="form-control" id="msg1" placeholder="input message 1">${ssa_user.pipeline_message1}</textarea>
+	</div>
+	<div class="form-group purple-border">
+		<label for="msg2">Pipeline Message 2:</label>
+		<textarea class="form-control" id="msg2" placeholder="input message 2">${ssa_user.pipeline_message2}</textarea>
+	</div>
+	<div class="form-group purple-border">
+		<label for="msg3">Pipeline Message 3:</label>
+		<textarea class="form-control" id="msg3" placeholder="input message 3">${ssa_user.pipeline_message3}</textarea>
+	</div>
+	<div class="form-group purple-border">
+		<label for="message_type">Label :</label>
+		<input type="text" id="message_type" value="${group_name}">
+	</div>
 	<div class="text">
 		<h2>
 		<span id="processed-members" style="font-size: 40px !important;">0</span> 
@@ -257,9 +274,10 @@ function stealMemberFromGroup(clikedFBUserId,fullName,location){
 			memberApproved.fbUserid = clikedFBUserId;
 			memberApproved.name = fullName;
 			memberApproved.location = location;
-			memberApproved.pipeline_message1= ssa_user.pipeline_message1;
-			memberApproved.pipeline_message2=ssa_user.pipeline_message2;
-			memberApproved.pipeline_message3=ssa_user.pipeline_message3;
+			memberApproved.pipeline_message1= $("#msg1").val();
+			memberApproved.pipeline_message2=$("#msg2").val();
+			memberApproved.pipeline_message3=$("#msg3").val();
+			memberApproved.message_type=$("#message_type").val();
 			port.postMessage({'type': 'stealMemberFromGroup','memberApproved': memberApproved});		
 		} 
 		else {
