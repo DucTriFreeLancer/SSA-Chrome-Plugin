@@ -115,11 +115,21 @@ $(document).ready(function() {
                     }
                 }
             });
+            $("#import-friend").unbind("click");
+            $("#import-friend").click(function() {
+                $("#msg-import-modal").modal("show")
+            });
         }
     }
     $("#bt-send-message").click(function(){
         let count = me.rows(".selected").data().length;
         handlerPipe(count);
+    })
+    $("#bt-import-friend").click(function(){
+        handlerImports(0);
+    })
+    $("#bt-import-friend-pipe").click(function(){
+        handlerImports(1);
     })
     $("#btn-scan").click(function() {
         $("#result-msg").fadeIn("slow", function() {
@@ -163,6 +173,7 @@ $(document).ready(function() {
                                 $("#deselect-fr").attr("disabled", false);
                                 $("#unfr-selected").attr("disabled", false);
                                 $("#pipe-selected").attr("disabled", false);
+                                $("#import-friend").attr("disabled", false);
                                 $("body").removeClass("disabled");
                                 $("#select-fr").click(function() {
                                     /** @type {number} */
@@ -581,6 +592,8 @@ $(document).ready(function() {
             $("#deselect-fr").attr("disabled", true);
             $("#unfr-selected").attr("disabled", true);
             $("#pipe-selected").attr("disabled", true);
+            $("#import-friend").attr("disabled", true);
+
             $("body").addClass("disabled");
             show("Loading! Please wait ...", "info");
         }
@@ -592,6 +605,7 @@ $(document).ready(function() {
                 $("#deselect-fr").attr("disabled", false);
                 $("#unfr-selected").attr("disabled", false);
                 $("#pipe-selected").attr("disabled", false);
+                $("#import-friend").attr("disabled", false);
                 $("body").removeClass("disabled");
             } else {
                 callback(parsedResponse[0], parsedResponse[2], function() {
@@ -613,6 +627,7 @@ $(document).ready(function() {
         $("#deselect-fr").attr("disabled", true);
         $("#unfr-selected").attr("disabled", true);
         $("#pipe-selected").attr("disabled", true);
+        $("#import-friend").attr("disabled", true);
         $("body").addClass("disabled");
         show("Loading! Please wait ...", "info");
 
@@ -644,6 +659,60 @@ $(document).ready(function() {
                         $("#deselect-fr").attr("disabled", false);
                         $("#unfr-selected").attr("disabled", false);
                         $("#pipe-selected").attr("disabled", false);
+                        $("#import-friend").attr("disabled", false);
+                        $("body").removeClass("disabled");
+                    }
+                    else{
+                        show(resp.message, "danger", 5);
+                    }
+                });
+            }
+        });
+    }
+    /**
+     * @param {int} addtoPipeline
+     * @return {undefined}
+     */
+     function handlerImports(addtoPipeline) {
+        $("#msg-import-modal").modal("hide");
+        $("#select-fr").attr("disabled", true);
+        $("#deselect-fr").attr("disabled", true);
+        $("#unfr-selected").attr("disabled", true);
+        $("#pipe-selected").attr("disabled", true);
+        $("#import-friend").attr("disabled", true);
+        $("body").addClass("disabled");
+        show("Loading! Please wait ...", "info");
+
+        let obj = [];
+        var selected_rows = me.rows().data();
+        let rows= selected_rows.length;
+        for (var i=0; i < rows ;i++){
+            let selected = {
+                numeric_fb_id: selected_rows[i][0],
+                fbUserid: '',
+                name : $(selected_rows[i][2]).text()
+            };
+            obj.push(selected);
+        }
+        let pipeline1 = $("#msgImport1").val();
+        let pipeline2 = $("#msgImport2").val();
+        let pipeline3 = $("#msgImport3").val();
+        
+        chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
+            if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+                
+                chrome.runtime.sendMessage({
+                    action: "importAllFriend",
+                    data:{userid:result.ssa_user.id,addtoPipeline:addtoPipeline,pipeline1:pipeline1,pipeline2:pipeline2,pipeline3:pipeline3,friendData:obj}
+                },
+                function(resp) {
+                    if(!resp.error){
+                        show("Done!", "success");
+                        $("#select-fr").attr("disabled", false);
+                        $("#deselect-fr").attr("disabled", false);
+                        $("#unfr-selected").attr("disabled", false);
+                        $("#pipe-selected").attr("disabled", false);
+                        $("#import-friend").attr("disabled", false);
                         $("body").removeClass("disabled");
                     }
                     else{

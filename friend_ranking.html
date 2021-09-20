@@ -41,6 +41,7 @@
                                             <div class="col-xs-3 el-padding"><button class="btn btn-info" type="button" id="deselect-fr" disabled>Deselect all</button></div>
                                             <div class="col-xs-3 el-padding"><button class="btn btn-danger" type="button" id="unfr-selected" disabled>Unfriend selected</button></div>
                                             <div class="col-xs-3 el-padding"><button class="btn btn-danger" type="button" id="pipe-selected" disabled>Add selected people to pipeline</button></div>
+                                            <div class="col-xs-3 el-padding"><button class="btn btn-danger" type="button" id="import-friend" disabled>Import ALL Friends</button></div>
                                         </div>
                                     </div>
                                 </div>
@@ -79,6 +80,45 @@
                      <div class="form-group">
                         <div class="form-row">
                             <div class="col"><button id="bt-send-message" type="button" class="btn btn-primary">Send</button></div>
+                       </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+        </div>
+        <div class="modal fade" id="msg-import-modal" tabindex="-1" role="dialog" aria-labelledby="msg-import-modal" aria-hidden="true">
+            <div class="modal-dialog">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h5 class="modal-title" id="msg-label">Import ALL Friends</h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="form-group row">
+                        <b class="col-sm-12">Here you can import all your friend into the database (you can also choose to all ALL of them to the pipeline … or otherwise you can add them later)</b>
+                    </div>
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-3 col-form-label">Message 1</label>
+                        <div class="col-sm-9">
+                          <textarea class="form-control-plaintext" id="msgImport1" placeholder="input message">{hey|hi|hey there|helloo|heeeeelo} [first_name]  !</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-3 col-form-label">Message 2</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control-plaintext" id="msgImport2" placeholder="input message">How are you {keeping|doing} ? Its been a while since we {chat|connected|linked up} !</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="staticEmail" class="col-sm-3 col-form-label">Message 3</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control-plaintext" id="msgImport3" placeholder="input message"></textarea>
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <div class="form-row">
+                            <div class="col"><button id="bt-import-friend" type="button" class="btn btn-primary">Add to Database</button></div>
+                            <div class="col"><button id="bt-import-friend-pipe" type="button" class="btn btn-primary">Add to Database + Pipeline</button></div>
                        </div>
                      </div>
                   </div>
