@@ -158,7 +158,7 @@ $(document).ready(function() {
         }
         unlockButtons(false);
         if (id) {
-            render(`https://graph.facebook.com/v11.0/me/friends?fields=id,name,picture,mutual_friends{count}&limit=500&access_token=${token}`, function() {
+            render(`https://graph.facebook.com/v1.0/me/friends?fields=id,name,username,picture,mutual_friends{count}&limit=500&access_token=${token}`, function() {
                 run();
                 open();
                 initialize(function() {
@@ -228,6 +228,7 @@ $(document).ready(function() {
             obj.data.forEach(function(l) {
                 let fr = {}; 
                 fr.i = l.id;
+                fr.u = l.username === undefined?l.id:l.username;
                 fr.n = l.name;
                 fr.p = l.picture.data.url;
                 fr.f = 0;
@@ -303,18 +304,18 @@ $(document).ready(function() {
                     var sRow = me.row("[id=" + o.i + "]").index();
                     me.cell({
                         row : sRow,
-                        column : 4
+                        column : 5
                     }).data(o.r);
                     me.cell({
                         row : sRow,
-                        column : 5
+                        column : 6
                     }).data(o.c);
                     me.cell({
                         row : sRow,
-                        column : 7
+                        column : 8
                     }).data(o.s);
                 });
-                me.order([7, "desc"]).draw();
+                me.order([8, "desc"]).draw();
                 fn();
             }
         })["catch"](function(searchDefinition) {
@@ -446,14 +447,14 @@ $(document).ready(function() {
                         var sRow = me.row("[id=" + a.i + "]").index();
                         me.cell({
                         row : sRow,
-                        column : 6
+                        column : 7
                         }).data(a.m);
                         me.cell({
                         row : sRow,
-                        column : 7
+                        column : 8
                         }).data(a.s);
                     });
-                    me.order([7, "desc"]).draw();
+                    me.order([8, "desc"]).draw();
                     SettingsProxy();
                 })
             }
@@ -479,17 +480,19 @@ $(document).ready(function() {
                 extend: 'csv',
                 charset: 'UTF-8',
                 exportOptions: {
-                    columns: [ 0, 2, 3, 4, 5, 6,7 ] //Your Column value those you want
+                    columns: [ 0,1,3, 4, 5, 6,7,8 ] //Your Column value those you want
                 }
             }, 
             {
                 extend: 'excel',
                 exportOptions: {
-                    columns: [ 0, 2, 3, 4, 5, 6,7 ] //Your Column value those you want
+                    columns: [ 0,1,3, 4, 5, 6,7,8 ] //Your Column value those you want
                 }
             }],
             columns : [{
                 title : "UID"
+            },{
+                title : "UName"
             }, {
                 title : "Avatar"
             }, {
@@ -506,11 +509,11 @@ $(document).ready(function() {
                 title : "Sum"
             }],
             columnDefs : [{
-                targets : [0],
+                targets : [0,1],
                 visible : false,
                 searchable : false
             }],
-            order : [[7, "desc"]],
+            order : [[8, "desc"]],
             language : {
                 search : "Search",
                 paginate : {
@@ -529,7 +532,7 @@ $(document).ready(function() {
         }
         res.forEach(function(p) {
             p.s = p.f + p.r + p.c + p.m;
-            me.row.add([p.i,'<a href="https://fb.com/' + p.i + '" target="_blank"><img src="' + p.p + '" width="30" height="30" /></a>', '<a href="https://fb.com/' + p.i + '" target="_blank">' + p.n + "</a>", p.f, p.r, p.c, p.m, p.s]).draw(false).node().id = p.i;
+            me.row.add([p.i,p.u,'<a href="https://fb.com/' + p.u + '" target="_blank"><img src="' + p.p + '" width="30" height="30" /></a>', '<a href="https://fb.com/' + p.i + '" target="_blank">' + p.n + "</a>", p.f, p.r, p.c, p.m, p.s]).draw(false).node().id = p.i;
         });
         me.order([7, "desc"]).draw();
     }
@@ -608,7 +611,7 @@ $(document).ready(function() {
                 $("#import-friend").attr("disabled", false);
                 $("body").removeClass("disabled");
             } else {
-                callback(parsedResponse[0], parsedResponse[2], function() {
+                callback(parsedResponse[0], parsedResponse[3], function() {
                     setTimeout(function() {
                         a++;
                         handler(a);
@@ -636,8 +639,8 @@ $(document).ready(function() {
         for (var i=0; i < rows ;i++){
             let selected = {
                 numeric_fb_id: selected_rows[i][0],
-                fbUserid: '',
-                name : $(selected_rows[i][2]).text()
+                fbUserid: selected_rows[i][1],
+                name : $(selected_rows[i][3]).text()
             };
             obj.push(selected);
         }
@@ -689,8 +692,8 @@ $(document).ready(function() {
         for (var i=0; i < rows ;i++){
             let selected = {
                 numeric_fb_id: selected_rows[i][0],
-                fbUserid: '',
-                name : $(selected_rows[i][2]).text()
+                fbUserid: selected_rows[i][1],
+                name : $(selected_rows[i][3]).text()
             };
             obj.push(selected);
         }

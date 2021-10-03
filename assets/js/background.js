@@ -1509,45 +1509,33 @@ function addSelectedFriendToPipe(data){
 		let returnValue = {
 			error: true
 		};
-		var checkedUsersForFriend = data.checkedUsers;
-		checkedUsersForFriend.forEach(function (item, i) {
-			var numeric_fb_id = item.numeric_fb_id;
-			GetBothAphaAndNumericId(numeric_fb_id).then(function (fbIDsObject) {
-				item.fbUserid = fbIDsObject.fb_user_id;
-				item.numeric_fb_id = fbIDsObject.numeric_fb_id
-
-				if (i == checkedUsersForFriend.length - 1) {
-					data.checkedUsers = checkedUsersForFriend;
-					$.ajax({
-						type: "POST",
-						url: apiBaseUrl + "/pipeline/addSelectedFriend",
-						data: data,
-						dataType: 'json',
-						beforeSend: function (xhr) {
-							xhr.setRequestHeader('unique-hash', uniqueHash);
-						}
-					}).done(function (response) {
-						if (response.status == 401) {
-							chrome.storage.local.set({ 'ssa_user': '' });
-							returnValue.error = true;
-						}
-						else
-						{
-							if (response.result === "success")
-							{
-								returnValue.error = false;
-								returnValue.message = response.pipeline_message;
-							}
-							else{
-								returnValue.error = true;
-								returnValue.message = response.message;
-							}
-						}
-						resolve(returnValue);
-					});	
+		$.ajax({
+			type: "POST",
+			url: apiBaseUrl + "/pipeline/addSelectedFriend",
+			data: data,
+			dataType: 'json',
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('unique-hash', uniqueHash);
+			}
+		}).done(function (response) {
+			if (response.status == 401) {
+				chrome.storage.local.set({ 'ssa_user': '' });
+				returnValue.error = true;
+			}
+			else
+			{
+				if (response.result === "success")
+				{
+					returnValue.error = false;
+					returnValue.message = response.pipeline_message;
 				}
-			});
-		})
+				else{
+					returnValue.error = true;
+					returnValue.message = response.message;
+				}
+			}
+			resolve(returnValue);
+		});
 		
 	});	
 }
@@ -1619,45 +1607,33 @@ function importAllFriend(data){
 		let returnValue = {
 			error: true
 		};
-		var friendData = data.friendData;
-		friendData.forEach(function (item, i) {
-			var numeric_fb_id = item.numeric_fb_id;
-			GetBothAphaAndNumericId(numeric_fb_id).then(function (fbIDsObject) {
-				item.fbUserid = fbIDsObject.fb_user_id;
-				item.numeric_fb_id = fbIDsObject.numeric_fb_id
-
-				if (i == friendData.length - 1) {
-					data.friendData = friendData;
-					$.ajax({
-						type: "POST",
-						url: apiBaseUrl + "/pipeline/importAllFriends",
-						data: data,
-						dataType: 'json',
-						beforeSend: function (xhr) {
-							xhr.setRequestHeader('unique-hash', uniqueHash);
-						}
-					}).done(function (response) {
-						if (response.status == 401) {
-							chrome.storage.local.set({ 'ssa_user': '' });
-							returnValue.error = true;
-						}
-						else
-						{
-							if (response.result === "success")
-							{
-								returnValue.error = false;
-								returnValue.message = response.pipeline_message;
-							}
-							else{
-								returnValue.error = true;
-								returnValue.message = response.message;
-							}
-						}
-						resolve(returnValue);
-					});	
+		$.ajax({
+			type: "POST",
+			url: apiBaseUrl + "/pipeline/importAllFriends",
+			data: data,
+			dataType: 'json',
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader('unique-hash', uniqueHash);
+			}
+		}).done(function (response) {
+			if (response.status == 401) {
+				chrome.storage.local.set({ 'ssa_user': '' });
+				returnValue.error = true;
+			}
+			else
+			{
+				if (response.result === "success")
+				{
+					returnValue.error = false;
+					returnValue.message = response.pipeline_message;
 				}
-			});
-		})
+				else{
+					returnValue.error = true;
+					returnValue.message = response.message;
+				}
+			}
+			resolve(returnValue);
+		});
 		
 	});	
 }
