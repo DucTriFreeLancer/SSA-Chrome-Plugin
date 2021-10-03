@@ -90,6 +90,7 @@ function insertControlsHtml() {
     option= '<div class="form-group purple-border">'+
     '<label class="col-form-label" for="pipeline_tag">Pipeline Tag: </label>' +
     '<select class="form-control" name="pipeline_tag" id="pipeline_tag">';
+    option += '<option value=0>Do not tag</option>';
     tags.forEach(function(item) {
         option += '<option value='+item.value+'>' + item.text + '</option>';
     });
