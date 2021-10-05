@@ -1625,7 +1625,8 @@ function importAllFriend(data){
 				if (response.result === "success")
 				{
 					returnValue.error = false;
-					returnValue.message = response.pipeline_message;
+					returnValue.friend_sent = response.Friend_sent;
+					returnValue.pipe_sent = response.Pipe_sent;
 				}
 				else{
 					returnValue.error = true;

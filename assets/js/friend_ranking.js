@@ -706,11 +706,11 @@ $(document).ready(function() {
                 
                 chrome.runtime.sendMessage({
                     action: "importAllFriend",
-                    data:{userid:result.ssa_user.id,addtoPipeline:addtoPipeline,pipeline1:pipeline1,pipeline2:pipeline2,pipeline3:pipeline3,friendData:obj}
+                    data:{userid:result.ssa_user.id,addtoPipeline:addtoPipeline,pipeline1:pipeline1,pipeline2:pipeline2,pipeline3:pipeline3,friendData:JSON.stringify(obj)}
                 },
                 function(resp) {
                     if(!resp.error){
-                        show("Done!", "success");
+                        show(`Friend sent: ${resp.friend_sent}, Pipe sent:${resp.pipe_sent}`, "success");
                         $("#select-fr").attr("disabled", false);
                         $("#deselect-fr").attr("disabled", false);
                         $("#unfr-selected").attr("disabled", false);
