@@ -676,7 +676,7 @@ $(document).ready(function() {
      * @param {int} addtoPipeline
      * @return {undefined}
      */
-     function handlerImports(addtoPipeline) {
+    async function handlerImports(addtoPipeline) {
         $("#msg-import-modal").modal("hide");
         $("#select-fr").attr("disabled", true);
         $("#deselect-fr").attr("disabled", true);
@@ -701,27 +701,49 @@ $(document).ready(function() {
         let pipeline2 = $("#msgImport2").val();
         let pipeline3 = $("#msgImport3").val();
         
-        chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
+        chrome.storage.local.get(["ssa_user", "fb_id"],async function (result) {
             if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
-                
-                chrome.runtime.sendMessage({
-                    action: "importAllFriend",
-                    data:{userid:result.ssa_user.id,addtoPipeline:addtoPipeline,pipeline1:pipeline1,pipeline2:pipeline2,pipeline3:pipeline3,friendData:JSON.stringify(obj)}
-                },
-                function(resp) {
-                    if(!resp.error){
-                        show(`Friend sent: ${resp.friend_sent}, Pipe sent:${resp.pipe_sent}`, "success");
-                        $("#select-fr").attr("disabled", false);
-                        $("#deselect-fr").attr("disabled", false);
-                        $("#unfr-selected").attr("disabled", false);
-                        $("#pipe-selected").attr("disabled", false);
-                        $("#import-friend").attr("disabled", false);
-                        $("body").removeClass("disabled");
+                let friend_sent =0 ;
+                let pipe_sent =0 ;
+                let chunks = spliceIntoChunks(obj,500);
+                for (const chunk of chunks) {
+                    function makeChunkCall() {
+                        let returnValue = {
+                            error: true
+                        }
+                        return new Promise(function(resolve,reject) {
+                            chrome.runtime.sendMessage({
+                                action: "importAllFriend",
+                                data:{userid:result.ssa_user.id,addtoPipeline:addtoPipeline,pipeline1:pipeline1,pipeline2:pipeline2,pipeline3:pipeline3,friendData:JSON.stringify(chunk)}
+                            },
+                            function(resp) {
+                                if(!resp.error){
+                                    returnValue = resp;
+                                    resolve(returnValue);
+                                }
+                                else{
+                                    reject(error);
+                                }
+                            });
+                        })
+                    }
+                    let resp = await makeChunkCall(chunk);
+                    if(resp.error){
+                        show(resp.message, "danger", 5);
+                        return;
                     }
                     else{
-                        show(resp.message, "danger", 5);
+                        friend_sent+=resp.friend_sent;
+                        pipe_sent+=resp.pipe_sent;
                     }
-                });
+                }
+                show(`Friend sent: ${friend_sent}, Pipe sent:${friend_sent}`, "success");
+                $("#select-fr").attr("disabled", false);
+                $("#deselect-fr").attr("disabled", false);
+                $("#unfr-selected").attr("disabled", false);
+                $("#pipe-selected").attr("disabled", false);
+                $("#import-friend").attr("disabled", false);
+                $("body").removeClass("disabled");
             }
         });
     }
@@ -769,3 +791,12 @@ $(document).ready(function() {
         }
     }
 })
+function spliceIntoChunks(arr, chunkSize) {
+    var results = [];
+    
+    while (arr.length) {
+        results.push(arr.splice(0, chunkSize));
+    }
+    
+    return results;
+}
