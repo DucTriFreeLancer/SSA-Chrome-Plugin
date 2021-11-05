@@ -1152,6 +1152,16 @@ display: none;
   position: absolute !important;
   z-index: 9999999999; 
 }
+.unfriend-from-messenger{
+
+  top: 50px;
+  left: 5px;
+  position: absolute !important;
+  z-index: 9999999999; 
+}
+.unfriend-from-messenger img{
+  cursor: pointer;
+}
 .yes-friend-btn{
     border: 3px solid #572f5b; 
 }

@@ -80,5 +80,5 @@
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "1.0.0",
    "web_accessible_resources": [ "comment_blaster.html","lead_sniper.html","friend_ranking.html", "assets/images/64.png", "assets/images/welcome.png",
-      "assets/css/cb_main.css"]
+      "assets/css/cb_main.css","assets/images/delete_icon.png"]
 }

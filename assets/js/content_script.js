@@ -1389,7 +1389,26 @@ $(function(){
 			toastr["warning"]('You can add maximum of 10 contacts at once.');
 		}
 	});
-
+	$(document).on('click','.unfriend-user-messenger',function(){
+		var cliked_Fb_Id=$(this).closest('div[data-testid="mwthreadlist-item"]').attr('fb_user_id');
+		if(cliked_Fb_Id != undefined){
+			let url = new URL("https://m.facebook.com/"+cliked_Fb_Id);
+                url.searchParams.set("lets_unfriend_user",1);
+                url.searchParams.set('unFriend',1);
+				url.searchParams.set('close',1);
+                url = url.href;
+                window.open(url,'currentUserBlaster',
+                `toolbar=no,
+                location=no,
+                status=no,
+                menubar=no,
+                scrollbars=yes,
+                resizable=yes,
+                width=500px,
+                height=500px`);
+		}
+			
+	});
 	$(document).on('click','.multi-tag-checkbox-multi-user', function() {
 	 
 		if(window.location.origin.indexOf("messenger") > -1 ){
@@ -1587,6 +1606,8 @@ addCheckBoxMessenger();
 function addCheckBoxMessenger() {
 	if (window.location.origin.indexOf('messenger') > -1) {
 		var mCHeckBoxHtml = '<div class="add-tag-from-messenger"><input class="select-multi-user-messenger" type="checkbox" ></div></div>';
+		var mBtnUnfriend = `<div class="btn unfriend-from-messenger"><img src="${chrome.extension.getURL("assets/images/delete_icon.png")}" class="unfriend-user-messenger"/><span></span></div>`;
+		
 		setInterval(()=>{
 
 			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
@@ -1596,6 +1617,9 @@ function addCheckBoxMessenger() {
 							if($(this).hasClass('l9j0dhe7')){
 								if ($(this).find('.add-tag-from-messenger').length == 0 && window.location.origin.indexOf('messenger') >-1) {
 									$(this).prepend(mCHeckBoxHtml); 
+								}
+								if ($(this).find('.unfriend-from-messenger').length == 0 && window.location.origin.indexOf('messenger') >-1) {
+									$(this).append(mBtnUnfriend); 
 								}
 							}
 						});
@@ -1616,6 +1640,7 @@ function addCheckBoxMessenger() {
 				}else{
 					$('.add-tag-from-messenger').remove();
 					$('.assign-tag-btn-select-all-messenger, .total-selected-messenger-member').remove();
+					$('.unfriend-from-messenger').remove();
 				}
 			})
 		}, 2000);
@@ -2800,6 +2825,43 @@ function handlePL_UserWindow(){
 			}		
 		}					
 		
+		
+		if(url.searchParams.get('close')==="1"){
+			setTimeout(() => {
+				window.close();
+			}, 3000);		
+		}
+	}, 1000);
+}
+handleUF_UserWindow();
+function handleUF_UserWindow(){
+	setTimeout(() => {
+		let cb_current_window = window.location.href;
+		let url = new URL(cb_current_window);
+		
+		
+		if(url.searchParams.get('lets_unfriend_user')!="1"){
+			return;
+		}
+
+		if(url.searchParams.get('unFriend')=="1"){
+			let friendButton = $("[aria-label='Friends']").get(0);
+
+			if(typeof friendButton != "undefined" ){
+				$(friendButton).mclick();
+				setTimeout(() => {
+				   let store= $("._54k8._55i1._58a0.touchable").find("span:contains('Unfriend')").parent().get(0).getAttribute('data-store');
+				   let objStore = JSON.parse(store);
+				   $.ajax({
+						type: "GET",
+						url: objStore.unfriendURI.replace("/",""),
+						success: function (data, txtStatus, request) {
+							
+						}
+					});
+				}, 1000);	
+			}		
+		}					
 		
 		if(url.searchParams.get('close')==="1"){
 			setTimeout(() => {
