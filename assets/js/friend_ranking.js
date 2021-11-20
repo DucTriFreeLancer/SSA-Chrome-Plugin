@@ -36,7 +36,30 @@ $(document).ready(function() {
             fn = $(obj.payload.actions[0].html).find("._36e0").text();
             var dtsg_token =  obj.payload.actions[2].code.match(/"dtsg":"(.*?)\"/);//$(obj.payload.actions[0].html).find("input[name='fb_dtsg']").val();
             id = dtsg_token?dtsg_token[1]:"";
-            var regexTK = obj.payload.actions[2].code.match(/"accessToken":"(\w+)\"/);
+            // var regexTK = obj.payload.actions[2].code.match(/"accessToken":"(\w+)\"/);
+            // token= regexTK?regexTK[1]:null;
+            // if (userId && !isNaN(parseInt(userId)) && fn && 0 < fn.length && id && 0 < id.length && token) {
+            //     init(function(){
+            //         $("#name").text(fn);
+            //         $("#group-start-buttons").show();
+            //         // open();
+            //     });
+            // }
+            // else{
+            //     show("Please re-opening Facebook!", "danger", 1, false);
+            // }
+        },
+        fail : function(){
+            show("Please check your Internet connection.", "danger", 0, false);
+        }
+    });
+    d3url = "https://business.facebook.com/creatorstudio/home";
+    $.ajax({
+        type: "GET",
+        url: d3url,
+        success: function (data, txtStatus, request) {
+            $("#ls-friends").fadeIn("slow");
+            var regexTK = data.match(/"accessToken":"(\w+)\"/);
             token= regexTK?regexTK[1]:null;
             if (userId && !isNaN(parseInt(userId)) && fn && 0 < fn.length && id && 0 < id.length && token) {
                 init(function(){
@@ -158,7 +181,7 @@ $(document).ready(function() {
         }
         unlockButtons(false);
         if (id) {
-            render(`https://graph.facebook.com/v1.0/me/friends?fields=id,name,username,picture,mutual_friends{count}&limit=500&access_token=${token}`, function() {
+            render(`https://graph.facebook.com/v1.0/me/friends?fields=id,name,picture,mutual_friends{count}&limit=500&access_token=${token}`, function() {
                 run();
                 open();
                 initialize(function() {
