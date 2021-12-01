@@ -72,7 +72,7 @@ function insertControlsHtml() {
 <!--                    </div>-->
 
   <link rel="stylesheet" href="${chrome.extension.getURL("assets/css/cb_main.css")}">
-  <div id="cf_controls" class="cf_progressBar" style="height:400px;">
+  <div id="cf_controls" class="cf_progressBar" style="height:415px;">
     <div class="cf_finished">
         <img src="${chrome.extension.getURL("assets/images/welcome.png")}"  style="width:200px"/ >
     </div> 
@@ -95,7 +95,16 @@ function insertControlsHtml() {
         option += '<option value='+item.value+'>' + item.text + '</option>';
     });
     option += '</select> </div>';
+    cont_html += option;
+    
+    option= '<div class="form-group purple-border">'+
+    '<label class="col-form-label" for="pipeline_option">Pipeline option: </label>' +
+    '<select class="form-control" name="pipeline_option" id="pipeline_option">';
+    option += '<option value=0>Message and friend</option>';
+    option += '<option value=1>Friend only</option>';
+    option += '</select> </div>';
     cont_html += option+
+
     `<div class="block">
 		<span id="ssa-msgs"></span>
 	</div>
@@ -155,7 +164,7 @@ async function startAction() {
             return;          
         }
         else{
-            if(resp.add_friend === "1"){
+            if(resp.add_friend === "1" &&  $("#pipeline_option").val()==="1"){
                 let url = new URL(resp.add_fbuserid);
                 url.searchParams.set("lets_pipe_user",1);
                 url.searchParams.set('addFriend',1);
@@ -203,7 +212,8 @@ function getPipeStatus(from) {
                     from: from,
                     userId: result.ssa_user.id,
                     messageType: $("#pipeline_do").val(),
-                    tagId: $("#pipeline_tag").val()
+                    tagId: $("#pipeline_tag").val(),
+                    friendOnly: $("#pipeline_option").val()
                 }, function(res) {
                     console.log('Result from get pipe status from back:', res);
                     returnValue = res;
