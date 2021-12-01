@@ -1364,10 +1364,10 @@ $(function(){
 					tempUser.numeric_fb_id = oneMesseangerUser.attr('numeric_fb_id');
 					
 
-					if(oneMesseangerUser.find('svg.pzggbiyp image').length > 0){
-						profilePic = oneMesseangerUser.find('svg.pzggbiyp image').attr('xlink:href');
+					if(oneMesseangerUser.find('img.a8c37x1j.d2edcug0.sn7ne77z.bixrwtb6').length > 0){
+						profilePic = oneMesseangerUser.find('img.a8c37x1j.d2edcug0.sn7ne77z.bixrwtb6').attr('src');
 					}
-					fbName = $.trim(oneMesseangerUser.find('.qzhwtbm6.knvmm38d:eq(0) span:last').text());
+					fbName = $.trim(oneMesseangerUser.find('.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text());
 	
 					fbName = fbName.replace("'", " ");
 					
