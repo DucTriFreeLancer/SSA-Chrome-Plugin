@@ -2475,24 +2475,66 @@ function triggerRequestSendMessage(bulkMsgText) {
 
 
 function  checkFriendRequestForPostMessageNew(){
-	 $('div.kd0sc8dh.sl8jk4me.ie5zihkj.i09qtzwb.rm3jng1j.hzruof5a.pmk7jnqg.kr520xx4.c0wkt4kp').prev().animate({ scrollTop:  5000 }, 1000);
-	let timeout= setTimeout(function(){
-		clearTimeout(timeout);
+	$('div.kd0sc8dh.sl8jk4me.ie5zihkj.i09qtzwb.rm3jng1j.hzruof5a.pmk7jnqg.kr520xx4.c0wkt4kp').prev().animate({ scrollTop:  5000 }, 1000);
+	setTimeout(function(){
+		
 		var logSelector = 'div[aria-label="List of activity log items"]';
 		if($(logSelector).length == 0){
 			logSelector = 'div[aria-label="List of Activity Log Items"]';
 		}
 
-		if (/[0-9]/.test($(logSelector).find('.kvgmc6g5 h2').text())) { 
-				 sendLoadedRequestNew();
-			}else{
-				checkFriendRequestForPostMessageNew();
-			}
-	},1000);		
+		sendLoadedRequestNew();
+
+		/*if (/[0-9]/.test($(logSelector).find('.kvgmc6g5 h2').text())) { 
+			alert();
+			 sendLoadedRequestNew();
+		}else{
+			checkFriendRequestForPostMessageNew();
+		}*/
+
+	},1000);
 }
 
 
 function sendLoadedRequestNew() {
+	var newRequestidsTEMP = [];
+
+	$('div[aria-label="Activity Log Item"] div[data-visualcompletion="ignore-dynamic"]').addClass('cts-open').each(function (index) {
+		profileUrlTemp = $(this).find('a').first().attr('href');
+				
+		var tempFriendData = {};
+
+		profileUrlTemp = new URL(profileUrlTemp);
+		var requestProfileId = profileUrlTemp.pathname.replace('/','');
+
+	 	tempFriendData.requestProfileId = $.trim(requestProfileId);
+
+	 	tempFriendData.fullName = $(this).find('strong:eq(1)').text();
+		
+	 	if (friendRequestHistory.length > 0) {
+	 		
+	 		found = friendRequestHistory.filter((his)=>{return his.request_fb_id == requestProfileId })
+	 	
+	 			if(found.length == 0){
+					
+				}else{
+					if (found[0].is_message_send == 1) {
+				 		foundMulti = newRequestidsTEMP.filter((hisTemp)=>{return hisTemp.requestProfileId == requestProfileId })
+						
+						if (foundMulti.length == 0) {
+							newRequestidsTEMP.push(tempFriendData);
+						}								
+						
+					}
+				}
+	 	}			
+		
+	});
+
+	chrome.runtime.sendMessage({friendRequestsFromContent: "friendRequestsFromContent", data: newRequestidsTEMP});
+
+}
+function sendLoadedRequestNew_BKUP() {
 	var newRequestidsTEMP = [];
 	var activeLogSelector = 'div[aria-label="List of activity log items"]';
 	if($(activeLogSelector).length == 0){
