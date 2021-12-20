@@ -164,7 +164,7 @@ async function startAction() {
             return;          
         }
         else{
-            if(resp.add_friend === "1" &&  $("#pipeline_option").val()==="1"){
+            if(resp.add_friend === "1"){
                 let url = new URL(resp.add_fbuserid);
                 url.searchParams.set("lets_pipe_user",1);
                 url.searchParams.set('addFriend',1);
