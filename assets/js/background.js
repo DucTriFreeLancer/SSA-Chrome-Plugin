@@ -319,6 +319,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 			'url': message.url
 		});
 	}
+	else if (message.sendPipeMessage == 'sendPipeMessage') {
+
+		processPipeMessage(message.data)
+	}
 	// }else if (message.action == 'triggerShowPopup'){
 	//     chrome.tabs.create({
 	//     	'url': message.url
@@ -1544,6 +1548,7 @@ function processPipeStatus(threadId,messageType,tagId,friendOnly){
 		let returnValue = {
 			error: true
 		};
+		
 		$.ajax({
 			type: "POST",
 			url: apiBaseUrl + "/pipeline/getmessage",
@@ -1566,33 +1571,10 @@ function processPipeStatus(threadId,messageType,tagId,friendOnly){
 					returnValue.message = response.pipeline_message;
 					returnValue.add_friend= response.friend;
 					returnValue.add_fbuserid= response.fbuserid;
-					if(friendOnly=="0"){
-						clearBulkIntervals();
-						let delaySend = randomInteger(5,10)*1000;	
-						let numeric_fb_id = new URL(response.fbuserid).pathname.replace(/\//g, '');		
-						if(response.message1 != null && response.message1.trim().length >=0){
-							let timeoutId = setTimeout(() => {
-								sendMRRequestDMMessage(numeric_fb_id,response.message1);
-							}, delaySend);
-							delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
-							bulkIntervalIds.push(timeoutId);
-								
-						}
-						if(response.message2 != null && response.message2.trim().length >=0){
-							let timeoutId = setTimeout(() => {
-								sendMRRequestDMMessage(numeric_fb_id,response.message2);
-							}, delaySend);
-							delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
-							bulkIntervalIds.push(timeoutId);						
-						}
-						if(response.message3 != null && response.message3.trim().length >=0){
-							let timeoutId = setTimeout(() => {
-								sendMRRequestDMMessage(numeric_fb_id,response.message3);
-							}, delaySend);
-							delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
-							bulkIntervalIds.push(timeoutId);						
-						}
-					}
+					returnValue.message1= response.message1;
+					returnValue.message2= response.message2;
+					returnValue.message3=response.message3;
+					
 				}
 				else{
 					returnValue.error = true;
@@ -1602,6 +1584,32 @@ function processPipeStatus(threadId,messageType,tagId,friendOnly){
 			resolve(returnValue);
 		});	
 	});	
+}
+function processPipeMessage(response){
+	clearBulkIntervals();
+	let delaySend = randomInteger(5,10)*1000;	
+	if(response.message1 != null && response.message1.trim().length >=0){
+		let timeoutId = setTimeout(() => {
+			sendMRRequestDMMessage(response.numeric_fb_id,response.message1);
+		}, delaySend);
+		delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
+		bulkIntervalIds.push(timeoutId);
+			
+	}
+	if(response.message2 != null && response.message2.trim().length >=0){
+		let timeoutId = setTimeout(() => {
+			sendMRRequestDMMessage(response.numeric_fb_id,response.message2);
+		}, delaySend);
+		delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
+		bulkIntervalIds.push(timeoutId);						
+	}
+	if(response.message3 != null && response.message3.trim().length >=0){
+		let timeoutId = setTimeout(() => {
+			sendMRRequestDMMessage(response.numeric_fb_id,response.message3);
+		}, delaySend);
+		delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
+		bulkIntervalIds.push(timeoutId);						
+	}
 }
 function importAllFriend(data){
 

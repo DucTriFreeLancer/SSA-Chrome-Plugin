@@ -2855,18 +2855,25 @@ function handlePL_UserWindow(){
 		let url = new URL(cb_current_window);
 		
 		
-		if(url.searchParams.get('lets_pipe_user')!="1"){
+		if(url.searchParams.get('lets_pipe_user') != "1"){
 			return;
 		}
 
 		let addFriendButton = $('div[aria-label="Add Friend"]:contains("Add Friend")').get(0);
 		
-		if(url.searchParams.get('addFriend')=="1"){
+		if(url.searchParams.get('addFriend')=="1" && url.searchParams.get('pipeline_option') !="2"){
 			if(typeof addFriendButton != "undefined" ){
 				$(addFriendButton).mclick();
 			}		
 		}					
-		
+		if((typeof addFriendButton != "undefined" && url.searchParams.get('pipeline_option') =="0") || url.searchParams.get('pipeline_option') =="2"){
+			var temp = {};
+			temp.numeric_fb_id = url.searchParams.get('numeric_fb_id');
+			temp.message1 = url.searchParams.get('message1');
+			temp.message2 = url.searchParams.get('message2');
+			temp.message3 = url.searchParams.get('message3');
+			chrome.runtime.sendMessage({sendPipeMessage: "sendPipeMessage", data: temp});
+		}	
 		
 		if(url.searchParams.get('close')==="1"){
 			setTimeout(() => {

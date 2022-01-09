@@ -100,8 +100,9 @@ function insertControlsHtml() {
     option= '<div class="form-group purple-border">'+
     '<label class="col-form-label" for="pipeline_option">Pipeline option: </label>' +
     '<select class="form-control" name="pipeline_option" id="pipeline_option">';
-    option += '<option value=0>Message and friend</option>';
+    option += '<option value=0>Friend and message (only non friends) </option>';
     option += '<option value=1>Friend only</option>';
+    option += '<option value=2>Message only</option>';
     option += '</select> </div>';
     cont_html += option+
 
@@ -164,22 +165,27 @@ async function startAction() {
             return;          
         }
         else{
-            if(resp.add_friend === "1"){
-                let url = new URL(resp.add_fbuserid);
-                url.searchParams.set("lets_pipe_user",1);
-                url.searchParams.set('addFriend',1);
-                url.searchParams.set('close',1);
-                url = url.href;
-                window.open(url,'currentUserPipe',
-                `toolbar=no,
-                location=no,
-                status=no,
-                menubar=no,
-                scrollbars=yes,
-                resizable=yes,
-                width=500px,
-                height=500px`);
-            }
+            let url = new URL(resp.add_fbuserid);
+            url.searchParams.set("lets_pipe_user",1);
+            url.searchParams.set('addFriend',1);
+            url.searchParams.set('close',1);
+            url.searchParams.set('pipeline_option', $("#pipeline_option").val());
+            url.searchParams.set('numeric_fb_id',url.pathname.replace(/\//g, ''));
+            url.searchParams.set('message1', resp.message1);
+            url.searchParams.set('message2', resp.message2);
+            url.searchParams.set('message3', resp.message3);
+
+            url = url.href;
+            window.open(url,'currentUserPipe',
+            `toolbar=no,
+            location=no,
+            status=no,
+            menubar=no,
+            scrollbars=yes,
+            resizable=yes,
+            width=500px,
+            height=500px`);
+
             $('#ssa-msgs').html(resp.message);
             $('.member-name').text('Sent to '+ resp.fb_name).css('text-align','center');
             await sleep(randomInteger(120,300)*1000);
