@@ -181,7 +181,7 @@ $(document).ready(function() {
         }
         unlockButtons(false);
         if (id) {
-            render(`https://graph.facebook.com/v1.0/me/friends?fields=id,name,picture,mutual_friends{count}&limit=500&access_token=${token}`, function() {
+            render(`https://m.facebook.com/buddylist_update.php`, function() {
                 run();
                 open();
                 initialize(function() {
@@ -231,41 +231,55 @@ $(document).ready(function() {
      * @return {undefined}
      */
     function render(args, cb) {
-        // /** @type {!FormData} */
-        // var form = new FormData;
-        // form.append("fields", "id,name,picture");
-        // form.append("limit","500");
-        // form.append("access_token", token);
+           // /** @type {!FormData} */
+        var form = new FormData;
+        form.append("data_fetch", true);
+        form.append("send_full_data", true);
+        form.append("m_sess", '');
+        form.append("fb_dtsg", id);
+        form.append("__user", userId);
+        form.append("__req", 1);
+        form.append("jazoest", 21931);
+        form.append("__dyn", '');
+        form.append("__ajax__", '');
+        form.append("__a", '');
         /** @type {null} */
         var e = null;
         fetch(args, {
-            // body : form,
+            body : form,
             headers : {
                 accept : "application/json, text/plain, */*"
             },
-            method : "GET"
-        }).then(function(rawResp) {
-            return rawResp.json();
-        }).then(function(obj) {
-            /** @type {string} */
-            obj.data.forEach(function(l) {
-                let fr = {}; 
-                fr.i = l.id;
-                fr.u = l.username === undefined?l.id:l.username;
-                fr.n = l.name;
-                fr.p = l.picture.data.url;
-                fr.f = 0;
-                fr.r = 0;
-                fr.c = 0;
-                fr.m = 0;
-                res.push(fr);
-            });
-            var obj_copy = obj.paging.next;       
-            if (obj_copy) {
-                args = obj.paging.next;
-                render(args, cb);
-            } else {
-                cb();
+            method : "POST",
+        }).then(function(d) {
+            if(d.ok){
+                d.text().then(function (aj) {
+                    var obj=JSON.parse(aj.replace("for (;;);",""));
+                    // Users array
+                    var allUsers = [];
+                    let users = obj.payload.friend_data;
+
+                    if(users){
+                        // Populate users array
+                        for(var key in users) {
+                            allUsers.push(key);
+                        }
+                        allUsers.forEach(function (id) {
+                            let fr = {};
+                            fr.i = id;
+                            fr.u = id;
+                            fr.n = users[id].name;
+                            fr.p = users[id].thumbSrc;
+                            fr.f = 0;
+                            fr.r = 0;
+                            fr.c = 0;
+                            fr.m = 0;
+                            res.push(fr);
+                        });
+                        cb();
+                    }
+                    
+                });
             }
         })["catch"](function(searchDefinition) {
             show("An error occurred, please try again later.", "danger", 4);

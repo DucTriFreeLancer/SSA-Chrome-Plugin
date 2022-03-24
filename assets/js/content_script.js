@@ -207,7 +207,28 @@ async function pasteImage(blob) {
 	  }, 'image/png', 1);
 	}, 50);
   }
-  
+async function clickOnElements(element) {
+    console.log(element);
+    let MouseEvent = document.createEvent("MouseEvents");
+    MouseEvent.initEvent("mouseover", true, true);
+    const over = document.querySelector(element).dispatchEvent(MouseEvent);
+    //await sleep(50);
+    MouseEvent.initEvent("mousedown", true, true);
+    const down = document.querySelector(element).dispatchEvent(MouseEvent);
+    MouseEvent.initEvent("mouseup", true, true);
+    const up = document.querySelector(element).dispatchEvent(MouseEvent);
+    MouseEvent.initEvent("click", true, true);
+    const click = document.querySelector(element).dispatchEvent(MouseEvent);
+    console.log(over, down, up, click);
+
+    if (over) {
+        return new Promise((resolve) => {
+            resolve();
+        });
+    } else {
+        return await clickOnElements(element);
+    }
+}
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {	
 	
 	if(message.from === 'popup' && message.subject === 'sendTemplateMessage') {	
@@ -258,8 +279,10 @@ async function sendMessage(message){
 	var pathname = window.location.pathname.toString();
 	if (pathname.indexOf('/inbox') > -1) {		
 
-		selector = '._1p7p._5id1._4dv_._58al.uiTextareaAutogrow';
-		fullName = $('div[data-pagelet]').find('a[aria-haspopup]').parent().prev().text();
+		// selector = '._1p7p._5id1._4dv_._58al.uiTextareaAutogrow';
+		// fullName = $('div[data-pagelet]').find('a[aria-haspopup]').parent().prev().text();
+		selector = 'div textarea.uiTextareaAutogrow';
+		fullName = $('.hqkabbkj').text();
 		if(fullName != ''){
 			var fullNameArray = fullName.split(' ');
 			var firstName = fullNameArray[0];
@@ -285,6 +308,8 @@ async function sendMessage(message){
 			 if(typeof imageToBeSend == "undefined"){
 				 return;
 			 }
+			    selector =  'div[contenteditable="true"]';
+
 				imageToBeSend.onload = function() {					
 					try {
 						const canvasElement = document.createElement('canvas');
@@ -381,8 +406,8 @@ async function sendMessage(message){
 		} else {
 			var fullName = '';							
 			if($(selector).length > 0){
-				fullName = $('div[aria-labelledby]').find('span').find('h2').find('span').text();	
-				
+				fullName = $('div.buofh1pr.qx9c56kf').find('h2').find('span.ltmttdrg').text();
+
 				message.templateMessage= getTemplateMessage(message, fullName);			
 				var evt = new Event('input', {
 							bubbles: true  
@@ -432,10 +457,10 @@ async function sendMessage(message){
 				}, 100);			
 			}
 			else{
-				
-				selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
-			
-				fullName =	$('div[role="main"]').find('.qzhwtbm6.knvmm38d a[target="_blank"][role="link"]:eq(0)').text();
+				// selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
+				selector =  'div[contenteditable="true"]';
+
+				fullName = $('div.buofh1pr.qx9c56kf').find('h2').find('span.ltmttdrg').text();
 				// if (message.templateMessage.indexOf('[mylocation]') > -1) {		
 				// 	if(message.myLocation.includes("|")){
 				// 		var locations = message.myLocation.split("|");		
@@ -476,15 +501,43 @@ async function sendMessage(message){
 					};
 			
 					$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');	
-					setTimeout(() => {
-						$('div[aria-label="Press Enter to send"').mclick();
-					}, 500);					
+					var findEnterButton = setInterval(()=>{
+						if ($('div[aria-label="Press Enter to send"').length > 0 || $('div[aria-label="Press enter to send"').length > 0) {
+							clearInterval(findEnterButton);
+							$('div[aria-label="Press enter to send"').mclick();
+							$('div[aria-label="Press Enter to send"').mclick();
+							setTimeout(()=>{
+								location.reload();
+							},500); 
+						}
+					},100)    					
 					setTimeout(()=>{
 						
 						location.reload();
 					},500)
 					
 				}
+				// else{
+				// 	console.log('else if not get ');
+				// 	selector10 =  'div[contenteditable="true"]';
+				// 	setTimeout(()=>{					
+				// 		 clickOnElements(selector10);
+				// 		navigator.clipboard.writeText(message.templateMessage).then(() => {
+				// 			console.log(" Text Copied!!!!");
+				// 			document.execCommand("paste", null, null);
+				// 		});
+				// 		var findEnterButton = setInterval(()=>{
+				// 			if ($('div[aria-label="Press Enter to send"').length > 0 || $('div[aria-label="Press enter to send"').length > 0) {
+				// 				clearInterval(findEnterButton);
+				// 				$('div[aria-label="Press enter to send"').mclick();
+				// 				$('div[aria-label="Press Enter to send"').mclick();
+				// 				setTimeout(()=>{
+				// 					//location.reload();
+				// 				},500); 
+				// 			}
+				// 		},100)
+				// 	},5000);
+				// }
 			}
 		}
 	}	
