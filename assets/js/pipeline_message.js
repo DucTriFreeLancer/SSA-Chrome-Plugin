@@ -25,6 +25,10 @@ chrome.storage.local.get(["ssa_user","tags","messagetypes"],function(result){
 $(document).ready(function () {
     //console.log('Document is ready now');
     insertControlsHtml();
+    $("#pipeline_tag").multiselect({
+        maxHeight: 200,
+        buttonWidth: '100%'
+    });
     $("#cf_controls").draggable();
     $('.cf_stop_btn').hide();
     $('.cf_start_btn').on('click', function () {
@@ -89,7 +93,7 @@ function insertControlsHtml() {
     cont_html += option;
     option= '<div class="form-group purple-border">'+
     '<label class="col-form-label" for="pipeline_tag">Pipeline Tag: </label>' +
-    '<select class="form-control" name="pipeline_tag" id="pipeline_tag">';
+    '<select class="form-control" multiple="multiple" name="pipeline_tag" id="pipeline_tag">';
     option += '<option value=0>Do not tag</option>';
     tags.forEach(function(item) {
         option += '<option value='+item.value+'>' + item.text + '</option>';
@@ -218,7 +222,7 @@ function getPipeStatus(from) {
                     from: from,
                     userId: result.ssa_user.id,
                     messageType: $("#pipeline_do").val(),
-                    tagId: $("#pipeline_tag").val(),
+                    tagIds: $("#pipeline_tag").val(),
                     friendOnly: $("#pipeline_option").val()
                 }, function(res) {
                     console.log('Result from get pipe status from back:', res);

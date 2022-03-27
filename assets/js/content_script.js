@@ -1443,9 +1443,28 @@ $(function(){
 		}
 	});
 	$(document).on('click','.unfriend-user-messenger',function(){
+		
+		var fbName = $(this).closest('.cts-message-list-item').find('span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text();
 		var cliked_Fb_Id=$(this).closest('div[data-testid="mwthreadlist-item"]').attr('fb_user_id');
 		if(cliked_Fb_Id != undefined){
-			let url = new URL("https://m.facebook.com/"+cliked_Fb_Id);
+			let confirmAction = confirm(`Are you sure you want to block ${fbName}?\n\nCaution: If you're friends, blocking ${fbName} will also unfriend him(her).\nPress CANCEL if you just want to unfriend`);
+			if (confirmAction) {
+				let url = new URL("https://m.facebook.com/privacy/touch/block/confirm/?bid="+cliked_Fb_Id +"&ret_cancel&source=profile");
+                url.searchParams.set("lets_block_user",1);
+                url.searchParams.set('block',1);
+				url.searchParams.set('close',1);
+                url = url.href;
+                window.open(url,'currentUserBlaster',
+                `toolbar=no,
+                location=no,
+                status=no,
+                menubar=no,
+                scrollbars=yes,
+                resizable=yes,
+                width=500px,
+                height=500px`);
+			} else {
+				let url = new URL("https://m.facebook.com/"+cliked_Fb_Id);
                 url.searchParams.set("lets_unfriend_user",1);
                 url.searchParams.set('unFriend',1);
 				url.searchParams.set('close',1);
@@ -1459,8 +1478,9 @@ $(function(){
                 resizable=yes,
                 width=500px,
                 height=500px`);
+			}
+			chrome.runtime.sendMessage({removeTagsFromUser: "removeTagsFromUser",fbUserId: cliked_Fb_Id});
 		}
-			
 	});
 	$(document).on('click','.multi-tag-checkbox-multi-user', function() {
 	 
@@ -2962,6 +2982,32 @@ function handleUF_UserWindow(){
 						}
 					});
 				}, 1000);	
+			}		
+		}					
+		
+		if(url.searchParams.get('close')==="1"){
+			setTimeout(() => {
+				window.close();
+			}, 3000);		
+		}
+	}, 1000);
+}
+handleBL_UserWindow();
+function handleBL_UserWindow(){
+	setTimeout(() => {
+		let cb_current_window = window.location.href;
+		let url = new URL(cb_current_window);
+		
+		
+		if(url.searchParams.get('lets_block_user')!="1"){
+			return;
+		}
+
+		if(url.searchParams.get('block')=="1"){
+			let blockConfirmed = $("button[name='confirmed']").get(0);
+
+			if(typeof blockConfirmed != "undefined" ){
+				$(blockConfirmed).mclick();
 			}		
 		}					
 		

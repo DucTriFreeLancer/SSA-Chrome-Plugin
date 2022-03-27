@@ -467,7 +467,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 			storageObj[HB_DATA.FB_TAB_ID] = 0;
 			chrome.storage.local.set(storageObj);
 		}
-	} else if (message.action == ACTIONS.CAN_SEND) {
+	} else if (message.action == HB_DATA.CAN_SEND) {
 		const tabId = sender.tab.id;
 		const { threadId,from } = message;
 		if (from === 'facebook') {
@@ -489,9 +489,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 		}
 	}		
 	else if (message.action == ACTIONS.GET_PIPE_STATUS) {
-		const { from, userId,messageType,tagId,friendOnly } = message;		
+		const { from, userId,messageType,tagIds,friendOnly } = message;		
 		if (from === 'facebook') {
-			processPipeStatus(userId,messageType,tagId,friendOnly).then((getMesResp)=>{
+			processPipeStatus(userId,messageType,tagIds,friendOnly).then((getMesResp)=>{
 				sendResponse(getMesResp);
 			});		
 			return true;
@@ -509,9 +509,33 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 		});		
 		return true;
 	}
-	
+	else if (message.removeTagsFromUser == 'removeTagsFromUser') {  //555
+
+		removeTagsFromUser(message.fbUserId);
+	}
 
 })
+function removeTagsFromUser(fbUserId){
+	chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
+		if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != "") {
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/tagged_users/removefromuser",
+				data: {userId:result.ssa_user.id, loggedInFBId:result.fb_id, fbUserId:fbUserId},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					chrome.storage.local.set({'ssa_user':''});	
+				}else if (response.status == 404) {
+					//port.postMessage({'false': true});
+				}		  
+			});			
+		}
+	});
+}
 async function updateBdDate(){
 	return new Promise(function(resolve,reject) {
 		let returnValue = {
@@ -1543,7 +1567,7 @@ function addSelectedFriendToPipe(data){
 		
 	});	
 }
-function processPipeStatus(threadId,messageType,tagId,friendOnly){
+function processPipeStatus(threadId,messageType,tagIds,friendOnly){
 	return new Promise(function(resolve,reject) {
 		let returnValue = {
 			error: true
@@ -1552,7 +1576,7 @@ function processPipeStatus(threadId,messageType,tagId,friendOnly){
 		$.ajax({
 			type: "POST",
 			url: apiBaseUrl + "/pipeline/getmessage",
-			data: { userId:threadId,messageType:messageType,tagId:tagId },
+			data: { userId:threadId,messageType:messageType,tagIds:tagIds },
 			dataType: 'json',
 			beforeSend: function (xhr) {
 				xhr.setRequestHeader('unique-hash', uniqueHash);

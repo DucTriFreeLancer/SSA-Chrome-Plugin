@@ -52,8 +52,8 @@
       "matches": [ "https://www.facebook.com/groups/*/*stealmembers=1" ]
    },
    {
-      "css": ["/assets/css/adf.css","assets/css/toastr.min.css","/assets/css/jquery-ui.min.css" ],
-      "js": [ "/assets/js/jquery.min.js","/assets/js/jquery-ui.min.js","assets/js/toastr.min.js", "config.js",
+      "css": ["/assets/css/adf.css","assets/css/toastr.min.css","/assets/bootstrap/css/bootstrap.min.css","/assets/css/bootstrap-multiselect.min.css","/assets/css/jquery-ui.min.css"],
+      "js": [ "/assets/jquery/jquery.js","/assets/js/jquery-ui.min.js","/assets/js/popper.min.js","/assets/bootstrap/js/bootstrap.min.js","/assets/js/bootstrap-multiselect.min.js","assets/js/toastr.min.js", "config.js",
          "/assets/js/pipeline_message.js","/assets/js/constant.js"],
       "matches": [ "https://www.facebook.com/?dopipeline=1" ]
    }],
