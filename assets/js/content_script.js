@@ -1817,7 +1817,7 @@ function tagUsersWM(taggedUsers,tags){
 					$tagIds.forEach(function(eachTagId){
 
 						eachTagIdOne = eachTagId.replace(/\#/g,'');
-						var foundTag = tags.filter(function (item) { return item.value == eachTagIdOne});
+						var foundTag = tags.filter(function (item) { return item.value == eachTagIdOne && item.priority=="1"});
 						if (foundTag.length > 0) {
 							title += foundTag[0].text+', ';
 							$liClass = foundTag[0].class;

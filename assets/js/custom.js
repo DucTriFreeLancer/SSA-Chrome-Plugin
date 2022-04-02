@@ -3056,6 +3056,39 @@ $(document).ready(function(){
 			}			
 		})
 	});
+	$(document).on('click','.set-priority', function() {
+		tagId = $(this).attr('tag-id');
+		if (userId != "") {
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/tagged_users/priority",
+				data: {userId:userId, tagId:tagId },
+				dataType: 'json',
+				beforeSend: function (xhr) {
+              	  xhr.setRequestHeader('unique-hash', uniqueHash);
+        		}
+			}).done(function(response) {
+				if(response.status == 401){
+						triggerLogout();
+						return false;
+				} else if(response.status == 200 || response.result == 'success') {
+
+					toastr["success"]("Tag set priority successfully.");
+					chrome.tabs.query({
+						active: true,
+						currentWindow: true
+					}, function (tabs) {
+						chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'refresh'});
+						refreshTagsOnActions();
+						verifyUser();
+					});
+				} else {
+					toastr["error"]("Something went wrong.");
+				}
+			});
+		}
+	});
+
 
 /*----------contact---------------------*/
 
@@ -4557,6 +4590,7 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 		temp.contactsPerTag=contactsPerTag;
 		temp.text = tag.text;
 		temp.class = tag.class;
+		temp.priority = tag.priority;
 		newTags.push(temp);
 		tagsList +=	`<div class="form-check">
 				<label class="form-check-label" for="check1">
@@ -4583,7 +4617,12 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 			var tagName = $.trim(tag.text);
 			var styleBG = '';
 			var bgClass = '';
-
+			var eyeClass ='';
+			if (tag.priority == "0") {
+				eyeClass = 'fa fa-eye-slash';
+			}else{
+				eyeClass = 'fa fa-eye'; 
+			}
 			if (tag.color != null) {
 				styleBG = 'style = "background-color:'+tag.color+'"';
 			}else{
@@ -4604,6 +4643,7 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 								 <li class="pr-3"><i class="fa fa-clone duplicate-tag" tag-id="`+tag.value+`" title="Duplicate"></i></li>	
 								 <li class="pr-3"><i class="fa fa-trash remove-tag" tag-id="`+tag.value+`" title="Delete"></i></li>
 								 <li class="pr-3"><i class="fa fa-paint-brush change-color" id="`+tag.value+`" tag-id="`+tag.value+`" title="Change Color"></i></li>
+							 	 <li class="pr-3"><i class="`+ eyeClass +` set-priority" tag-id="`+tag.value+`" title="Change Priority"></i></li>
 							  </ul>										  
 							</div>
 					   </div>
