@@ -1568,6 +1568,10 @@ function addSelectedFriendToPipe(data){
 	});	
 }
 function processPipeStatus(threadId,messageType,tagIds,friendOnly){
+	if(tagIds!=null){
+		tagIds= tagIds.join();
+	}
+	else tagIds = "";
 	return new Promise(function(resolve,reject) {
 		let returnValue = {
 			error: true
