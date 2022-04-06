@@ -335,7 +335,7 @@ function closeFbTab() {
 async function checkProcessHBFbId(threadId,from) {
     return new Promise (function (resolve, reject) {
         chrome.runtime.sendMessage({
-            action: ACTIONS.CAN_SEND,
+            action: HB_DATA.CAN_SEND,
             threadId: threadId,
             from: from
         },

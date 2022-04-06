@@ -4203,6 +4203,34 @@ $(document).ready(function(){
 			}
 		})
 	});
+	$('#chkPriorityNewTag').change(function() {
+		console.log('Toggle: ' + $(this).prop('checked'));		
+		// Save do bday
+		var tag_priority =  $(this).prop('checked') === true? "1":"0";
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/tags/newtags",
+					data: {userId:result.ssa_user.id,priority:tag_priority},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						chrome.storage.local.set({'ssa_user':''});	
+					}else if (response.status == 404) {
+						//port.postMessage({'false': true});
+					} else {
+						const storageObj = {};					
+						storageObj["tag_priority"] = tag_priority;
+						chrome.storage.local.set(storageObj);						            
+					}				  
+				});	
+			}
+		})
+	});
 });
 
 ////*  Save default settings *////
@@ -4694,6 +4722,7 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 		$('.search-img').show();
 		$('#tag-container').hide();
 	}
+	getPriorityNewTag();
 }
 
 function showOffOnPageTotalContact() {
@@ -6713,6 +6742,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         profile_pic=request.account_image_url;
     }
 });
+function getPriorityNewTag(){
+	chrome.storage.local.get("tag_priority", (result) => {
+		if (result["tag_priority"] === "1") {
+			$('#chkPriorityNewTag').prop('checked', true).change();
+		} else {
+			$('#chkPriorityNewTag').prop('checked', false).change();
+		}
+	});
+}
 function getDoBDate(){
 	let reqArr = Object.values(HB_DATA);
 	chrome.storage.local.get(reqArr, (result) => {
