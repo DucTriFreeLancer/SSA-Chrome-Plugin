@@ -3088,6 +3088,39 @@ $(document).ready(function(){
 			});
 		}
 	});
+	$(document).on('click','.change-tags', function() {
+		tagId = $(this).attr('tag-id');
+		if (userId != "") {
+			let confirmAction = confirm(`Are you sure you want to change all tags as priority?\n\nCaution: Press CANCEL if you just want to set to non priority`);
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/tags/changetags",
+				data: {userId:userId, priority:confirmAction?"1":"0"},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+              	  xhr.setRequestHeader('unique-hash', uniqueHash);
+        		}
+			}).done(function(response) {
+				if(response.status == 401){
+						triggerLogout();
+						return false;
+				} else if(response.status == 200 || response.result == 'success') {
+
+					toastr["success"]("Change tags successfully.");
+					chrome.tabs.query({
+						active: true,
+						currentWindow: true
+					}, function (tabs) {
+						chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'refresh'});
+						refreshTagsOnActions();
+						verifyUser();
+					});
+				} else {
+					toastr["error"]("Something went wrong.");
+				}
+			});
+		}
+	});
 
 
 /*----------contact---------------------*/
@@ -4672,7 +4705,7 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 								 <li class="pr-3"><i class="fa fa-trash remove-tag" tag-id="`+tag.value+`" title="Delete"></i></li>
 								 <li class="pr-3"><i class="fa fa-paint-brush change-color" id="`+tag.value+`" tag-id="`+tag.value+`" title="Change Color"></i></li>
 							 	 <li class="pr-3"><i class="`+ eyeClass +` set-priority" tag-id="`+tag.value+`" title="Change Priority"></i></li>
-							  </ul>										  
+							 	 <li class="pr-3"><i class="fa fa-hashtag change-tags" tag-id="`+tag.value+`" title="Change Tags"></i></li>								  </ul>										  
 							</div>
 					   </div>
 					</div>
