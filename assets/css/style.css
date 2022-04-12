@@ -817,7 +817,7 @@ section form .request-input {
 	margin-top: -6px;
 }
 
-}
+
 .tag_row{
 	width: 167px;
 	border-radius: 8px;
@@ -825,6 +825,11 @@ section form .request-input {
 }
 .tag_row.selected{
 	border: 3px solid #03384f;
+}
+.tag_outline{
+	outline-style: groove;
+	outline-color: #232223;
+	outline-width: medium;
 }
 
 .tag_row .contacts-count, .exportTagRow .contacts-count, .bulk-tag-li .contacts-count{
@@ -929,8 +934,8 @@ label.error {
 	border:1px solid #b09ab3 !important;
 }
 
-.tag_row{
-	border-radius: 15px;
+.tag_outline{
+	out
 }
 .lh-1{
 	line-height: 1;

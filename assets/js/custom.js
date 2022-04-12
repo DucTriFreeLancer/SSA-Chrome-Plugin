@@ -4679,17 +4679,19 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 			var styleBG = '';
 			var bgClass = '';
 			var eyeClass ='';
+			var outline = '';
 			if (tag.priority == "0") {
 				eyeClass = 'fa fa-eye-slash';
 			}else{
 				eyeClass = 'fa fa-eye'; 
+				outline = 'tag_outline';
 			}
 			if (tag.color != null) {
 				styleBG = 'style = "background-color:'+tag.color+'"';
 			}else{
 				bgClass = "bg-"+tag.class; 
 			}
-			tagList +=`<div class="container tag_row p-0 mb-2 `+bgClass+`" tag-id="`+tag.value+`"  `+styleBG+`>
+			tagList +=`<div class="container tag_row p-0 mb-2 `+ bgClass +` `+ outline +`" tag-id="`+tag.value+`"  `+styleBG+`>
 					<div class="w-75 mx-auto">
 					   <div class="row primary p-2">
 
