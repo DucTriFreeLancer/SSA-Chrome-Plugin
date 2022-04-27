@@ -254,18 +254,19 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
 
 	}else if(message.from === 'background' && message.subject === 'triggerClickToSendChat'){
 		findBTN = setInterval(function () {
-			if ($('div[aria-label="Press Enter to send"').length > 0 ) {
+			if ($('div[aria-label="Press Enter to send"').length > 0 || $('div[aria-label="Press enter to send"').length > 0) {
 				clearInterval(findBTN);
-				$('div[aria-label="Press Enter to send"').mclick();		
+				$('div[aria-label="Press Enter to send"').mclick();	
+				$('div[aria-label="Press enter to send"').mclick();
 				location.reload();		
 			}
 		},200)
 	}else if(message.from === 'background' && message.subject === 'triggerClickToSendImage'){
-		findBTN = setInterval(function () {
-			if ($('div[aria-label="Press Enter to send"').length > 0 ) {
+		findBTN = setInterval(()=>{
+			if ($('div[aria-label="Press Enter to send"').length > 0 || $('div[aria-label="Press enter to send"').length > 0) {
 				clearInterval(findBTN);
+				$('div[aria-label="Press enter to send"').mclick();
 				$('div[aria-label="Press Enter to send"').mclick();
-				// chrome.runtime.sendMessage({url:"index.html",action: "triggerShowPopup"});
 			}
 		},200)
 	}else if(message.from === 'background' && message.subject === 'unSelectCheckBox'){
@@ -321,36 +322,10 @@ async function sendMessage(message){
 						const ctx = canvasElement.getContext('2d');
 						ctx.drawImage(imageToBeSend, 0, 0, imgWidth, imgHeight);
 						if($(selector).length > 0){
-							$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
-							let loc = getFbIdFromLocation();
-							// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
-							// location.replace(loc[0]+'/t/'+loc[1]);	
-							const $next = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).next('li').find('a');
-							const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).prev('li').find('a');
-							// console.log(':::::$next::::::', $next);
-							// console.log(':::::$prev::::::', $prev);
-							let flag = true;
-
-							if ($next.length > 0) {
-								$next.mclick();
-								flag = true;
-							} else if ($prev.length > 0) {
-								$prev.mclick();
-								flag = false;
-							} else {
-								location.reload();
-							}
-							setTimeout(() => {
-								let loc1 = getFbIdFromLocation();
-								const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).next('li').find('a');
-								const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).prev('li').find('a');
-								if (flag) {
-									$prevUser.mclick();
-								} else {
-									$nextUser.mclick();
-								}					
-								sendImage(canvasElement);			
-							}, 100);
+							setTimeout(()=>{					
+							   clickOnElements(selector);
+							   sendImage(canvasElement);	
+						   },5000);
 						}	
 						else{
 							// $(`div[data-testid='mwthreadlist-item']`).first().find('a').mclick();
@@ -407,60 +382,69 @@ async function sendMessage(message){
 			var fullName = '';							
 			if($(selector).length > 0){
 				fullName = $('div.buofh1pr.qx9c56kf').find('h2').find('span.ltmttdrg').text();
-
+				if(fullName == ''){
+					fullName = $('div.buofh1pr.qx9c56kf').find('h1').find('span.ltmttdrg').text();
+				}
 				message.templateMessage= getTemplateMessage(message, fullName);			
 				var evt = new Event('input', {
-							bubbles: true  
-						});
+					bubbles: true  
+				});
 				var input = document.querySelector(selector);
 				input.innerHTML = message.templateMessage ;
 				input.dispatchEvent(evt);
 				$(selector).after('<span data-text="true">'+message.templateMessage +'</span>');
-						
+				let loc = getFbIdFromLocation();
+				$(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
+				chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
+				location.replace(loc[0]+'/t/'+loc[1]);
 				// var loc = window.location.href;
 				// loc = loc.split("/t/");
 				// $(fb_ul_selector+" li[fb_user_id]:first-child").find('a').mclick();
-				let loc = getFbIdFromLocation();
 				// chrome.runtime.sendMessage({triggerChatMessage: "triggerChatMessage"});
 				// location.replace(loc[0]+'/t/'+loc[1]);	
-				const $next = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).next('li').find('a');
-     			const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).prev('li').find('a');
+				//const $next = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).next('li').find('a');
+     			//const $prev = $(`${fb_ul_selector} li[fb_user_id='${loc}']`).prev('li').find('a');
       			// console.log(':::::$next::::::', $next);
       			// console.log(':::::$prev::::::', $prev);
-				let flag = true;
+				// let flag = true;
 
-				if ($next.length > 0) {
-					$next.mclick();
-					flag = true;
-				} else if ($prev.length > 0) {
-					$prev.mclick();
-					flag = false;
-				} else {
-					location.reload();
-				}
-				setTimeout(() => {
-					let loc1 = getFbIdFromLocation();
-					const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).next('li').find('a');
-					const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).prev('li').find('a');
-					if (flag) {
-						$prevUser.mclick();
-					} else {
-						$nextUser.mclick();
-					}					
-					setTimeout(() => {
-						$('div[aria-label="Press Enter to send"').mclick();
-					}, 500);	
+				// if ($next.length > 0) {
+				// 	$next.mclick();
+				// 	flag = true;
+				// } else if ($prev.length > 0) {
+				// 	$prev.mclick();
+				// 	flag = false;
+				// } else {
+				// 	location.reload();
+				// }
+				// setTimeout(() => {
+				// 	let loc1 = getFbIdFromLocation();
+				// 	const $nextUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).next('li').find('a');
+				// 	const $prevUser = $(`${fb_ul_selector} li[fb_user_id='${loc1}']`).prev('li').find('a');
+				// 	if (flag) {
+				// 		$prevUser.mclick();
+				// 	} else {
+				// 		$nextUser.mclick();
+				// 	}					
+				// 	setTimeout(() => {
+				// 		$('div[aria-label="Press Enter to send"').mclick();
+				// 	}, 500);	
 
-					setTimeout(()=>{
-						location.reload();
-					},500)		
-				}, 100);			
+				// 	setTimeout(()=>{
+				// 		location.reload();
+				// 	},500)		
+				// }, 100);			
 			}
 			else{
-				// selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
-				selector =  'div[contenteditable="true"]';
+				selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
+
+				var fullName = '';
 
 				fullName = $('div.buofh1pr.qx9c56kf').find('h2').find('span.ltmttdrg').text();
+
+				if(fullName == ''){
+					fullName = $('div.buofh1pr.qx9c56kf').find('h1').find('span.ltmttdrg').text();
+				}
 				// if (message.templateMessage.indexOf('[mylocation]') > -1) {		
 				// 	if(message.myLocation.includes("|")){
 				// 		var locations = message.myLocation.split("|");		
@@ -492,15 +476,14 @@ async function sendMessage(message){
 				if($(selector).length > 0){
 					
 					var evt = new Event('input', {
-								bubbles: true  
-							});
+						bubbles: true  
+					});
 					var input = document.querySelector(selector);
 					input.innerHTML = message.templateMessage;
 					if(!input.dispatchEvent(evt)){
 						console.log("dispatchEvent");
 					};
 			
-					$(selector).after('<span data-text="true">'+message.templateMessage+'</span>');	
 					var findEnterButton = setInterval(()=>{
 						if ($('div[aria-label="Press Enter to send"').length > 0 || $('div[aria-label="Press enter to send"').length > 0) {
 							clearInterval(findEnterButton);
@@ -510,34 +493,34 @@ async function sendMessage(message){
 								location.reload();
 							},500); 
 						}
-					},100)    					
+					},100)     
+
 					setTimeout(()=>{
-						
 						location.reload();
-					},500)
+					},5000); 
 					
 				}
-				// else{
-				// 	console.log('else if not get ');
-				// 	selector10 =  'div[contenteditable="true"]';
-				// 	setTimeout(()=>{					
-				// 		 clickOnElements(selector10);
-				// 		navigator.clipboard.writeText(message.templateMessage).then(() => {
-				// 			console.log(" Text Copied!!!!");
-				// 			document.execCommand("paste", null, null);
-				// 		});
-				// 		var findEnterButton = setInterval(()=>{
-				// 			if ($('div[aria-label="Press Enter to send"').length > 0 || $('div[aria-label="Press enter to send"').length > 0) {
-				// 				clearInterval(findEnterButton);
-				// 				$('div[aria-label="Press enter to send"').mclick();
-				// 				$('div[aria-label="Press Enter to send"').mclick();
-				// 				setTimeout(()=>{
-				// 					//location.reload();
-				// 				},500); 
-				// 			}
-				// 		},100)
-				// 	},5000);
-				// }
+				else{
+					console.log('else if not get ');
+					selector10 =  'div[contenteditable="true"]';
+					setTimeout(()=>{					
+						clickOnElements(selector10);
+						navigator.clipboard.writeText(message.templateMessage).then(() => {
+							console.log(" Text Copied!!!!");
+							document.execCommand("paste", null, null);
+						});
+						var findEnterButton = setInterval(()=>{
+							if ($('div[aria-label="Press Enter to send"').length > 0 || $('div[aria-label="Press enter to send"').length > 0) {
+								clearInterval(findEnterButton);
+								$('div[aria-label="Press enter to send"').mclick();
+								$('div[aria-label="Press Enter to send"').mclick();
+								setTimeout(()=>{
+									//location.reload();
+								},500); 
+							}
+						},100)
+					},5000);
+				}
 			}
 		}
 	}	
