@@ -4630,7 +4630,9 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 	tags = tags.reverse();
     var newTags = [];    
 	var tagsList = '';
-	
+	var tagSelect =''
+	tagSelect +='<label class="form-check-label col-4" for="outgoing_tag_status">Outgoing Tag: </label>' +
+		'<select class="form-control" name="outgoing_tag_status" id="outgoing_tag_status">';
     tags.forEach(function(tag) {
     	var contactsPerTag = 0;
 
@@ -4659,7 +4661,10 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 					`+tag.text+`
 				</label>
 			</div>`;	
+		
+		tagSelect += '<option value='+tag.value+'>' + tag.text + '</option>';
 	});
+	tagSelect += '</select>';
 	if(tagsList == '') {
 		chrome.storage.local.set({currentSelTag: undefined});
 		$('.bulk-tags-list').html('Please create tags to list here!');
@@ -4669,6 +4674,9 @@ function displayTags(tags , taggedUsers, currentFBUserId){
 	} else {
 		$('.bulk-tags-list').html(tagsList);
 		$('.export-tags-list').html(tagsList);
+	}
+	if(tagSelect !=''){
+		$('.outgoing-tag').html(tagSelect);
 	}
 	if(newTags.length>0){
 		$('.search-img').hide();
@@ -6227,6 +6235,11 @@ function getRequestMessages() {
 					$("#comming-random-status").prop( "checked", (response.data.comming_random_status ==1) ? true : false);               
 
 					$('.request_message_interval').val(response.data.request_message_interval);
+					
+					if (response.data.tagId != null) {
+						$('.outgoing_tag_status').val(response.data.tagId);
+					}
+
 					$('#message-one').val(response.data.message_one);
 
 					if (response.data.message_one != null) {
@@ -6341,6 +6354,12 @@ function updateRequestMessages(){
 				outgoing_random_status = 1;
 			}
 
+			var tagId = $("#outgoing_tag_status").val();
+
+			if ($('.request_message_interval').val() != '') {
+				request_message_interval = $('.request_message_interval').val();
+			}
+
 			var comming_message_status = 0;
 			if($('#comming-message-status').is(':checked')){
 				comming_message_status = 1;
@@ -6368,7 +6387,8 @@ function updateRequestMessages(){
 						message_four:message_four,
 						message_five:message_five,
 						message_six:message_six,
-						request_message_interval:request_message_interval
+						request_message_interval:request_message_interval,
+						tagId:tagId
 					},
 				dataType: 'json',
 				beforeSend: function (xhr) {
