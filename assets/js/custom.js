@@ -4627,7 +4627,7 @@ function getAccountProfilePic(){
 }
 
 function displayTags(tags , taggedUsers, currentFBUserId){
-	tags = tags.reverse();
+	// tags = tags.reverse();
     var newTags = [];    
 	var tagsList = '';
 	var tagSelect =''
