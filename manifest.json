@@ -53,9 +53,9 @@
    },
    {
       "css": ["/assets/css/adf.css","assets/css/toastr.min.css","/assets/bootstrap/css/bootstrap.min.css","/assets/css/bootstrap-multiselect.min.css","/assets/css/jquery-ui.min.css"],
-      "js": [ "/assets/jquery/jquery.js","/assets/js/jquery-ui.min.js","/assets/js/popper.min.js","/assets/bootstrap/js/bootstrap.min.js","/assets/js/bootstrap-multiselect.min.js","assets/js/toastr.min.js", "config.js",
+      "js": [ "/assets/js/jquery.min.js","/assets/js/jquery-ui.min.js","/assets/js/popper.min.js","/assets/bootstrap/js/bootstrap.min.js","/assets/js/bootstrap-multiselect.min.js","assets/js/toastr.min.js", "config.js",
          "/assets/js/pipeline_message.js","/assets/js/constant.js"],
-      "matches": [ "https://www.facebook.com/?dopipeline=1" ]
+      "matches": [ "https://www.facebook.com/?dopipeline=1*" ]
    }],
    "content_security_policy": "script-src 'self' https://*.facebook.com https://code.jquery.com https://stackpath.bootstrapcdn.com https://cdn.datatables.net https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://apis.google.com https://db.onlinewebfonts.com https://js.sentry-cdn.com https://browser.sentry-cdn.com 'unsafe-eval'; object-src 'self'",
    "description": "Create and manage tags",

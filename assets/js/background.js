@@ -1414,6 +1414,7 @@ function friendRequestsFromContent(friendRequests) {   /////// for premessages
 					if (typeof toggle != "undefined" && toggle != "" &&
 						toggle == 'on') {
 						sendRequestWelcomeMessage(item.requestProfileId, item.fullName, item.location, 1); /// for pre
+						updateFBUsertag(item.requestProfileId, item.fullName); /// for pre
 					}
 				});
 			}, index * 60000);
@@ -1493,6 +1494,35 @@ function requestTabListener(tabId, changeInfo, tab) {
 		}
 		chrome.tabs.sendMessage(requestMessageTabId, { from: 'background', subject: 'triggerRequestMessage', welcomeMessageText: welcomeMessageText });
 		chrome.tabs.onUpdated.removeListener(requestTabListener);
+	}
+}
+
+function updateFBUsertag(threadId, fullName){
+	var friendRequestSettingsTemp = friendRequestSettings;
+	if(friendRequestSettingsTemp.tagId !=''){
+		chrome.storage.local.get(["ssa_user", "fb_id"], function (result) {
+			if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && typeof result.fb_id != "undefined" && result.fb_id != "") {
+				GetBothAphaAndNumericId(threadId).then(function (fbIDsObject) {
+					$.ajax({
+						type: "POST",
+						url: apiBaseUrl + "/tagged_users/update",
+						data: {userId: result.ssa_user.id,loggedInFBId:result.fb_id,fbUserId: fbIDsObject.fb_user_id,numericFbId:fbIDsObject.numeric_fb_id,
+							tagId:friendRequestSettingsTemp.tagId,profilePic:'',fbName:fullName,isPage:'0'},
+						dataType: 'json',
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+						}
+					}).done(function (response) {
+				
+						if (response.status == 401) {
+							chrome.storage.local.set({ 'ssa_user': '' });
+						} else if (response.status == 200 || response.result == 'success') {
+							chrome.storage.local.set({ 'taggedUsers': response.taggedUsers });
+						}
+					})
+				});
+			}
+		});
 	}
 }
 function processBdayMessage(threadId){

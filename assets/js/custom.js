@@ -321,7 +321,7 @@ function showstatusTagged() {
 	});
 }
 function showStatusPipe(){
-	chrome.storage.local.get(["ssa_user"], function(result) {
+	chrome.storage.local.get(["ssa_user","tags"], function(result) {
 		if (typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
 			$('.status_piped').html('');
 			$('#start_pipeline').hide();
@@ -343,10 +343,34 @@ function showStatusPipe(){
 					$('#pipe_loader').hide();
 				} else if (response.status == 200 || response.result == 'success') {			
 					if($(".status_piped").length==1){
-						let pipe_status= `<br><b style="color:red">` + response.done_total + `</b> of <b style="color:red">` + response.done_total + `</b>  messages sent </br>`;
+						let pipe_status= `<br><b style="color:red">` + response.done_total + `</b> of <b style="color:red">` + response.left_total + `</b>  messages sent </br>`;
 						pipe_status += `<b style="color:red">` + response.done_hour + `</b> sent in the last hour </br>`;
 						pipe_status += `<b style="color:red">` + response.done_24hours + `</b> sent in the last 24 hours `;
 						$(".status_piped").html(pipe_status);				
+					}
+					if($(".status_message_type").length==1){
+						if(response.messagetypes){
+							var messagetypesSelect ='<option value="">Processing ALL messages</option>'
+							response.messagetypes.forEach(function(mesageType) {
+								messagetypesSelect += '<option value="'+mesageType.message+'">' + mesageType.message + ` (${mesageType.sent} of ${mesageType.total})` + '</option>';
+							});
+							messagetypesSelect += '</select>';
+							$("#pipe_message_types").html(messagetypesSelect);
+						}
+						//prepare data for modal
+						var pipeline_tags =''
+						result.tags.forEach(function(tag) {
+							pipeline_tags += '<option value="'+tag.value+'">' + tag.text + '</option>';
+						});
+						pipeline_tags += '</select>';
+						$("#editMessagePipelineModal #msg1").val(result.ssa_user.pipeline_message1)
+						$("#editMessagePipelineModal #msg2").val(result.ssa_user.pipeline_message2)
+						$("#editMessagePipelineModal #msg3").val(result.ssa_user.pipeline_message3)
+						$("#newPipelineModal #msg1").val(result.ssa_user.pipeline_message1)
+						$("#newPipelineModal #msg2").val(result.ssa_user.pipeline_message2)
+						$("#newPipelineModal #msg3").val(result.ssa_user.pipeline_message3)
+						$("#newPipelineModal #pipe_new_tag_1").html(pipeline_tags);
+						$("#newPipelineModal #pipe_new_tag_2").html(pipeline_tags);
 					}
 				}
 				$('#pipe_loader').hide();
@@ -513,8 +537,11 @@ $(document).ready(function(){
 	$("#start_pipeline").click(function(){
 		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
 			if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user.id != "undefined" && result.ssa_user.id != "") {
+				let message_type = $("#pipe_message_types").val();
 				let post_url = "https://www.facebook.com/?dopipeline=1";
-
+				if(message_type !=""){
+					post_url = post_url+`&message_type=${message_type}`;
+				}
 				chrome.tabs.create({url: post_url}, function (tab) {
 					chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
 							if (changeInfo.status === 'complete' && tabId === tab.id) {
@@ -4261,6 +4288,75 @@ $(document).ready(function(){
 						chrome.storage.local.set(storageObj);						            
 					}				  
 				});	
+			}
+		})
+	});
+
+	$("#edit_message_pipeline").click(function(){
+		$("#editMessagePipelineModal").modal('show');
+	});
+	$('#editMessagePipelineModal #confirm-edit-message').on('click',function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				let message_type_select = $("#pipe_message_types").val();
+				let message1 = $("#editMessagePipelineModal #msg1").val();
+				let message2 = $("#editMessagePipelineModal #msg1").val();
+				let message3 = $("#editMessagePipelineModal #msg1").val();
+
+				
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/pipeline/editmessage",
+					data: {userId:result.ssa_user.id,messagetype:message_type_select,message1,message2,message3},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						toastr["success"]("Pipeline message edited successfully.");	
+						verifyUser();							
+					}
+				});
+				$('#editMessagePipelineModal').modal("hide");
+			}
+		})
+	});
+	$("#new_pipeline").click(function(){
+		$("#newPipelineModal").modal('show');
+	});
+	$('#newPipelineModal #confirm-new-pipeline').on('click',function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				let message_type_select = $("#pipe_message_types").val();
+				let message1 = $("#newPipelineModal #msg1").val();
+				let message2 = $("#newPipelineModal #msg1").val();
+				let message3 = $("#newPipelineModal #msg1").val();
+				let pipelinetag1 = $("#newPipelineModal #pipe_new_tag_1").val();;
+				let pipelinetag2 = $("#newPipelineModal #pipe_new_tag_2").val();;
+				
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/pipeline/newpipeline",
+					data: {userId:result.ssa_user.id,messagetype:message_type_select,
+						message1,message2,message3,Tag1:pipelinetag1,Tag2:pipelinetag2},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						toastr["success"]("Pipeline message saved successfully.");	
+						verifyUser();							
+					}
+				});
+				$('#newPipelineModal').modal("hide");
 			}
 		})
 	});

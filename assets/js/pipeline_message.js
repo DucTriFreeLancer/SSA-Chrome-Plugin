@@ -25,6 +25,14 @@ chrome.storage.local.get(["ssa_user","tags","messagetypes"],function(result){
 $(document).ready(function () {
     //console.log('Document is ready now');
     insertControlsHtml();
+    if(getMessageType() != "")
+    {
+        $('#pipeline_do option').each(function() {
+            if($(this).val().includes(getMessageType())) {
+                $(this).prop("selected", true);
+            }
+        });
+    }
     $("#pipeline_tag").multiselect({
         maxHeight: 200,
         buttonWidth: '100%'
@@ -241,6 +249,10 @@ function getPipeStatus(from) {
 function getLetBlast() {
     //console.log('getLetBlast called');
     return post_url.searchParams.get("dopipeline");
+}
+function getMessageType() {
+    //console.log('message_type called');
+    return post_url.searchParams.get("message_type");
 }
 
 
