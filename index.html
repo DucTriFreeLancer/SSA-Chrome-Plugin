@@ -893,6 +893,9 @@
 								<button class="btn btn-primary btn-lg" id="new_pipeline" style="border: 0px !important; border-radius: 50px !important;">New pipeline
 									<i class="fa fa-plus"></i>
 								</button>
+								<button class="btn btn-success btn-lg float-right" id="edit_pipeline_settings" style="border: 0px !important; border-radius: 50px !important;">Edit Settings
+									<i class="fa fa-cog"></i>
+								</button>
 							</div>
 							<div class="col-12 ml-2">								
 								<span class="status_piped p-2"></span>
@@ -1609,6 +1612,54 @@ I have accepted your friend request.</textarea>
 			  
 			</div>
 		  </div>
+		<!-- Modal Edit Setting Pipeline -->
+		<div class="modal fade" id="editPipelineSettingModal" role="dialog" style="display: none;" >
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+					<p class="modal-title">Edit Pipeline Settings</p>
+					<button type="button" class="close " data-dismiss="modal">&times;</button>		
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="pipelineOrder">Pipeline Order:</label>
+							<input class="form-control" id="pipelineOrder" type="checkbox" data-width="100px" checked data-toggle="toggle" placeholder="input pipeline order" data-on="addfirst" data-off="random" data-onstyle="success" data-offstyle="danger">
+						</div>
+						<div class="form-group">
+							<label for="pipelinePerHour">Pipeline Per Hour:</label>
+							<input class="form-control" id="pipelinePerHour" type="number" placeholder="input pipeline per hour">
+						</div>
+						<div class="form-group">
+							<label for="pipelinePer24Hours">Pipeline Per 24 Hours:</label>
+							<input class="form-control" id="pipelinePer24Hours" type="number" placeholder="input pipeline per 24 hours">
+						</div>
+						<div class="form-group">
+							<label for="msg1">Pipeline Message 1:</label>
+							<textarea class="form-control" id="msg1" placeholder="input message 1">${ssa_user.pipeline_message1}</textarea>
+						</div>
+						<div class="form-group">
+							<label for="msg2">Pipeline Message 2:</label>
+							<textarea class="form-control" id="msg2" placeholder="input message 2">${ssa_user.pipeline_message2}</textarea>
+						</div>
+						<div class="form-group">
+							<label for="msg3">Pipeline Message 3:</label>
+							<textarea class="form-control" id="msg3" placeholder="input message 3">${ssa_user.pipeline_message3}</textarea>
+						</div>
+						<div class="form-group">
+							<label for="pipelineUserId">Pipeline User Id:</label>
+							<input class="form-control" id="pipelineUserId" type="number" readonly="true">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary action-button modal-confirm-save" id="confirm-edit-pipeline-setting">
+							Save
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<!-- Modal Edit Message -->
 		<div class="modal fade" id="editMessagePipelineModal" role="dialog" style="display: none;" >
 			<div class="modal-dialog">

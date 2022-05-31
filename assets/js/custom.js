@@ -363,9 +363,17 @@ function showStatusPipe(){
 							pipeline_tags += '<option value="'+tag.value+'">' + tag.text + '</option>';
 						});
 						pipeline_tags += '</select>';
-						$("#editMessagePipelineModal #msg1").val(result.ssa_user.pipeline_message1)
-						$("#editMessagePipelineModal #msg2").val(result.ssa_user.pipeline_message2)
-						$("#editMessagePipelineModal #msg3").val(result.ssa_user.pipeline_message3)
+						if(result.ssa_user.pipeline_order=="addfirst"){
+							$("#editPipelineSettingModal #pipelineOrder").prop('checked', true).change();
+						}
+						else
+							$("#editPipelineSettingModal #pipelineOrder").prop('checked', false).change();
+						$("#editPipelineSettingModal #pipelinePerHour").val(result.ssa_user.pipeline_perhour)
+						$("#editPipelineSettingModal #pipelinePer24Hours").val(result.ssa_user.pipeline_per24hours)
+						$("#editPipelineSettingModal #msg1").val(result.ssa_user.pipeline_message1)
+						$("#editPipelineSettingModal #msg2").val(result.ssa_user.pipeline_message2)
+						$("#editPipelineSettingModal #msg3").val(result.ssa_user.pipeline_message3)
+						$("#editPipelineSettingModal #pipelineUserId").val(result.ssa_user.id)
 						$("#newPipelineModal #msg1").val(result.ssa_user.pipeline_message1)
 						$("#newPipelineModal #msg2").val(result.ssa_user.pipeline_message2)
 						$("#newPipelineModal #msg3").val(result.ssa_user.pipeline_message3)
@@ -1611,6 +1619,10 @@ $(document).ready(function(){
 						$("#comming-random-status").prop( "checked", (response.data.comming_random_status ==1) ? true : false);               
 	
 						$('.request_message_interval').val(response.data.request_message_interval);
+							
+						if (response.data.tagId != null) {
+							$('#incoming_tag_status').val(response.data.tagId);
+						}
 						$('#message-one').val(response.data.message_one);
 	
 						if (response.data.message_one != null) {
@@ -4333,8 +4345,8 @@ $(document).ready(function(){
 			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
 				let message_type_select = $("#pipe_message_types").val();
 				let message1 = $("#newPipelineModal #msg1").val();
-				let message2 = $("#newPipelineModal #msg1").val();
-				let message3 = $("#newPipelineModal #msg1").val();
+				let message2 = $("#newPipelineModal #msg2").val();
+				let message3 = $("#newPipelineModal #msg3").val();
 				let pipelinetag1 = $("#newPipelineModal #pipe_new_tag_1").val();;
 				let pipelinetag2 = $("#newPipelineModal #pipe_new_tag_2").val();;
 				
@@ -4357,6 +4369,43 @@ $(document).ready(function(){
 					}
 				});
 				$('#newPipelineModal').modal("hide");
+			}
+		})
+	});
+	$("#edit_pipeline_settings").click(function(){
+		$("#editPipelineSettingModal").modal('show');
+	});
+	$('#editPipelineSettingModal #confirm-edit-pipeline-setting').on('click',function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				let pipeline_order = $("#editPipelineSettingModal #pipelineOrder").prop('checked') === true? "addfirst":"random";
+				let pipeline_perhour = $("#editPipelineSettingModal #pipelinePerHour").val();
+				let pipeline_per24hours = $("#editPipelineSettingModal #pipelinePer24Hours").val();
+				let pipeline_message1 = $("#newPipelineModal #msg1").val();
+				let pipeline_message2 = $("#newPipelineModal #msg2").val();
+				let pipeline_message3 = $("#newPipelineModal #msg3").val();
+				let pipeline_userid = $("#newPipelineModal #pipelineUserId").val();
+				
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/pipeline/savesettings",
+					data: {userId:result.ssa_user.id,pipeline_order:pipeline_order,
+						pipeline_perhour,pipeline_per24hours,pipeline_userid:pipeline_userid,
+						pipeline_message1,pipeline_message2,pipeline_message3},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						toastr["success"]("Pipeline settings saved successfully.");	
+						verifyUser();							
+					}
+				});
+				$('#editPipelineSettingModal').modal("hide");
 			}
 		})
 	});
@@ -4727,8 +4776,8 @@ function displayTags(tags , taggedUsers, currentFBUserId){
     var newTags = [];    
 	var tagsList = '';
 	var tagSelect =''
-	tagSelect +='<label class="form-check-label col-4" for="outgoing_tag_status">Outgoing Tag: </label>' +
-		'<select class="form-control" name="outgoing_tag_status" id="outgoing_tag_status">';
+	tagSelect +='<label class="form-check-label col-4" for="incoming_tag_status">Incoming Tag: </label>' +
+		'<select class="form-control" name="incoming_tag_status" id="incoming_tag_status">';
     tags.forEach(function(tag) {
     	var contactsPerTag = 0;
 
@@ -6333,7 +6382,7 @@ function getRequestMessages() {
 					$('.request_message_interval').val(response.data.request_message_interval);
 					
 					if (response.data.tagId != null) {
-						$('.outgoing_tag_status').val(response.data.tagId);
+						$('#incoming_tag_status').val(response.data.tagId);
 					}
 
 					$('#message-one').val(response.data.message_one);
@@ -6450,7 +6499,7 @@ function updateRequestMessages(){
 				outgoing_random_status = 1;
 			}
 
-			var tagId = $("#outgoing_tag_status").val();
+			var tagId = $("#incoming_tag_status").val();
 
 			if ($('.request_message_interval').val() != '') {
 				request_message_interval = $('.request_message_interval').val();
