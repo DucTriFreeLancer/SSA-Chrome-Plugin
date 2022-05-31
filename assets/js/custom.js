@@ -373,7 +373,7 @@ function showStatusPipe(){
 						$("#editPipelineSettingModal #msg1").val(result.ssa_user.pipeline_message1)
 						$("#editPipelineSettingModal #msg2").val(result.ssa_user.pipeline_message2)
 						$("#editPipelineSettingModal #msg3").val(result.ssa_user.pipeline_message3)
-						$("#editPipelineSettingModal #pipelineUserId").val(result.ssa_user.id)
+						$("#editPipelineSettingModal #pipelineUserId").val(result.ssa_user.pipeline_userid)
 						$("#newPipelineModal #msg1").val(result.ssa_user.pipeline_message1)
 						$("#newPipelineModal #msg2").val(result.ssa_user.pipeline_message2)
 						$("#newPipelineModal #msg3").val(result.ssa_user.pipeline_message3)
