@@ -4300,8 +4300,8 @@ $(document).ready(function(){
 			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
 				let message_type_select = $("#pipe_message_types").val();
 				let message1 = $("#editMessagePipelineModal #msg1").val();
-				let message2 = $("#editMessagePipelineModal #msg1").val();
-				let message3 = $("#editMessagePipelineModal #msg1").val();
+				let message2 = $("#editMessagePipelineModal #msg2").val();
+				let message3 = $("#editMessagePipelineModal #msg3").val();
 
 				
 				$.ajax({
