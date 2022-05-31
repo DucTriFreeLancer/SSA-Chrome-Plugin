@@ -4381,10 +4381,10 @@ $(document).ready(function(){
 				let pipeline_order = $("#editPipelineSettingModal #pipelineOrder").prop('checked') === true? "addfirst":"random";
 				let pipeline_perhour = $("#editPipelineSettingModal #pipelinePerHour").val();
 				let pipeline_per24hours = $("#editPipelineSettingModal #pipelinePer24Hours").val();
-				let pipeline_message1 = $("#newPipelineModal #msg1").val();
-				let pipeline_message2 = $("#newPipelineModal #msg2").val();
-				let pipeline_message3 = $("#newPipelineModal #msg3").val();
-				let pipeline_userid = $("#newPipelineModal #pipelineUserId").val();
+				let pipeline_message1 = $("#editPipelineSettingModal #msg1").val();
+				let pipeline_message2 = $("#editPipelineSettingModal #msg2").val();
+				let pipeline_message3 = $("#editPipelineSettingModal #msg3").val();
+				let pipeline_userid = $("#editPipelineSettingModal #pipelineUserId").val();
 				
 				$.ajax({
 					type: "POST",
