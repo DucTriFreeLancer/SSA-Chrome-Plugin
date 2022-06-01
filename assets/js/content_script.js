@@ -1260,8 +1260,12 @@ $(function(){
 				if($(this).closest('.cts-message-list-item').find('svg.pzggbiyp image').length > 0){
 					profilePic = $(this).closest('.cts-message-list-item').find('svg.pzggbiyp image').attr('xlink:href');
 				} 
-				fbName = $(this).closest('.cts-message-list-item').find('span.a8c37x1j.d2edcug0.ni8dbmo4.ltmttdrg.g0qnabr5').text();
-
+				else if($(this).closest('.cts-message-list-item').find('.a8c37x1j.d2edcug0.sn7ne77z.bixrwtb6').length > 0){
+					profilePic = $(this).closest('.cts-message-list-item').find('.a8c37x1j.d2edcug0.sn7ne77z.bixrwtb6').attr('src');
+				} 
+				
+				fbName = $(this).closest('.cts-message-list-item').find('span.a8c37x1j.d2edcug0.ni8dbmo4.ltmttdrg.g0qnabr5').eq(0).text();
+				
 			}
 			chrome.storage.local.get(["tags", "taggedUsers", "teams", "teamMembers","search_tag"], function(result) {
 

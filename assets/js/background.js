@@ -663,7 +663,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 							isCurrentFBLinked = (linkedFbAccount.length > 0) ? true : false;
 							linkedFbAccount = (linkedFbAccount.length > 0) ? linkedFbAccount[0] : null;
 
-							chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers': response.taggedUsers, 'linkedFbAccount': linkedFbAccount, 'isCurrentFBLinked': isCurrentFBLinked, 'messagetypes': response.messagetypes });
+							chrome.storage.local.set({ 'ssa_user': response.data, 'tags': response.tags, 'taggedUsers': response.taggedUsers, 'linkedFbAccount': linkedFbAccount, 'isCurrentFBLinked': isCurrentFBLinked, 'messagetypes': response.messagetypes });
 							// chrome.storage.local.set({'birthdays': response.birthdays, 'processbirthdays': response.processbirthdays});
 							getAllTagsFromGropuleads(response.taggedUserfromGroupleads);
 

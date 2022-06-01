@@ -4655,7 +4655,7 @@ function getUserData(){
 					}
 
 					isCurrentFBLinked = (linkedFbAccount.length > 0)?true:false;
-					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags.reverse(), 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked, 'messagetypes': response.messagetypes});
+					chrome.storage.local.set({'ssa_user': response.data, 'tags': response.tags, 'taggedUsers':response.taggedUsers,'linkedFbAccount':(linkedFbAccount.length > 0)?linkedFbAccount[0]:null, 'isCurrentFBLinked':isCurrentFBLinked, 'messagetypes': response.messagetypes});
 					const storageObj = {};
 					storageObj[HB_DATA.IS_WORKING] = response.processbirthdays;
 					if(response.birthdays != null)
