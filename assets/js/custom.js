@@ -2548,6 +2548,9 @@ $(document).ready(function(){
 				templateMessage = $(thisme).parent().parent().parent().prev().find('img').attr('src');
 				window.close();
 			}
+			else{
+				toastr["success"]("Message was copied to clipboard");
+			}
 			chrome.tabs.query({
 				active: true,
 				currentWindow: true
