@@ -2989,7 +2989,40 @@ $(document).ready(function(){
 
 				
 	})
-
+	$('.import_tag').on('click',function(){
+		if(userId != ''){
+			let confirmAction = confirm(`Are you sure you want to import tags?\n\nCaution: Press CANCEL if you want to cancel importing tags`);
+			if(confirmAction){
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/tags/checktags",
+					data: {userId:userId},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+							triggerLogout();
+							return false;
+					} else if(response.status == 200 || response.result == 'success') {
+	
+						toastr["success"]("Tagging framework imported.");
+						chrome.tabs.query({
+							active: true,
+							currentWindow: true
+						}, function (tabs) {
+							chrome.tabs.sendMessage(tabs[0].id,{from: 'popup', subject: 'refresh'});
+							refreshTagsOnActions();
+							verifyUser();
+						});
+					} else {
+						toastr["error"]("Something went wrong.");
+					}
+				});
+			}
+		}
+	});
 	$(document).on('blur','.addtag',function(){
 		
 		var container=$(this);
