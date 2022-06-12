@@ -43,7 +43,9 @@ chrome.storage.local.get("fb_id",function(result){
 
 $(document).ready(function () {
     //console.log('Document is ready now');
-
+    if (post_url.href.indexOf('/watch/') > -1) {
+        $("[data-sigil=m-feed-voice-subtitle] a:eq(0)").mclick();
+    }
     insertControlsHtml();
     $("#cf_controls").draggable();
     $('.cf_stop_btn').hide();
