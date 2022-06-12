@@ -17,6 +17,16 @@ if(window.location.href.indexOf('lead_sniper.html') > 0 || window.location.href.
 	},function(res){
 		console.log('cleanned add friend')
 	});
+    chrome.storage.local.set({
+		addPeopleToPipeline : false,
+        pipeline_message1:"",
+        pipeline_message2:"",
+        pipeline_message3:"",
+        pipeline_message_type:"",
+
+	},function(res){
+		console.log('cleanned add people to pipeline')
+	});
 	chrome.storage.local.set({   
 		cb_tag_people : ""
 	},function(res){
@@ -113,6 +123,10 @@ $(document).ready(function () {
 
     });
     
+    $("#addPeopleToPipeLine").on('change',function(){
+        $(".saved_pms").toggleClass('hidden');
+    });
+
     $('#post_id').keyup(function (ev) {
 
         let post_link = $(this).val();
@@ -190,6 +204,14 @@ $(document).ready(function () {
 			chrome.storage.sync.set({emoji_focus: 0 });
 		}
 	});	
+    chrome.storage.local.get(["ssa_user"], function(result) {
+        if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+			$("#pipeline_msg1").val(result.ssa_user.pipeline_message1);
+			$("#pipeline_msg2").val(result.ssa_user.pipeline_message2);
+			$("#pipeline_msg3").val(result.ssa_user.pipeline_message3);
+			$("#pipeline_msg_type").val(result.ssa_user.pipeline_leadsniper);
+        }
+	});	
     chrome.storage.local.get(["tags"], function(result) {
 		if(result != null && typeof result.tags  != undefined && result.tags != '') {
 			result.tags.forEach(function(item, index){
@@ -200,7 +222,6 @@ $(document).ready(function () {
 		    });
         }
 	});	
-
    /////* Add New Reply Text */////
     $(document).on('click', '#submit_reply', function (e) {
         e.preventDefault();
@@ -656,7 +677,17 @@ $(document).ready(function () {
         var offer_link = $('#offer_link').val();
         var seconds = $('#seconds').val();
         var max_reply = $('#max_reply').val();
-
+        if($("#addPeopleToPipeLine").is(':checked')){
+            chrome.storage.local.set({
+                addPeopleToPipeline : true,
+                pipeline_message1: $('#pipeline_msg1').val(),
+                pipeline_message2: $('#pipeline_msg2').val(),
+                pipeline_message3: $('#pipeline_msg3').val(),
+                pipeline_message_type: $('#pipeline_msg_type').val()
+            },function(res){
+                console.log('add people to pipeline')
+            });
+        }
         chrome.storage.sync.set({
             'offer_link': offer_link,
             'seconds': seconds,

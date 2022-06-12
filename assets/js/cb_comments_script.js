@@ -548,40 +548,73 @@ async function postReply(form) {
     let messages = [];
     let dm_new_contact=false; 
     let sendMessages=false; 
-    chrome.storage.local.get('addPeopleToFriends',function(res1){
-        addFriend=res1.addPeopleToFriends;
-        chrome.storage.local.get(["cb_custom_dms","cb_custom_dms_new_contact"],function(res2){
-            messages = res2.cb_custom_dms;
-            dm_new_contact= res2.cb_custom_dms_new_contact;
-            if(messages!=undefined && messages.length>0){
-                sendMessages= true;
-                //For lead sniper only dm people if we have not liked the comment
-                if(getLetBlast() == "0" && like.text() == "Like" && style != undefined){
-                    sendMessages = false;
+    let addPipeline = false;
+    let pipelime_msg1="";
+    let pipelime_msg2="";
+    let pipelime_msg3="";
+    let pipelime_msg_type="";
+
+
+    chrome.storage.local.get('addPeopleToPipeline',function(res1){
+        addPipeline = res1.addPeopleToPipeline;
+        if(addPipeline){
+            chrome.storage.local.get(["ssa_user","pipeline_message1","pipeline_message2","pipeline_message3","pipeline_message_type"],function(result){
+                if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+                    memberApproved = {}; 
+                    memberApproved.userId = result.ssa_user.id;
+                    memberApproved.fbGroup = "";
+                    memberApproved.groupid = "";
+                    memberApproved.numeric_fb_id= "";
+                    memberApproved.fbUserid = getCommenterFbId(comment);
+                    memberApproved.name = getCommenterName(comment);
+                    memberApproved.location = "";
+                    memberApproved.pipeline_message1= result.pipelime_msg1;
+                    memberApproved.pipeline_message2= result.pipelime_msg2;
+                    memberApproved.pipeline_message3= result.pipelime_msg3;
+                    memberApproved.message_type= result.pipeline_message_type;
+                    port.postMessage({'type': 'stealMemberFromGroup','memberApproved': memberApproved});		
                 }
-            }
-            
-            if(addFriend || (messages!=null && messages!=undefined && messages.length>0)){
-                let url = new URL("https://m.facebook.com"+urlpath);
-                url.searchParams.set("lets_blast_user",1);
-                url.searchParams.set('addFriend',addFriend?1:0);
-                url.searchParams.set('sendMessages',sendMessages?1:0);
-                url.searchParams.set('dm_new_contact',dm_new_contact?1:0);
-                url = url.href;
-                window.open(url,'currentUserBlaster',
-                `toolbar=no,
-                location=no,
-                status=no,
-                menubar=no,
-                scrollbars=yes,
-                resizable=yes,
-                width=500px,
-                height=500px`);
-            }
-
-
-        })
+            })
+        }
+        else
+        {
+            chrome.storage.local.get('addPeopleToFriends',function(res1){
+                addFriend=res1.addPeopleToFriends;
+                chrome.storage.local.get(["cb_custom_dms","cb_custom_dms_new_contact"],function(res2){
+                    messages = res2.cb_custom_dms;
+                    dm_new_contact= res2.cb_custom_dms_new_contact;
+                    if(messages!=undefined && messages.length>0){
+                        sendMessages= true;
+                        //For lead sniper only dm people if we have not liked the comment
+                        if(getLetBlast() == "0" && like.text() == "Like" && style != undefined){
+                            sendMessages = false;
+                        }
+                    }
+                    
+                    if(addFriend || (messages!=null && messages!=undefined && messages.length>0)){
+                        let url = new URL("https://m.facebook.com"+urlpath);
+                        url.searchParams.set("lets_blast_user",1);
+                        url.searchParams.set('addFriend',addFriend?1:0);
+                        url.searchParams.set('sendMessages',sendMessages?1:0);
+                        url.searchParams.set('dm_new_contact',dm_new_contact?1:0);
+                        url = url.href;
+                        window.open(url,'currentUserBlaster',
+                        `toolbar=no,
+                        location=no,
+                        status=no,
+                        menubar=no,
+                        scrollbars=yes,
+                        resizable=yes,
+                        width=500px,
+                        height=500px`);
+                    }
+        
+        
+                })
+            })
+        }
     })
+  
 	if(like.text() == "Like" && style == undefined) {
 		like.get(0).click();
 	}
