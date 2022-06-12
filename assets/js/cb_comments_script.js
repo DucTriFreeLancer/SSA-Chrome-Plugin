@@ -570,9 +570,9 @@ async function postReply(form) {
                     memberApproved.fbUserid = getCommenterFbId(comment);
                     memberApproved.name = getCommenterName(comment);
                     memberApproved.location = "";
-                    memberApproved.pipeline_message1= result.pipelime_msg1;
-                    memberApproved.pipeline_message2= result.pipelime_msg2;
-                    memberApproved.pipeline_message3= result.pipelime_msg3;
+                    memberApproved.pipeline_message1= result.pipeline_message1;
+                    memberApproved.pipeline_message2= result.pipeline_message2;
+                    memberApproved.pipeline_message3= result.pipeline_message3;
                     memberApproved.message_type= result.pipeline_message_type;
                     port.postMessage({'type': 'stealMemberFromGroup','memberApproved': memberApproved});		
                 }
@@ -985,37 +985,63 @@ async function friendAction(people_like) {
     let messages = [];
     let dm_new_contact=false; 
     let sendMessages=false; 
-    chrome.storage.local.get('addPeopleToFriends',function(res1){
-        addFriend=res1.addPeopleToFriends;
-        chrome.storage.local.get(["cb_custom_dms","cb_custom_dms_new_contact"],function(res2){
-            messages = res2.cb_custom_dms;
-            dm_new_contact= res2.cb_custom_dms_new_contact;
-            if(messages!=undefined && messages.length>0){
-                sendMessages= true;
-            }
-            
-            if(addFriend || (messages!=null && messages!=undefined && messages.length>0)){
-                let url = new URL("https://m.facebook.com/"+urlpath);
-                url.searchParams.set("lets_blast_user",1);
-                url.searchParams.set('addFriend',addFriend?1:0);
-                url.searchParams.set('sendMessages',sendMessages?1:0);
-                url.searchParams.set('dm_new_contact',dm_new_contact?1:0);
-                url = url.href;
-                window.open(url,'currentUserBlaster',
-                `toolbar=no,
-                location=no,
-                status=no,
-                menubar=no,
-                scrollbars=yes,
-                resizable=yes,
-                width=500px,
-                height=500px`);
-            }
-
-
-        })
+    let addPipeline = false;
+    chrome.storage.local.get('addPeopleToPipeline',function(res1){
+        addPipeline = res1.addPeopleToPipeline;
+        if(addPipeline){
+            chrome.storage.local.get(["ssa_user","pipeline_message1","pipeline_message2","pipeline_message3","pipeline_message_type"],function(result){
+                if (typeof result.ssa_user != "undefined" && result.ssa_user.id != "") {
+                    memberApproved = {}; 
+                    memberApproved.userId = result.ssa_user.id;
+                    memberApproved.fbGroup = "";
+                    memberApproved.groupid = "";
+                    memberApproved.numeric_fb_id= "";
+                    memberApproved.fbUserid = getLikerFbId(people_like);
+                    memberApproved.name = getLikerName(people_like);
+                    memberApproved.location = "";
+                    memberApproved.pipeline_message1= result.pipeline_message1;
+                    memberApproved.pipeline_message2= result.pipeline_message2;
+                    memberApproved.pipeline_message3= result.pipeline_message3;
+                    memberApproved.message_type= result.pipeline_message_type;
+                    port.postMessage({'type': 'stealMemberFromGroup','memberApproved': memberApproved});		
+                }
+            })
+        }
+        else
+        {
+            chrome.storage.local.get('addPeopleToFriends',function(res1){
+                addFriend=res1.addPeopleToFriends;
+                chrome.storage.local.get(["cb_custom_dms","cb_custom_dms_new_contact"],function(res2){
+                    messages = res2.cb_custom_dms;
+                    dm_new_contact= res2.cb_custom_dms_new_contact;
+                    if(messages!=undefined && messages.length>0){
+                        sendMessages= true;
+                    }
+                    
+                    if(addFriend || (messages!=null && messages!=undefined && messages.length>0)){
+                        let url = new URL("https://m.facebook.com/"+urlpath);
+                        url.searchParams.set("lets_blast_user",1);
+                        url.searchParams.set('addFriend',addFriend?1:0);
+                        url.searchParams.set('sendMessages',sendMessages?1:0);
+                        url.searchParams.set('dm_new_contact',dm_new_contact?1:0);
+                        url = url.href;
+                        window.open(url,'currentUserBlaster',
+                        `toolbar=no,
+                        location=no,
+                        status=no,
+                        menubar=no,
+                        scrollbars=yes,
+                        resizable=yes,
+                        width=500px,
+                        height=500px`);
+                    }
+        
+        
+                })
+            })
+        }
     })
-	
+    	
 
     //rememberComment
     rememberLike();
