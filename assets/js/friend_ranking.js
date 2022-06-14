@@ -81,7 +81,7 @@ $(document).ready(function() {
      * @return {undefined}
      */
     function init(onSuccess) {
-        var infoUrl= "https://graph.facebook.com/v11.0/me";
+        var infoUrl= "https://graph.facebook.com/v14.0/me";
         if (infoUrl) {
             /** @type {!FormData} */
             var data = new FormData;
