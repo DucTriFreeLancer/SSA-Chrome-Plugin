@@ -2989,19 +2989,61 @@ function handleBL_UserWindow(){
 		if(url.searchParams.get('lets_block_user')!="1"){
 			return;
 		}
-
+				
 		if(url.searchParams.get('block')=="1"){
 			let blockConfirmed = $("button[name='confirmed']").get(0);
 
 			if(typeof blockConfirmed != "undefined" ){
 				$(blockConfirmed).mclick();
 			}		
-		}					
-		
+		}
 		if(url.searchParams.get('close')==="1"){
 			setTimeout(() => {
 				window.close();
 			}, 3000);		
+		}
+	}, 1000);
+}
+handleRG_UserWindow();
+function handleRG_UserWindow(){
+	setTimeout(() => {
+		let cb_current_window = window.location.href;
+		let url = new URL(cb_current_window);
+		
+		
+		if(url.searchParams.get('lets_remove_user')!="1"){
+			return;
+		}
+
+		let participationIn90days=$(".rq0escxv.l9j0dhe7.du4w35lb.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.f10w8fjw.discj3wi");
+		if(participationIn90days.length>0){
+			if($(participationIn90days).get(0).textContent.toLowerCase().includes("0 comments")){
+				$('div[aria-label="See Options"').get(0).click();
+				setTimeout(() => {
+					let removeMember = $('body').find('span:contains("Remove member")').get(0);
+					setTimeout(() => {
+						$(removeMember).click();
+						setTimeout(() => {
+							let confirmButton = $('div[aria-label="Confirm"');
+							if(confirmButton.length>0){
+								$(confirmButton).get($(confirmButton).length-1).click();
+								let temp = {};
+								temp.numeric_fb_id = url.searchParams.get('numeric_fb_id');
+								temp.fb_name = url.searchParams.get('fb_name');
+								temp.tagId = url.searchParams.get('tagId');
+								temp.groupId = url.searchParams.get('group_id');
+								chrome.runtime.sendMessage({removeFromGroup: "removeFromGroup", data: temp});
+							}
+						}, 1000);
+					}, 1000);
+				}, 1000);
+			}
+		}						
+		
+		if(url.searchParams.get('close')==="1"){
+			setTimeout(() => {
+				window.close();
+			}, 5000);		
 		}
 	}, 1000);
 }

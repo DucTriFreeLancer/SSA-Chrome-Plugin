@@ -396,7 +396,7 @@ function addExistingMembers(){
 			chrome.storage.local.get(["ADG_state"], function(result) {
 				if (result.ADG_state != '') {
 					
-					if (result.ADG_state.tabId != 0) {
+					if (result.ADG_state != undefined && result.ADG_state.tabId != 0) {
 						$('.adf-process-status').hide();
 						chrome.tabs.get(result.ADG_state.tabId, function(tab) {
 							
@@ -619,7 +619,48 @@ $(document).ready(function(){
 			}
 		});
 	});
-
+	$("#start_remove_existing_members").click(function(){
+		chrome.storage.local.get(["ssa_group"], function(result) {
+			if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+				let post_url = groupTabUrl.href;
+				if(post_url){
+					if ( post_url.indexOf('facebook.com/groups/')>-1 && post_url.indexOf('/member-requests')>-1 ) {
+						post_url=post_url.replace("/member-requests","/members");
+						let lets_taguser ='removemember=1';					       
+						if(post_url.indexOf('?') > -1) {            
+							post_url = post_url+`&${lets_taguser}`;
+						}else{
+							post_url = post_url+ `?${lets_taguser}`;
+						}
+		
+						chrome.tabs.create({url: post_url}, function (tab) {
+							chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
+									if (changeInfo.status === 'complete' && tabId === tab.id) {
+										chrome.tabs.executeScript(tab.id, {file: "assets/js/afg_content_script.js"},
+											function(result) {
+												// Process |result| here (or maybe do nothing at all).
+												chrome.tabs.onUpdated.removeListener((a,b)=>{
+													//console.log('mana',a,b)
+												});
+											}
+										);
+									}
+								});
+						})
+					}
+					else{
+						toastr["error"]["Invalid post url!"];
+						return;
+					}
+					
+				}
+				else
+				{
+					toastr["error"]["Please link group before start this action"];
+				}
+			}
+		});
+	});
 	$('#new_message_friend').click(function () {
 
         $('#message_texts').modal(300);

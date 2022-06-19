@@ -323,6 +323,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 		processPipeMessage(message.data)
 	}
+	else if (message.removeFromGroup == 'removeFromGroup') {
+
+		processRemoveFromGroup(sender,message.data)
+	}
 	// }else if (message.action == 'triggerShowPopup'){
 	//     chrome.tabs.create({
 	//     	'url': message.url
@@ -950,7 +954,11 @@ chrome.runtime.onConnect.addListener(function (port) {
 				}, 3000);
 			});
 		}
-
+		if (message.type == 'getExistingMemberOnGroupMember') {
+			setTimeout(() => {
+				getExistingFBUserForGroupMember(sender, message.memberApproved);
+			}, 3000);
+		}
 		if (message.type == 'stealMemberFromGroup') {
 			var memberApproved = message.memberApproved;
 			var fbUserId = memberApproved.fbUserid;
@@ -1668,6 +1676,28 @@ function processPipeMessage(response){
 		delaySend = parseInt(delaySend) + parseInt(randomInteger(5,10)*1000);
 		bulkIntervalIds.push(timeoutId);						
 	}
+}
+function processRemoveFromGroup(sender,response){
+	chrome.storage.local.get(["ssa_user", "fb_id","AFG_State"], function (result) {
+		if (typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != "") {
+			$.ajax({
+				type: "POST",
+				url: apiBaseUrl + "/groupgrowth/removefromgroup",
+				data: {userId:result.ssa_user.id, numeric_fb_id:response.numeric_fb_id,fb_name:response.fb_name,
+						tagId:response.tagId,groupId:response.groupId},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					chrome.storage.local.set({'ssa_user':''});	
+				}else if (response.status == 200 || response.result === "success") {
+					chrome.tabs.sendMessage(result.AFG_State.tabId, { from: 'background', subject: "remove_member", result: response.message});
+				}		  
+			});			
+		}
+	});
 }
 function importAllFriend(data){
 
@@ -2439,6 +2469,29 @@ function addExistingFBUserForGroupMember(sender, memberRequest) {
 		} else 
 		{
 			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "add_member", result: response.Message});
+		}
+	});
+}
+/////////////////Add existing member in group////////////
+function getExistingFBUserForGroupMember(sender, memberRequest) {
+	$.ajax({
+		type: "POST",
+		url: apiBaseUrl + "/groupgrowth/get_members",
+		data: memberRequest,
+		dataType: 'json',
+		beforeSend: function (xhr) {
+			xhr.setRequestHeader('unique-hash', uniqueHash);
+		}
+	}).done(function (response) {
+		if (response.status == 401) {
+			chrome.storage.local.set({ 'ssa_user': '' });
+		} else if (response.status == 200 || response.result == 'success')
+		{
+			tempTwo = {};
+			tempTwo.tabId = sender.tab.id;
+			tempTwo.state = 'running';
+			chrome.storage.local.set({"AFG_State":tempTwo});  
+			chrome.tabs.sendMessage(sender.tab.id, { from: 'background', subject: "get_member", result: response.members});
 		}
 	});
 }
