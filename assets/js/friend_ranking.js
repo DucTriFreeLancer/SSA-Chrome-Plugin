@@ -81,15 +81,10 @@ $(document).ready(function() {
      * @return {undefined}
      */
     function init(onSuccess) {
-        var infoUrl= "https://graph.facebook.com/v14.0/me";
+        var infoUrl= `https://graph.facebook.com/v14.0/me?access_token=${token}&fields=id,name,picture`;
         if (infoUrl) {
-            /** @type {!FormData} */
-            var data = new FormData;
-            data.append("fields", "picture");
-            data.append("access_token", token);
             fetch(infoUrl, {
-            body : data,
-            method : "POST"
+            method : "GET"
             }).then(function(e) {
             return e.text();
             }).then(function(c) {    
