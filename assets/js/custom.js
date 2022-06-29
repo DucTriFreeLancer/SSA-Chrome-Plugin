@@ -304,10 +304,65 @@ function runGroupFunctionality(tabId,tabUrl,tabName) {
 					chrome.storage.local.set({"ssa_group": ''});
 					chrome.storage.local.set({"all_groups": ''});
 				}
+			}).then(function(data){
+				showGroupDetail();
 			});
 		}
 		
     }); 
+}
+// Home tab
+function showGroupDetail() {
+	chrome.storage.local.get(["ssa_user","ssa_group"], function(result) {
+		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+			$.ajax({
+				type:"POST",
+				url: apiBaseUrl +"/groupgrowth/groupdata",
+				data: {userId:result.ssa_user.id,groupId:result.ssa_group[0].id},
+				dataType:"json",
+				beforeSend:function(xhr){
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					triggerLogout();
+					return false;
+				}else if (response.status == 404) {
+					$('#start_pipeline').show();
+					$('#pipe_loader').hide();
+				} else if (response.status == 200 || response.result == 'success') {			
+					$("#main .members_current").text(response.total_members);
+					if(response.othergroups != undefined && response.othergroups.length>0){
+						$(".other-groups").prepend('<label for="otherGroups" class="form-label p-2">Your other groups :</label>',
+							...response.othergroups.map(item=>{
+								return `<a class="btn-link btn-block pl-2" href="${item.grouplink}" target="_blank">${item.groupname}</a>`
+							})
+						);
+					}
+					if(response.topinvites != undefined && response.topinvites.length>0){
+						$(".top-inviters").prepend('<label for="top_inviter" class="form-label p-2">Top Inviters :</label>',
+							...response.topinvites.map(item=>{
+								return `<span class="form-label p-2">${item.name}(<b style="color:red;" class="top_inviter">${item.noinvites}</b>)</span>`;
+							})
+						);
+					}
+					$("#editGroupSettingModal #fb_account_name").val(response.groupdata.fb_account_name)
+					$("#editGroupSettingModal #friend_new_members").val(response.groupdata.friend_new_members)
+					$("#editGroupSettingModal #email_field").val(response.groupdata.email_field)
+					$("#editGroupSettingModal #msg_message1").val(response.groupdata.msg_message1)
+					$("#editGroupSettingModal #msg_message2").val(response.groupdata.msg_message2)
+					$("#editGroupSettingModal #msg_message3").val(response.groupdata.msg_message3)
+					$("#editGroupSettingModal #fb_account_id").val(response.groupdata.fb_account_id)
+					$("#editGroupSettingModal #remind_message1").val(response.groupdata.remind_message1)
+					$("#editGroupSettingModal #remind_message2").val(response.groupdata.remind_message2)
+					$("#editGroupSettingModal #remind_message3").val(response.groupdata.remind_message3)
+					$("#editGroupSettingModal #google_sheet_url").val(response.groupdata.google_sheet_url)
+				}
+				$('#pipe_loader').hide();
+				$('#start_pipeline').show();
+			});
+		}
+	});
 }
 /* Status Tagged */
 function showstatusTagged() {
@@ -357,6 +412,7 @@ function showStatusPipe(){
 							messagetypesSelect += '</select>';
 							$("#pipe_message_types").html(messagetypesSelect);
 						}
+						$("#seeWaitingMessages").href = response.pipeline_link;
 						//prepare data for modal
 						var pipeline_tags =''
 						result.tags.forEach(function(tag) {
@@ -619,7 +675,7 @@ $(document).ready(function(){
 			}
 		});
 	});
-	$("#start_remove_existing_members").click(function(){
+	$("#start_remove_existing_members,#scrapeMember").click(function(){
 		chrome.storage.local.get(["ssa_group"], function(result) {
 			if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
 				let post_url = groupTabUrl.href;
@@ -3776,6 +3832,9 @@ $(document).ready(function(){
 			getBdtlMessages();		
 			getBddmMessages();	
 	  	} 
+		else if(target == '#main') {
+			showGroupDetail();
+	  	} 
 		else if(target == '#tag_users') {
 			showstatusTagged();
 	  	} 
@@ -4488,6 +4547,9 @@ $(document).ready(function(){
 				$('#editPipelineSettingModal').modal("hide");
 			}
 		})
+	});
+	$("#settingGroup").click(function(){
+		$("#editGroupSettingModal").modal('show');
 	});
 });
 
