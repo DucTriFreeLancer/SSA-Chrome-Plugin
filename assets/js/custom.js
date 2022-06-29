@@ -412,7 +412,7 @@ function showStatusPipe(){
 							messagetypesSelect += '</select>';
 							$("#pipe_message_types").html(messagetypesSelect);
 						}
-						$("#seeWaitingMessages").href = response.pipeline_link;
+						$("#seeWaitingMessages").attr('href',response.pipeline_link);
 						//prepare data for modal
 						var pipeline_tags =''
 						result.tags.forEach(function(tag) {
