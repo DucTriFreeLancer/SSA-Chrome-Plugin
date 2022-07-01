@@ -333,6 +333,7 @@ function showGroupDetail() {
 				} else if (response.status == 200 || response.result == 'success') {			
 					$("#main .members_current").text(response.total_members);
 					if(response.othergroups != undefined && response.othergroups.length>0){
+						$(".other-groups").html('');
 						$(".other-groups").prepend('<label for="otherGroups" class="form-label p-2">Your other groups :</label>',
 							...response.othergroups.map(item=>{
 								return `<a class="btn-link btn-block pl-2" href="${item.grouplink}" target="_blank">${item.groupname}</a>`
@@ -340,6 +341,7 @@ function showGroupDetail() {
 						);
 					}
 					if(response.topinvites != undefined && response.topinvites.length>0){
+						$(".top-inviters").html('');
 						$(".top-inviters").prepend('<label for="top_inviter" class="form-label p-2">Top Inviters :</label>',
 							...response.topinvites.map(item=>{
 								return `<span class="form-label p-2">${item.name}(<b style="color:red;" class="top_inviter">${item.noinvites}</b>)</span>`;
@@ -352,7 +354,7 @@ function showGroupDetail() {
 					$("#editGroupSettingModal #msg_message1").val(response.groupdata.msg_message1)
 					$("#editGroupSettingModal #msg_message2").val(response.groupdata.msg_message2)
 					$("#editGroupSettingModal #msg_message3").val(response.groupdata.msg_message3)
-					$("#editGroupSettingModal #fb_account_id").val(response.groupdata.fb_account_id)
+					$("#editGroupSettingModal #group_id").val(response.groupdata.id)
 					$("#editGroupSettingModal #remind_message1").val(response.groupdata.remind_message1)
 					$("#editGroupSettingModal #remind_message2").val(response.groupdata.remind_message2)
 					$("#editGroupSettingModal #remind_message3").val(response.groupdata.remind_message3)
@@ -4550,6 +4552,45 @@ $(document).ready(function(){
 	});
 	$("#settingGroup").click(function(){
 		$("#editGroupSettingModal").modal('show');
+	});
+	$('#editGroupSettingModal #confirm-edit-group-setting').on('click',function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				const groupData={
+					userId: result.ssa_user.id,
+					groupId: $("#editGroupSettingModal #group_id").val(),
+					fb_account_name: $("#editGroupSettingModal #fb_account_name").val(),
+					friend_new_members: $("#editGroupSettingModal #friend_new_members").val(),
+					email_field: $("#editGroupSettingModal #email_field").val(),
+					msg_message1: $("#editGroupSettingModal #msg_message1").val(),
+					msg_message2: $("#editGroupSettingModal #msg_message2").val(),
+					msg_message3: $("#editGroupSettingModal #msg_message3").val(),
+					reminder_message1: $("#editGroupSettingModal #remind_message1").val(),
+					reminder_message2: $("#editGroupSettingModal #remind_message2").val(),
+					reminder_message3: $("#editGroupSettingModal #remind_message3").val(),
+					google_sheet_url: $("#editGroupSettingModal #google_sheet_url").val(),
+				};
+				
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/groupgrowth/savesettings",
+					data: groupData,
+					dataType: 'json',
+					beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						toastr["success"]("Group settings saved successfully.");	
+						verifyUser();							
+					}
+				});
+				$('#editGroupSettingModal').modal("hide");
+			}
+		})
 	});
 });
 
