@@ -204,9 +204,15 @@ async function startAction() {
             await startAction();
         }
     }
-    catch{
-        closeFbTab();
+    catch(err) {
+        $('#ssa-msgs').html(err.message);
+        $('.member-name').text('').css('text-align','center');
+        $('.cf_hint').text('Try Again!');
+        return;
     }
+    // catch{
+    //     closeFbTab();
+    // }
   
 }
 function randomInteger(min, max) {

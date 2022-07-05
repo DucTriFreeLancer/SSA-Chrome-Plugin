@@ -332,6 +332,7 @@ function showGroupDetail() {
 					$('#pipe_loader').hide();
 				} else if (response.status == 200 || response.result == 'success') {			
 					$("#main .members_current").text(response.total_members);
+					$("#main .allmemberslink").attr("href",response.allmemberslink);
 					if(response.othergroups != undefined && response.othergroups.length>0){
 						$(".other-groups").html('');
 						$(".other-groups").prepend('<label for="otherGroups" class="form-label p-2">Your other groups :</label>',
@@ -340,11 +341,12 @@ function showGroupDetail() {
 							})
 						);
 					}
+					$("#main .leaderboardlink").attr("href",response.leaderboardlink);
 					if(response.topinvites != undefined && response.topinvites.length>0){
 						$(".top-inviters").html('');
 						$(".top-inviters").prepend('<label for="top_inviter" class="form-label p-2">Top Inviters :</label>',
 							...response.topinvites.map(item=>{
-								return `<span class="form-label p-2">${item.name}(<b style="color:red;" class="top_inviter">${item.noinvites}</b>)</span>`;
+								return `<span class="d-block pl-2 pb-2">${item.name}(<b style="color:red;" class="top_inviter">${item.noinvites}</b>)</span>`;
 							})
 						);
 					}
