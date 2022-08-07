@@ -370,12 +370,31 @@ function showGroupDetail() {
 }
 /* Status Tagged */
 function showstatusTagged() {
-	chrome.storage.local.get(["ssa_group"], function(result) {
+	chrome.storage.local.get(["ssa_user","ssa_group"], function(result) {
 		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
-			if($(".status_tagged").length==1){
-				$(".status_tagged").html(`Currently <b style="color:red">` + result.ssa_group[0].post_tagged +
-				`</b> members of <b style="color:red">`+ result.ssa_group[0].to_be_tagged + `</b> have been tagged`);				
-			}
+			$.ajax({
+				type:"POST",
+				url: apiBaseUrl +"/groupgrowth/groupdata",
+				data: {userId:result.ssa_user.id,groupId:result.ssa_group[0].id},
+				dataType:"json",
+				beforeSend:function(xhr){
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					triggerLogout();
+					return false;
+				}else if (response.status == 404) {
+				} else if (response.status == 200 || response.result == 'success') {			
+					if($("#tag_users .status_tagged").length==1){
+						$("#tag_users .status_tagged").html(`You have currently comment tagged <b style="color:red">` + response.tagged_members +
+						`</b> of <b style="color:red">`+ response.total_members + `</b>`);				
+					}
+					if($("#tag_users .tag_post_link").length ==1){
+						$("#tag_users .tag_post_link").attr("href",response.tag_post_link);
+					}
+				}
+			});
 		}
 	});
 }

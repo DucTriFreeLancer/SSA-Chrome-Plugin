@@ -267,25 +267,49 @@
 							<input readonly hidden type="text" name="post_id" id="post_id" class="input">
 						</div>	
 						<div class="row">
+							<div class="col-12">
+								<div class="inputBox p-2">
+									<label style="font-size: 12pt;"><i>Current post for tagging :</i></label>
+									<a class="p-2 tag_post_link" href="https://members.socialsalesaccelerator.app/mygroup/members/ID/GUID" target="_blank">Click here</a>	
+								</div>
+							</div>
+						</div>
+						<div class="row">
 							<div class="col-8">
 								<div class="inputBox p-2">
-									<label style="font-size: 12pt;"><i>How many comments</i></label>
+									<label style="font-size: 12pt;"><i>People per comment</i></label>
+									<label style="font-size: 12pt; opacity: 0.7;"><i> Group Growth - Maximum number of people tagged per comment.</i></label>
+									<input type="number" name="max_people" id="max_people" class="input" value="10">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-8">
+								<div class="inputBox p-2">
+									<label style="font-size: 12pt;"><i>Total comments</i></label>
 									<label style="font-size: 12pt; opacity: 0.7;"><i> Group Growth - Tag Post will stop once you reach these many comments.</i></label>
-									<input type="number" name="max_comment" id="max_comment" class="input" value="20">
+									<input type="number" name="max_comment" id="max_comment" class="input" value="5">
 								</div>
 							</div>
 							<div class="col-4">
 								<div class="inputBox p-2">
-									<label style="font-size: 12pt;"><i>Delay between comments</i></label>
+									<label style="font-size: 12pt;"><i>Seconds between comments</i></label>
 									<label style="font-size: 12pt; opacity: 0.7;"><i> We recommend at least 5 seconds.</i></label>
-									<input type="number" name="delay_seconds" id="delay_seconds" min="5" class="input" value="60">
+									<input type="number" name="delay_seconds" id="delay_seconds" min="5" class="input" value="90">
 								</div>
 							</div>
 						</div>
 						<div class="row h-50">
-							<div class="col-12">
+							<div class="col-4">
 								<div class="p-2">
 									<button class="btn btn-success btn-lg" id="start_tag_user" style="border: 0px !important; border-radius: 50px !important;">Tag users now
+										<i class="fa fa-arrow-right"></i>
+									</button>
+								</div>								
+							</div>
+							<div class=" col-6">
+								<div class="p-2">
+									<button class="btn btn-danger btn-lg" id="reset_tag_user" style="border: 0px !important; border-radius: 50px !important;">Reset tagged members 
 										<i class="fa fa-arrow-right"></i>
 									</button>
 								</div>
