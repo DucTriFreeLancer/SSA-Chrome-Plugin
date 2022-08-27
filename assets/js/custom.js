@@ -4613,6 +4613,34 @@ $(document).ready(function(){
 			}
 		})
 	});
+	$('#tag_users #reset_tag_user').on('click',function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				const groupData={
+					userId: result.ssa_user.id,
+					groupId: $("#editGroupSettingModal #group_id").val(),
+				};
+				
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/groupgrowth/resettagmembers",
+					data: groupData,
+					dataType: 'json',
+					beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						toastr["success"]("Reset tagged members successfully.");	
+						verifyUser();							
+					}
+				});
+			}
+		})
+	});
 });
 
 ////*  Save default settings *////
