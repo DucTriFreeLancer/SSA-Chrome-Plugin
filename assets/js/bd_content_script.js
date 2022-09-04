@@ -16,8 +16,8 @@ const parseElement = {
     'New': {
         'HBBLockPage': '.p8bdhjjv>div.alzwoclg.om3e55n1.mfclru0v>div>div.g4qalytl.ez8dtbzv>div>div>div.eyufkmuh.obdt02g8:eq(0)>h2>span:contains("Today")',
         'HBBlockPopup': '.p8bdhjjv>div.alzwoclg.om3e55n1.mfclru0v>div>div.g4qalytl.ez8dtbzv:eq(0)>div.gt60zsk1.rl78xhln.r227ecj6.srn514ro.i1n1lj7b',
-        'HBCards': 'div > div.alzwoclg.s1m0hq7j.oxkhqvkx.ez8dtbzv.nch0832m',
-        'HBPlaceOfMessage': 'form>div>div> div[role="textbox"]',
+        'HBCards': 'div>div.alzwoclg.s1m0hq7j.oxkhqvkx.r5g9zsuq.nch0832m',
+        'HBPlaceOfMessage': 'form>div>div>div>div[role="textbox"]',
         'HBSendMsgBtn': 'input[type="submit"]'
     }
 }
