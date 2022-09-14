@@ -382,9 +382,15 @@ async function sendMessage(message){
 			var fullName = '';							
 			if($(selector).length > 0){
 				fullName = $('div.buofh1pr.qx9c56kf').find('h2').find('span.ltmttdrg').text();
+
 				if(fullName == ''){
 					fullName = $('div.buofh1pr.qx9c56kf').find('h1').find('span.ltmttdrg').text();
 				}
+
+				if(fullName == ''){
+					fullName = $('div[aria-label][role="main"] a[aria-label]:eq(0)').attr('aria-label');
+				}
+
 				message.templateMessage= getTemplateMessage(message, fullName);			
 				var evt = new Event('input', {
 					bubbles: true  
@@ -439,12 +445,16 @@ async function sendMessage(message){
 				selector = 'div[contenteditable="true"] div[data-contents="true"] span br';
 
 				var fullName = '';
-
 				fullName = $('div.buofh1pr.qx9c56kf').find('h2').find('span.ltmttdrg').text();
 
 				if(fullName == ''){
 					fullName = $('div.buofh1pr.qx9c56kf').find('h1').find('span.ltmttdrg').text();
 				}
+
+				if(fullName == ''){
+					fullName = $('div[aria-label][role="main"] a[aria-label]:eq(0)').attr('aria-label');
+				}
+
 				// if (message.templateMessage.indexOf('[mylocation]') > -1) {		
 				// 	if(message.myLocation.includes("|")){
 				// 		var locations = message.myLocation.split("|");		
