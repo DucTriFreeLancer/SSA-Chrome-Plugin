@@ -4,7 +4,7 @@ var active_status = false; // to check if commenting is working or stopped
 var scheduled_start = null;
 var ssa_user = null;
 var messagetypes = null; 
-var ADG_memberListSelectorNew =  'div.i1n1lj7b.mmwt03ec div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
+var ADG_memberListSelectorNew =  'div.x1oo3vh0.x1rdy4ex div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
 var ADG_limitExceeded = false;
 var ADG_add_friend_processingStatus = false;
 var ADG_add_friend_processing = true;
@@ -169,10 +169,10 @@ async function startAction(history = 0) {
     if (!active_status) {
         return;
     }
-    ADF_limit = $('h2.jxuftiz4.jwegzro5.hl4rid49.icdlwmnq.gvxzyvdx.aeinzg81:contains(Members):eq(0)').text().replace(/[^\d]/g, '');
+    ADF_limit = $('h2.x1heor9g.x1qlqyl8.x1pd3egz.x1a2a7pz.x193iq5w.xeuugli:contains(Members):eq(0)').text().replace(/[^\d]/g, '');
 	$('.total-friends').text(ADF_limit);
 	$('#text h2').text("Total Members");
-	ADF_loadedMembers = $('div.i1n1lj7b.mmwt03ec div[data-visualcompletion="ignore-dynamic"]').length;
+	ADF_loadedMembers = $('div.x1oo3vh0.x1rdy4ex div[data-visualcompletion="ignore-dynamic"]').length;
 	if(ADF_loadedMembers > history){
 		
 		var outerTimeOut = setTimeout(function(){		
@@ -182,11 +182,11 @@ async function startAction(history = 0) {
 					timeOutIds = setTimeout(()=>{
 						if (ADG_add_friend_totalSend <= ADF_limit-1 && ADG_add_friend_processing && !ADF_add_friend_stopProcess) {
 							$(this).addClass('adf-processed');
-							let name=$(this).find('.rse6dlih a').text();
+							let name=$(this).find('.xt0psk2 a').text();
 							$('.member-name').text('Adding member '+name).css('text-align','center');
 							let memberIdTemp = extractProfileId($(this).find('a:eq(0)').attr('href'))
 							$(this).attr('data-adf-numeric-fb-id',memberIdTemp);
-							let location= $(this).find('.jroqu855.nthtkgg5:last-child').text();
+							let location= $(this).find('.xu06os2.x1ok221b:last-child').text();
 							stealMemberFromGroup(memberIdTemp,name,location);
 
 							ADG_add_friend_totalSend=ADG_add_friend_totalSend+1;										

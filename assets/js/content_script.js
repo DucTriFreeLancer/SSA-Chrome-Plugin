@@ -2383,10 +2383,10 @@ function displaySelectedTagRightSide(){
 									var options='<div class="temp_image_box" style="width: calc(100%);"></div>'
 									options += '<div class="tags-container ssa-tags-right cts-messenger" fb_user_id="'+ li_fb_user_id+'" ><span class="bg-muted ssa-selected-tag"><span class="badge badge-light"><b class="add-tag-border">+</b></span></span>';
 									options += '<div class="get-gl-right-notes">Add Notes</div>';
-									$('div[role="main"]').find('.jroqu855.nthtkgg5 a[target="_blank"][role="link"]:eq(0)').first().parent().parent().parent().parent().prepend(options); 					
+									$('div[role="main"]').find('.xu06os2.x1ok221b a[target="_blank"][role="link"]:eq(0)').first().parent().parent().parent().parent().prepend(options); 					
 								}							
-								$('div[role="main"]').find('.jroqu855.nthtkgg5 a[target="_blank"][role="link"]:eq(0)').parent().after(notesList);
-								$('div[role="main"]').find('.jroqu855.nthtkgg5 a[target="_blank"][role="link"]:eq(0)').parent().after(totalTagLi); 
+								$('div[role="main"]').find('.xu06os2.x1ok221b a[target="_blank"][role="link"]:eq(0)').parent().after(notesList);
+								$('div[role="main"]').find('.xu06os2.x1ok221b a[target="_blank"][role="link"]:eq(0)').parent().after(totalTagLi); 
 							}
 							else{
 								
