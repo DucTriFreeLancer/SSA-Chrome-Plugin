@@ -41,7 +41,7 @@ function doInit() {
 
 //Adding "Use SSA" button to dropdown options of posts when post is opened.
 postsAddSSAButton = () =>{
-    let ancestorOfDropdownOptions = document.getElementsByClassName('j34wkznp qp9yad78 pmk7jnqg kr520xx4');
+    let ancestorOfDropdownOptions = document.getElementsByClassName('x78zum5 xdt5ytf x1iyjqo2 x1n2onr6');
     let post_url = window.location.href.split('facebook.com/')[1];
     if(post_url==undefined || post_url==null || post_url.length<3){
         return;

@@ -23,7 +23,7 @@ var currentLinkedFbAccountObject = '';
 
 var ADF_memberListSelector = '#groupsMemberSection_all_members [data-testid="GroupMemberGrid"] div.clearfix._60rh._gse:not(.adf-processed)';
 
-var ADF_memberListSelectorNew =  'div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
+var ADF_memberListSelectorNew =  'div.x1oo3vh0.x1rdy4ex div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
 
 var ADF_PopUp = `
 					<div class="text pt-2" id="sfr-popup"><h3>Sending friend request<br> in progress...</h3>
@@ -56,7 +56,7 @@ chrome.extension.onMessage.addListener(function(message, sender, send_response) 
 					currentADF_groupSettingsObject = result.ADF_groupSettings;
 					currentLinkedFbAccountObject = result.linkedFbAccount;
 		    		if ($('#bluebarRoot').length == 0) { /// new layout 
-						totalGroupMembers = $('h2.gmql0nx0.l94mrbxd span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7:contains(Members):eq(0)').text();
+						totalGroupMembers = $('h2.x1heor9g.x1qlqyl8.x1pd3egz.x1a2a7pz.x193iq5w.xeuugli:contains(Members):eq(0)').text();
 
 		    			if (result.ADF_groupSettings.limit == 'allmembers') {
 		    				totalGroupMembers = totalGroupMembers.replace(/[^\d]/g, '');
@@ -135,12 +135,12 @@ function AFD_processGroupMembersForNew(history = 0) {
 		$('.progress').hide();
 		$('#subdivision').hide();
 	}
-	ADF_total = $('h2.gmql0nx0.l94mrbxd span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7:contains(Members):eq(0)').text().replace(/[^\d]/g, '');
+	ADF_total = $('h2.x1heor9g.x1qlqyl8.x1pd3egz.x1a2a7pz.x193iq5w.xeuugli:contains(Members):eq(0)').text().replace(/[^\d]/g, '');
 	$('.total-friends:not([id])').text(ADF_total);
 	$('#ssa-msgs').text("In progress");
 	$('#text h2').text("Total Members");
 	$('#overlay').show();
-	ADF_loadedMembers = $('div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]').length;
+	ADF_loadedMembers = $('div.x1oo3vh0.x1rdy4ex div[data-visualcompletion="ignore-dynamic"]').length;
 	if(ADF_startat > $(ADF_memberListSelectorNew).length){
 		if(  ADF_loadedMembers > history){
 			$("html, body").animate({ scrollTop: $(document).height() }, 1000);
@@ -177,24 +177,24 @@ function AFD_processGroupMembersForNew(history = 0) {
 							if (ADF_add_friend_totalSend <= ADF_limit-1 && ADF_add_friend_processing && !ADF_add_friend_stopProcess) {
 								$(this).addClass('adf-processed');
 							
-									var validDescription = true;
-									var description = $(this).find('.qzhwtbm6.knvmm38d:eq(2) span').text().toLowerCase();
+								var validDescription = true;
+								var description = $(this).find('.xu06os2.x1ok221b:eq(2) span').text().toLowerCase();
 
-									if (ADF_keyword.length > 0) {
-											if (description != '') {
-												matched = ADF_keyword.filter((item) => description.indexOf(item.toLowerCase()) > -1);
-												if(matched.length == 0){
-													validDescription = false;
-												}
-											}else{
+								if (ADF_keyword.length > 0) {
+										if (description != '') {
+											matched = ADF_keyword.filter((item) => description.indexOf(item.toLowerCase()) > -1);
+											if(matched.length == 0){
 												validDescription = false;
 											}
-									}
+										}else{
+											validDescription = false;
+										}
+								}
 
 								if (validDescription) {
 									btnText = $(this).find('div[aria-label="Add Friend"]:contains("Add Friend")');
 									if(btnText.length == 1){
-										$('.member-name').text('Sending to '+$(this).find('.qzhwtbm6.knvmm38d:eq(0) a:eq(0)').text()).css('text-align','center');
+										$('.member-name').text('Sending to '+ $(this).find('.xt0psk2 a').text()).css('text-align','center');
 										if (ADF_addfriendClick) {
 											$(this).find('div[aria-label="Add Friend"]:contains("Add Friend")').mclick();
 										}

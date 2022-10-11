@@ -6,7 +6,7 @@ var fb_user_id = null;
 var tags = null; 
 var ADG_limit = null;
 var ADG_memberList =  null;
-var ADG_memberListSelectorNew =  'div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
+var ADG_memberListSelectorNew =  'div.x1oo3vh0.x1rdy4ex div[data-visualcompletion="ignore-dynamic"]:not(.adf-processed)';
 var ADG_limitExceeded = false;
 var ADG_add_friend_processingStatus = false;
 var ADG_add_friend_processing = true;
@@ -182,10 +182,10 @@ async function startAction(history = 0) {
     if (!active_status) {
         return;
     }
-    ADG_limit = $('h2.gmql0nx0.l94mrbxd span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7:contains(Members):eq(0)').text().replace(/[^\d]/g, '');
+    ADG_limit = $('h2.x1heor9g.x1qlqyl8.x1pd3egz.x1a2a7pz.x193iq5w.xeuugli:contains(Members):eq(0)').text().replace(/[^\d]/g, '');
 	$('.total-friends').text(ADG_limit);
 	$('#text h2').text("Total Members");
-	ADF_loadedMembers = $('div.obtkqiv7 div[data-visualcompletion="ignore-dynamic"]').length;
+	ADF_loadedMembers = $('div.x1oo3vh0.x1rdy4ex div[data-visualcompletion="ignore-dynamic"]').length;
 	if(ADF_loadedMembers > history){
 		
 		var outerTimeOut = setTimeout(function(){		
@@ -195,7 +195,7 @@ async function startAction(history = 0) {
 					timeOutIds = setTimeout(()=>{
 						if (ADG_add_friend_totalSend <= ADG_limit-1 && ADG_add_friend_processing && !ADF_add_friend_stopProcess) {
 							$(this).addClass('adf-processed');
-							let name=$(this).find('.qzhwtbm6.knvmm38d:eq(0) a:eq(0)').text();
+							let name=$(this).find('.xt0psk2 a').text();
 							$('.member-name').text('Adding member '+name).css('text-align','center');
 							let memberIdTemp = extractProfileId($(this).find('a:eq(0)').attr('href'))
 							$(this).attr('data-adf-numeric-fb-id',memberIdTemp);
