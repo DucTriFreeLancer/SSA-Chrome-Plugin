@@ -14,9 +14,9 @@ const parseElement = {
         'HBSendMsgBtn': 'button[type="submit"]'
     },
     'New': {
-        'HBBLockPage': '.p8bdhjjv>div.alzwoclg.om3e55n1.mfclru0v>div>div.g4qalytl.ez8dtbzv>div>div>div.eyufkmuh.obdt02g8:eq(0)>h2>span:contains("Today")',
-        'HBBlockPopup': '.p8bdhjjv>div.alzwoclg.om3e55n1.mfclru0v>div>div.g4qalytl.ez8dtbzv:eq(0)>div.gt60zsk1.rl78xhln.r227ecj6.srn514ro.i1n1lj7b',
-        'HBCards': 'div>div.alzwoclg.s1m0hq7j.oxkhqvkx.r5g9zsuq.nch0832m',
+        'HBBLockPage': '.x1yztbdb>div.x78zum5.x1n2onr6.xh8yej3>div>div.xyamay9.x1l90r2v>div>div.x78zum5.xdt5ytf.x4cne27.xifccgj>div.xzueoph.x1k70j0n:eq(0)>h2>span:contains("Today")',
+        'HBBlockPopup': '.x1yztbdb>div.x78zum5.x1n2onr6.xh8yej3>div>div.xyamay9.x1l90r2v>div.x1swvt13.x18d9i69.x1pi30zi.xexx8yu.x1oo3vh0:eq(0)',
+        'HBCards': 'div>div.x78zum5.xz9dl7a.x4uap5.xwib8y2.xkhd6sd>div.xeuugli.xs83m0k.x1iyjqo2.x1r8uery.xamitd3',
         'HBPlaceOfMessage': 'form>div>div>div>div[role="textbox"]',
         'HBSendMsgBtn': 'input[type="submit"]'
     }
