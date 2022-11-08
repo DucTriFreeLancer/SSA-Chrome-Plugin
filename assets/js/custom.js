@@ -368,6 +368,42 @@ function showGroupDetail() {
 		}
 	});
 }
+/* Message Tab */
+function showGroupMessage() {
+	chrome.storage.local.get(["ssa_user","ssa_group"], function(result) {
+		if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+			$.ajax({
+				type:"POST",
+				url: apiBaseUrl +"/groupgrowth/groupdata",
+				data: {userId:result.ssa_user.id,groupId:result.ssa_group[0].id},
+				dataType:"json",
+				beforeSend:function(xhr){
+					xhr.setRequestHeader('unique-hash', uniqueHash);
+				}
+			}).done(function(response) {
+				if(response.status == 401){
+					triggerLogout();
+					return false;
+				}else if (response.status == 404) {
+				} else if (response.status == 200 || response.result == 'success') {			
+					$("#message_group #message_1").val(response.groupdata.msg_message1)
+					$("#message_group #message_2").val(response.groupdata.msg_message2)
+					$("#message_group #message_3").val(response.groupdata.msg_message3)
+					const d = new Date();
+					let month = d.getMonth();
+					let year = d.getFullYear();
+					$("#message_group #message_type").val(response.groupdata.fb_account_name +" "+month+" "+year)
+				
+					$("#message_group #waiting_message1").val(response.groupdata.waiting_message1)
+					$("#message_group #waiting_message2").val(response.groupdata.waiting_message2)
+					$("#message_group #waiting_message3").val(response.groupdata.waiting_message3)
+					$("#message_group #waiting_message_type").val(response.groupdata.fb_account_name +"WAITING "+month+" "+year)
+				
+				}
+			});
+		}
+	});
+}
 /* Status Tagged */
 function showstatusTagged() {
 	chrome.storage.local.get(["ssa_user","ssa_group"], function(result) {
@@ -3858,6 +3894,9 @@ $(document).ready(function(){
 		else if(target == '#main') {
 			showGroupDetail();
 	  	} 
+		else if(target == '#message_group') {
+			showGroupMessage();
+	  	} 
 		else if(target == '#tag_users') {
 			showstatusTagged();
 	  	} 
@@ -4640,6 +4679,78 @@ $(document).ready(function(){
 				});
 			}
 		})
+	});
+	$('#message_group #send_existing_member_to_pipeline').on('click',function(){
+		chrome.storage.local.get(["ssa_user","fb_id"], function(result) {
+			if( typeof result.fb_id != "undefined" && result.fb_id != "" && typeof result.ssa_user != "undefined" && result.ssa_user != ""  ){
+				const groupData={
+					userId: result.ssa_user.id,
+					groupId: $("#editGroupSettingModal #group_id").val(),
+				};
+				
+				$.ajax({
+					type: "POST",
+					url: apiBaseUrl + "/groupgrowth/sendgroupmemberstopipeline",
+					data: groupData,
+					dataType: 'json',
+					beforeSend: function (xhr) {
+							xhr.setRequestHeader('unique-hash', uniqueHash);
+					}
+				}).done(function(response) {
+					if(response.status == 401){
+						triggerLogout();
+						return false;
+					}else if (response.status == 200 || response.result == 'success') {
+						toastr["success"]("Add existing members successfully.");	
+						verifyUser();							
+					}
+				});
+			}
+		})
+	});
+	$("#message_group #send_waiting_member_to_pipeline").click(function(){
+		chrome.storage.local.get(["ssa_group"], function(result) {
+			if (typeof result.ssa_group != "undefined" && result.ssa_group != "") {
+				let post_url = groupTabUrl.href;
+				if(post_url){
+					if ( post_url.indexOf('facebook.com/groups/')>-1 && post_url.indexOf('/member-requests')>-1 ) {
+						let lets_taguser ='joined_fb_recently=false&membership_questions=not_answered_questions&previously_removed_members=false&saved_filter=&suggested=false';					       
+						if(post_url.indexOf('?') > -1) {            
+							post_url = post_url+`&${lets_taguser}`;
+						}else{
+							post_url = post_url+ `?${lets_taguser}`;
+						}
+		
+						chrome.tabs.create({url: post_url}, function (tab) {
+							chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab2) {
+									if (changeInfo.status === 'complete' && tabId === tab.id) {
+										chrome.tabs.executeScript(tab.id, {file: "assets/js/afg_content_script.js"},
+											function(result) {
+												// Process |result| here (or maybe do nothing at all).
+												chrome.tabs.onUpdated.removeListener((a,b)=>{
+													//console.log('mana',a,b)
+												});
+											}
+										);
+									}
+								});
+							// executeScripts(tab.id, [
+							//     {file: "js/comments_script.js"},
+							// ])
+						})
+					}
+					else{
+						toastr["error"]["Invalid post url!"];
+						return;
+					}
+					
+				}
+				else
+				{
+					toastr["error"]["Please link group before start this action"];
+				}
+			}
+		});
 	});
 });
 
