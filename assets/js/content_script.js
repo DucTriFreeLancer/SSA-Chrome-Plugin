@@ -2,9 +2,24 @@
 
 var port = chrome.runtime.connect({'name': 'formfiller'})
 port.postMessage({'type': 'get-form-data'});
+if((window.location.href.indexOf('facebook.com') > -1 && window.location.href.indexOf('m.facebook.com') == -1)||window.location.href.indexOf('messenger.com') > -1 || window.location.href.indexOf('/allactivity/') > -1 || window.location.href.indexOf('/groups/') > -1){
+	chrome.runtime.sendMessage({setFbIdForAll: "setFbIdForAll"});
+}
 
-chrome.runtime.sendMessage({setFbIdForAll: "setFbIdForAll"});
+function getMessengersContactsListSelector() {	
+	selector_latest = 'div[aria-label="Chats"][role="grid"] div[role="row"]';
+	var selector_clist_old = 'div[data-testid="mwthreadlist-item"]';
+	var selector_clist011122 = 'div[aria-label="Chat"][role="grid"] div[role="row"]';
 
+	if($(selector_clist_old).length > 0 ) {
+	    selector_latest = selector_clist_old
+	} 
+	
+	if ($(selector_clist011122).length > 0 ) {
+	    selector_latest = selector_clist011122
+	}
+	return selector_latest;
+}
 var processing = false;
 var currentLoggedInFBId = '';
 
@@ -638,8 +653,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			}
 		}, 1000);
 		var findULText = setInterval(function(){
-
-			if($("div[data-testid='mwthreadlist-item']").length > 0){
+			selector_parent_of_contacts_list = getMessengersContactsListSelector();
+			if($(selector_parent_of_contacts_list).length > 0){
 				clearInterval(findULText);			
 				integrateSSAFeatureWM();							
 				var li_fb_user_id = getFbIdFromLocation();
@@ -1446,8 +1461,15 @@ $(function(){
 					if(oneMesseangerUser.find('img.a8c37x1j.d2edcug0.sn7ne77z.bixrwtb6').length > 0){
 						profilePic = oneMesseangerUser.find('img.a8c37x1j.d2edcug0.sn7ne77z.bixrwtb6').attr('src');
 					}
-					fbName = $.trim(oneMesseangerUser.find('.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text());
-	
+					else if(oneMesseangerUser.find('img.x1lliihq.x193iq5w.x1us19tq.xl1xv1r').length > 0){
+						profilePic = oneMesseangerUser.find('img.x1lliihq.x193iq5w.x1us19tq.xl1xv1r').attr('src');
+					}
+					if(oneMesseangerUser.find('.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5').length > 0){
+						fbName = $.trim(oneMesseangerUser.find('.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text());
+					}
+					else if(oneMesseangerUser.find('.x1lliihq.x193iq5w.x6ikm8r.xlyipyv.xuxw1ft').length > 0){
+						fbName = $.trim(oneMesseangerUser.find('.x1lliihq.x193iq5w.x6ikm8r.xlyipyv.xuxw1ft:eq(0)').text());
+					}
 					fbName = fbName.replace("'", " ");
 					
 					tempUser.profilePic = profilePic
@@ -1591,8 +1613,9 @@ $(function(){
 	   }else{
 		   selectAllCheck = false;
 	   }
+	   selector_parent_of_contacts_list = getMessengersContactsListSelector();
 	   if ($('.select-multi-user-messenger:checkbox:checked').length <= 9) {
-		   $('div[data-testid="mwthreadlist-item"]').each(function(index){
+		   $(selector_parent_of_contacts_list).each(function(index){
 				if ($('.select-multi-user-messenger:checkbox:checked').length <= 9 ) {
 					$(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
 				}
@@ -1600,7 +1623,7 @@ $(function(){
 		   });
 	   }
 	   else{
-		   $('div[data-testid="mwthreadlist-item"]').each(function(index){
+		   $(selector_parent_of_contacts_list).each(function(index){
 				$(this).find('.select-multi-user-messenger').prop('checked',selectAllCheck);
 		   });
 	   }
@@ -1705,8 +1728,8 @@ function addCheckBoxMessenger() {
 
 			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
 					if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0 && result.isCurrentFBLinked) { 
-
-						$('div[data-testid="mwthreadlist-item"]').each(function(index) {
+						selector_parent_of_contacts_list = getMessengersContactsListSelector();
+						$(selector_parent_of_contacts_list).each(function(index) {
 							if ($(this).find('.add-tag-from-messenger').length == 0 && window.location.origin.indexOf('messenger') >-1) {
 								$(this).prepend(mCHeckBoxHtml); 
 							}
@@ -1716,7 +1739,7 @@ function addCheckBoxMessenger() {
 						});
 
 
-						if( window.location.origin.indexOf('messenger') >-1 && $('div[data-testid="mwthreadlist-item"]').length > 0 ){
+						if( window.location.origin.indexOf('messenger') >-1 && $(selector_parent_of_contacts_list).length > 0 ){
 							var showTagBtnGroupMessenger = '<span class="assign-tag-btn-select-all-messenger validlogin"><input class="select-all-friends-members" type="checkbox"><span class="checkmark"></span><span class="total-selected-messenger-member"></span></span><span class="assign-tag-btn-messenger validlogin">Tag All</span>';
 					
 							if(!$('.assign-tag-btn-select-all-messenger').length)
@@ -1740,8 +1763,8 @@ function addCheckBoxMessenger() {
 function integrateSSAFeatureWM(){
 	
 	setInterval(function(){
-		
-		if($('div[data-testid="mwthreadlist-item"]:not(".cts-message-list-item-processed")').length > 0 &&  !processing && window.location.origin.indexOf('messenger') > -1 ){				
+		selector_parent_of_contacts_list = getMessengersContactsListSelector();
+		if($(selector_parent_of_contacts_list +':not(".cts-message-list-item-processed")').length > 0 &&  !processing && window.location.origin.indexOf('messenger') > -1 ){				
 			chrome.storage.local.get(["ssa_user","tags", "taggedUsers","isCurrentFBLinked"], function(result) {
 			
 				if (typeof result.ssa_user != "undefined" && result.ssa_user != "" && result.ssa_user.id > 0) { 
@@ -1752,7 +1775,7 @@ function integrateSSAFeatureWM(){
 					
 				
 					/********** Create Tags Drop Down for each chat thread ********/
-					$('div[data-testid="mwthreadlist-item"]').each(function(index) {
+					$(selector_parent_of_contacts_list).each(function(index) {
 						$(this).addClass('cts-message-list-item')
 						$(this).addClass('cts-message-list-item-processed')
 						
@@ -1805,7 +1828,8 @@ function integrateSSAFeatureWM(){
 
 function tagUsersWM(taggedUsers,tags){
 	if (window.location.origin.indexOf('messenger') > -1) {
-		$('div[data-testid="mwthreadlist-item"]').each(function() {
+		selector_parent_of_contacts_list = getMessengersContactsListSelector();
+		$(selector_parent_of_contacts_list).each(function() {
 			var li_fb_user_id = $(this).attr('fb_user_id');
 			if ($(this).hasClass('cts-message-thread-id-1')) {
 				li_fb_user_id = $(this).attr('numeric_fb_id');
