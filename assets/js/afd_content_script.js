@@ -193,10 +193,13 @@ function AFD_processGroupMembersForNew(history = 0) {
 
 								if (validDescription) {
 									btnText = $(this).find('div[aria-label="Add Friend"]:contains("Add Friend")');
+									if(btnText.length == 0){
+										btnText = $(this).find('div[aria-label="Add friend"]:contains("Add friend")');
+									}
 									if(btnText.length == 1){
 										$('.member-name').text('Sending to '+ $(this).find('.xt0psk2 a').text()).css('text-align','center');
 										if (ADF_addfriendClick) {
-											$(this).find('div[aria-label="Add Friend"]:contains("Add Friend")').mclick();
+											$(btnText).mclick();
 										}
 										var memberIdTemp = extractProfileId($(this).find('a:eq(0)').attr('href'))
 										$(this).attr('data-adf-numeric-fb-id',memberIdTemp);
