@@ -1491,9 +1491,26 @@ $(function(){
 		}
 	});
 	$(document).on('click','.unfriend-user-messenger',function(){
+		var fbName = $(this).closest('.cts-message-list-item').find('qzhwtbm6.knvmm38d:eq(0) span').eq(0).text();
+		if (fbName.indexOf(' · ') > -1) {
+			fbName = fbName.split(' · ')[0]; 
+		}else{
+			fbName = $.trim($(this).closest('.cts-message-list-item').find('.qzhwtbm6.knvmm38d:eq(0) span:last').text());
+		}
+		if(fbName == ''){
+			fbName = $.trim($(this).closest('.cts-message-list-item').find('.qzhwtbm6.knvmm38d span:eq(0)').text());					
+		}
+
+		if(fbName == ''){
+			fbName = $.trim($(this).closest('.rightlistProcess').find('a').text());		
+
+		}
 		
-		var fbName = $(this).closest('.cts-message-list-item').find('span.a8c37x1j.ni8dbmo4.stjgntxs.l9j0dhe7.ltmttdrg.g0qnabr5:eq(0)').text();
-		var cliked_Fb_Id=$(this).closest('div[data-testid="mwthreadlist-item"]').attr('fb_user_id');
+		if(fbName == ''){
+			fbName = $.trim($(this).closest('.cts-message-list-item').find('span:eq(1)').text());
+			//fbName = $.trim($(this).parent().parent().find('a[aria-current="page"]').text());
+		}
+		var cliked_Fb_Id= $(this).closest('.cts-message-list-item').attr('fb_user_id');
 		if(cliked_Fb_Id != undefined){
 			let confirmAction = confirm(`Are you sure you want to block ${fbName}?\n\nCaution: If you're friends, blocking ${fbName} will also unfriend him(her).\nPress CANCEL if you just want to unfriend`);
 			if (confirmAction) {
